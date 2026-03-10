@@ -1,0 +1,31 @@
+# Entornos virtuales locales
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Archivos de configuración locales / secretos
+*.env
+*.sqlite3
+*.log
+*.pot
+*.pyc
+
+# Git
+.git
+.gitignore
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Carpeta de migraciones compiladas si quieres reconstruirlas
+*/migrations/*.pyc
+
+# Archivos temporales de editores
+*.swp
+*.swo
+.idea/
+.vscode/
