@@ -1,2 +1,4 @@
 *.idea
 *.venv
+api/data/.venv
+api/data/__pycache__
