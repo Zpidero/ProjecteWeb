@@ -3,10 +3,10 @@ services:
     build:
       context: ./DjangoProject1
       dockerfile: Dockerfile
-    command: /app/.venv/bin/python manage.py runserver 0.0.0.0:8000
-    
+      
     ports:
       - "8000:8000"
+    command: sh -c "echo 'Django running on http://0.0.0.0:8000'" #simplement per mostrar la url de Django al iniciar el contenedor si algo falla podem borrar
 
   api:
     build:
