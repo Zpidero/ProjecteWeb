@@ -1,25 +1,17 @@
-version: "3.9"
-
 services:
   django:
     build:
       context: ./DjangoProject1
       dockerfile: Dockerfile
-    command: python manage.py runserver 0.0.0.0:8000
-    volumes:
-      - ./DjangoProject1:/app
+    command: /app/.venv/bin/python manage.py runserver 0.0.0.0:8000
+    
     ports:
       - "8000:8000"
-    depends_on:
-      - api
-    environment:
-      - API_URL=http://api:8000  # nombre del servicio de la API
 
   api:
     build:
       context: ./api
       dockerfile: Dockerfile
-    volumes:
-      - ./api:/app
+
     ports:
       - "5000:5000"
