@@ -1,25 +1,18 @@
-version: "3.9"
-
 services:
   django:
     build:
       context: ./DjangoProject1
       dockerfile: Dockerfile
-    command: python manage.py runserver 0.0.0.0:8000
-    volumes:
-      - ./DjangoProject1:/app
+      
     ports:
       - "8000:8000"
-    depends_on:
-      - api
-    environment:
-      - API_URL=http://api:8000  # nombre del servicio de la API
+    command: sh -c "sh /app/banners/djangobanner.sh && uv run python manage.py runserver 0.0.0.0:8000" #simplement per mostrar la url de Django al iniciar el contenedor si algo falla podem borrar
 
   api:
     build:
       context: ./api
       dockerfile: Dockerfile
-    volumes:
-      - ./api:/app
+
     ports:
       - "5000:5000"
+    command: sh -c "sh /app/banners/apibanner.sh && uv run uvicorn main:app --host 0.0.0.0 --port 5000" # decoració per mostrar la url de l'API al iniciar el contenedor si algo falla podem borrar
