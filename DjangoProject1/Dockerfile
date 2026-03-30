@@ -15,8 +15,6 @@ RUN uv sync --no-install-project --frozen
 
 COPY . .
 
-RUN tailwindcss -i ./static/css/input.css -o ./static/css/output.css --minify
-
 EXPOSE 8080
 
 CMD ["uv", "run", "manage.py", "runserver", "0.0.0.0:8080"]
