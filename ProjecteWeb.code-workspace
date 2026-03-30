@@ -3,5 +3,11 @@
     { "path": "." },
     { "path": "api" },
     { "path": "DjangoProject1" }
-  ]
+  ],
+  "settings": {
+    "files.exclude": {
+      "api": true,
+      "DjangoProject1": true
+    }
+  }
 }

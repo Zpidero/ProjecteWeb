@@ -3,8 +3,14 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
       <excludeFolder url="file://$MODULE_DIR$/.venv" />
+      <excludeFolder url="file://$MODULE_DIR$/DjangoProject1/.venv" />
+      <excludeFolder url="file://$MODULE_DIR$/api/.venv" />
     </content>
-    <orderEntry type="jdk" jdkName="uv (ProjecteWeb) (3)" jdkType="Python SDK" />
+<<<<<<< HEAD
+    <orderEntry type="jdk" jdkName="Python 3.14 (ProjecteWeb)" jdkType="Python SDK" />
+=======
+    <orderEntry type="jdk" jdkName="API-Interpreter" jdkType="Python SDK" />
+>>>>>>> 0870d40db7be7f625861449ff8b2459c25d27991
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>
