@@ -3,5 +3,9 @@
   <component name="Black">
     <option name="sdkName" value="uv (ProjecteWeb) (3)" />
   </component>
+<<<<<<< HEAD
   <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.14 (ProjecteWeb)" project-jdk-type="Python SDK" />
+=======
+  <component name="ProjectRootManager" version="2" project-jdk-name="API-Interpreter" project-jdk-type="Python SDK" />
+>>>>>>> 0870d40db7be7f625861449ff8b2459c25d27991
 </project>
