@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+{% block Title %}Game{% endblock %}
+
+{% block body %}
+<div class="flex flex-col-reverse items-center justify-center min-h-screen gap-6 p-4 bg-gray-800 overflow-hidden">
+
+    <!-- For the moment only 4-3-3 -->
+    <div id="attackers" class="flex flex-wrap gap-4 justify-center w-full">
+        <button class="player-card" data-position="Forward">A1</button>
+        <button class="player-card" data-position="Forward">A2</button>
+        <button class="player-card" data-position="Forward">A3</button>
+    </div>
+
+    <div id="midfielders" class="flex flex-wrap gap-4 justify-center w-full">
+        <button class="player-card" data-position="Midfielder">M1</button>
+        <button class="player-card" data-position="Midfielder">M2</button>
+        <button class="player-card" data-position="Midfielder">M3</button>
+    </div>
+
+    <div id="defenders" class="flex flex-wrap gap-4 justify-center w-full">
+        <button class="player-card" data-position="Defender">D1</button>
+        <button class="player-card" data-position="Defender">D2</button>
+        <button class="player-card" data-position="Defender">D3</button>
+        <button class="player-card" data-position="Defender">D4</button>
+    </div>
+
+    <div id="goalkeeper" class="flex justify-center w-full">
+        <button class="player-card" data-position="Goalkeeper">GK</button>
+    </div>
+
+</div>
+
+<div id="overlay" class="fixed inset-0 bg-black/50 hidden z-50 flex items-start justify-center pt-20 overflow-auto">
+    <div class="bg-gray-900 rounded-xl p-8 flex flex-col items-center max-w-7xl w-full">
+        <h2 class="text-4xl font-bold mb-6 text-white">Choose a player</h2>
+        <div id="players-container" class="flex flex-wrap gap-6 justify-center"></div>
+        <button id="close-overlay" class="mt-6 px-6 py-3 bg-red-600 rounded hover:bg-red-700 text-white font-bold text-lg">
+            Close
+        </button>
+    </div>
+</div>
+
+<style>
+.player-card {
+    width: clamp(100px, 12vw, 150px);
+    height: clamp(160px, 20vw, 220px);
+    background-color: #C9A66B;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: clamp(0.9rem, 2vw, 1.2rem);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.player-card:hover {
+    transform: scale(1.1);
+}
+
+.select-player {
+    width: clamp(150px, 18vw, 220px);
+    height: clamp(200px, 24vw, 280px);
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.select-player:hover {
+    transform: scale(1.05);
+}
+</style>
+
+<script>
+let selectedButton = null;
+document.querySelectorAll('.player-card').forEach(btn => {
+    btn.addEventListener('click', function() {
+        selectedButton = btn;
+        document.getElementById('overlay').classList.remove('hidden');
+
+        // Take 5 random players
+        fetch('/random-players/')
+            .then(res => res.json())
+            .then(players => {
+                const container = document.getElementById('players-container');
+                container.innerHTML = '';
+                players.forEach(player => {
+                    container.innerHTML += `
+                        <button class="select-player text-black w-48 h-64 hover:scale-110 transition">
+                            <svg viewBox="0 0 300 420" class="w-full h-full">
+                                <path d="M40 20 Q20 40 20 80 L20 300 Q20 340 60 360 L150 410 L240 360 Q280 340 280 300 L280 80 Q280 40 260 20 Q220 0 150 0 Q80 0 40 20 Z" stroke="black" stroke-width="3" fill="#C9A66B"/>
+                                <foreignObject x="50" y="230" width="200" height="60">
+                                    <div xmlns="http://www.w3.org/1999/xhtml"
+                                         class="text-center font-extrabold text-2xl leading-tight break-words">
+                                        ${player.Name}
+                                    </div>
+                                </foreignObject>
+                                <text x="50" y="70" class="font-mono font-extrabold text-3xl">
+                                    ${player.Total}
+                                </text>
+                                <text x="50" y="120" class="font-bold text-xl">
+                                    ${player.Position}
+                                </text>
+                                <image href="${player.Image}" x="90" y="40" width="160" height="160" preserveAspectRatio="xMidYMid slice"/>
+                            </svg>
+                        </button>
+                    `;
+                });
+            });
+    });
+});
+
+document.getElementById('close-overlay').addEventListener('click', function() {
+    document.getElementById('overlay').classList.add('hidden');
+});
+
+document.addEventListener('click', function(e) {
+    if(e.target.closest('.select-player') && selectedButton) {
+        const playerBtn = e.target.closest('.select-player');
+        selectedButton.innerHTML = playerBtn.innerHTML;
+        selectedButton.style.background = "transparent";
+        document.getElementById('overlay').classList.add('hidden');
+    }
+});
+</script>
+{% endblock %}
