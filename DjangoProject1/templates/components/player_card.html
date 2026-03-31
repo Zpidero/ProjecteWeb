@@ -1,0 +1,22 @@
+<button class="text-wrap hover:scale-110 transition">
+  <svg viewBox="0 0 300 420" width="300" height="420">
+      <path d="M40 20 Q20 40 20 80 L20 300 Q20 340 60 360 L150 410 L240 360 Q280 340 280 300 L280 80 Q280 40 260 20 Q220 0 150 0 Q80 0 40 20 Z" stroke="black" stroke-width="4" fill="silver"/>
+      <foreignObject x="50" y="230" width="200" height="60">
+        <div xmlns="http://www.w3.org/1999/xhtml"
+         style="text-align:center; font-weight:bold; font-size: clamp(12px, 4vw, 24px); word-wrap:break-word; line-height:1.2;">
+        {{ player_name }}
+        </div>
+      </foreignObject>
+      <text class="text-4xl font-extrabold" x="50" y="70">
+        {{ average }} 99
+      </text>
+      <text class="font-extrabold text-3xl" x="50" y="120">
+          {{ position }}
+      </text>
+      <image href="{{ flag }}" x="50" y="175" width="40" height="30"/>
+      <image href="{{ player_img }}" x="30" y="30" width="300" height="175"/>
+      <text class="font-extrabold  text-2xl" x="90" y="310">
+          si
+      </text>
+</svg>
+</button>

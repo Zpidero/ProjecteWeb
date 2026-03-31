@@ -8,9 +8,10 @@ services:
 
     ports:
       - "8000:8000"
-    command: sh -c "sh /app/banners/djangobanner.sh && uv run python manage.py runserver 0.0.0.0:8000" #simplement per mostrar la url de Django al iniciar el contenedor si algo falla podem borrar
+    command: sh -c "sh /app/banners/djangobanner.sh && sh /app/start.sh"
     volumes:
-       - ./DjangoProject1/db.sqlite3:/app/db.sqlite3 #desenvolupament 
+      - ./DjangoProject1/db.sqlite3:/app/db.sqlite3
+      - ./DjangoProject1:/app
     #   - webdata:/app/db #producció naim diu k esta perfe
   api:
     build:

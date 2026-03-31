@@ -2,10 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
-    <link rel="stylesheet" href="/static/css/output.css">
+    <title>{% block Title %}{% endblock %}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body class="bg-red-700">
-    <h1 class="bg-yellow-400 font-mono">dasdasdmajns Naim</h1>
+<body class="bg-gray-900">
+<header class="h-64 bg-cover bg-center relative"
+  style="background-image: url(https://media.vandal.net/i/1280x720/10-2023/17/20231017163114_3.jpg);">
+  <div class="absolute inset-0 backdrop-blur-[2px] bg-gradient-to-t from-gray-900 via-gray-900/20 to-transparent"></div>
+  <div class="relative z-10 flex items-center justify-center h-full text-white">
+    <h1 class="text-7xl font-extrabold text-gray-400 px-6 py-3 rounded-lg bg-gradient-to-t from-gray-900/70 via-gray-900/40 to-transparent ">
+        INAZUMA-DRAFT
+    </h1>
+  </div>
+</header>
+{% block body %}
+{% endblock %}
 </body>
 </html>
