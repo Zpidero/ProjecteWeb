@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block Title %}Home{% endblock %}
 {% block body %}
-<a class="flex items-center justify-center py-4">
+<a id="startButton" class="flex items-center justify-center py-4">
     {% include 'components/button.html' with text="START" %}
 </a>
 <div id="overlay" class="fixed inset-0 bg-black/50 hidden z-50 flex items-start justify-center pt-20">
