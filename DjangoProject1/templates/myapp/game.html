@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% block Title %}Game{% endblock %}
 
 {% block body %}
@@ -100,9 +101,11 @@ document.addEventListener('DOMContentLoaded', function() {
                                         ${player.Name}
                                     </div>
                                 </foreignObject>
-                                <text x="50" y="70" class="font-mono font-extrabold text-3xl">${player.Total}</text>
-                                <text x="50" y="120" class="font-bold text-xl">${player.Position}</text>
-                                <image href="${player.Image}" x="90" y="40" width="160" height="160" preserveAspectRatio="xMidYMid slice"/>
+                                <text x="40" y="60" class="font-mono font-extrabold text-4xl">${player.Total}</text>
+                                <text x="40" y="90" class="font-extrabold text-2xl">${player.Position}</text>
+                                <image x="100" y="50" width="160" height="160" href="${player.Image}" preserveAspectRatio="xMidYMid slice"/>
+                                <image x="40" y="160" width="60" height="60" href="/static/images/elements/${player.Element}.png"/>
+                                <image x="30" y="80" width="70" height="100" href="/static/images/teams/${player.Team}.png"/>
                             </svg>
                         </button>
                     `;
