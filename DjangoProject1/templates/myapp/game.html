@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <svg viewBox="0 0 300 420" class="w-full h-full">
                                 <path d="M40 20 Q20 40 20 80 L20 300 Q20 340 60 360 L150 410 L240 360 Q280 340 280 300 L280 80 Q280 40 260 20 Q220 0 150 0 Q80 0 40 20 Z"
                                       stroke="black" stroke-width="3" fill="#C9A66B"/>
-                                <foreignObject x="50" y="230" width="200" height="60">
+                                <foreignObject x="50" y="220" width="200" height="60">
                                     <div xmlns="http://www.w3.org/1999/xhtml"
                                          class="text-center font-extrabold text-2xl leading-tight break-words">
                                         ${player.Name}
@@ -103,6 +103,13 @@ document.addEventListener('DOMContentLoaded', function() {
                                 </foreignObject>
                                 <text x="40" y="60" class="font-mono font-extrabold text-4xl">${player.Total}</text>
                                 <text x="40" y="90" class="font-extrabold text-2xl">${player.Position}</text>
+                                <text x="50" y="280" class="font-bold text-xl">POW ${player.Power}</text>
+                                <text x="50" y="310" class="font-bold text-xl">CON ${player.Control}</text>
+                                <text x="50" y="340" class="font-bold text-xl">TEC ${player.Technique}</text>
+                                <text x="160" y="280" class="font-bold text-xl">PRE ${player.Pressure}</text>
+                                <text x="160" y="310" class="font-bold text-xl">PHY ${player.Physical}</text>
+                                <text x="160" y="340" class="font-bold text-xl">AGI ${player.Agility}</text>
+                                <text x="110" y="370" class="font-bold text-xl">INT ${player.Intelligence}</text>
                                 <image x="100" y="50" width="160" height="160" href="${player.Image}" preserveAspectRatio="xMidYMid slice"/>
                                 <image x="40" y="160" width="60" height="60" href="/static/images/elements/${player.Element}.png"/>
                                 <image x="30" y="80" width="70" height="100" href="/static/images/teams/${player.Team}.png"/>
