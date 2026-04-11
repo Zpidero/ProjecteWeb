@@ -3,19 +3,19 @@ from django.db import models
 # Create your models here.
 
 class Teams(models.Model):
-    image = models.CharField()
+    image = models.URLField()
     name = models.CharField(max_length=200)
 
 class Lineup(models.Model):
     name = models.CharField(max_length=200)
-    imatge = models.CharField()
+    image = models.URLField()
     forwards = models.IntegerField()
     midfielders = models.IntegerField()
     defenders = models.IntegerField()
     goalKeeper = models.IntegerField()
 
 class Players(models.Model):
-    image = models.CharField()
+    image = models.URLField()
     name = models.CharField(max_length=200)
     nickname = models.CharField(max_length=200)
     game = models.CharField(max_length=200)
@@ -36,12 +36,12 @@ class Players(models.Model):
 class AppUser(models.Model):
     name = models.CharField(max_length=200)
     mail = models.CharField(max_length=200)
-    creation_date = models.CharField(max_length=200)\
+    creation_date = models.DateTimeField(auto_now_add=True)
 
 class Futdraft(models.Model):
     name = models.CharField(max_length=200)
     user = models.ForeignKey(AppUser, on_delete=models.CASCADE)
-    date = models.CharField(max_length=200)
+    date = models.DateTimeField(auto_now_add=True)
 
     players = models.ManyToManyField(Players, related_name= "draft_players")
     lineup = models.ForeignKey(Lineup, on_delete=models.CASCADE)
