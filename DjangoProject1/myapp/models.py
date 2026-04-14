@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # Create your models here.
 
@@ -28,19 +29,23 @@ class Players(models.Model):
     technique = models.IntegerField()
     physical = models.IntegerField()
     agility = models.IntegerField()
+    intelligence = models.IntegerField(default=0)
+    total = models.IntegerField()
     age_Group = models.CharField(max_length=200)
-    school_Year = models.IntegerField()
-    gender = models.IntegerField()
-    #role = models.IntegerField()
+    school_Year = models.CharField(max_length=200)
+    gender = models.CharField(max_length=200)
+    role = models.CharField(max_length=200)
 
-class AppUser(models.Model):
-    name = models.CharField(max_length=200)
-    mail = models.CharField(max_length=200)
-    creation_date = models.DateTimeField(auto_now_add=True)
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    image = models.ImageField(default='default.jpg', upload_to='profile_pics')
+
+    def __str__(self):
+        return f'{self.user.username} Profile'
 
 class Futdraft(models.Model):
     name = models.CharField(max_length=200)
-    user = models.ForeignKey(AppUser, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
 
     players = models.ManyToManyField(Players, related_name= "draft_players")

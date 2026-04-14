@@ -1,11 +1,14 @@
-<h1>Register</h1>
-
-{{ error }}
-
-<form method="POST">
-    {% csrf_token %}
-    {{form.as_p}}
-    <button>
-        Register
-    </button>
-</form>
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Register</title>
+</head>
+<body>
+    <h2>Create an Account</h2>
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ register_form.as_p }}
+        <button type="submit">Register</button>
+    </form>
+</body>
+</html>
