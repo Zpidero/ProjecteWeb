@@ -1,15 +1,95 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Login</title>
-</head>
-<body>
-    <h2>Login</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ login_form.as_p }}
-        <button type="submit">Login</button>
-    </form>
-    <p>Don't have an account? <a href="{% url 'register' %}">Register here</a></p>
-</body>
-</html>
+{% extends "base.html" %}
+{% block Title %}Login — Inazuma Draft{% endblock %}
+
+{% block body %}
+<div class="min-h-screen flex items-center justify-center px-4 py-16 -mt-8">
+  <div class="w-full max-w-md">
+
+    <!-- Card -->
+    <div class="relative bg-gray-800/60 backdrop-blur border border-gray-700/50 rounded-2xl overflow-hidden shadow-2xl">
+
+      <!-- Top accent bar -->
+      <div class="h-1 w-full bg-gradient-to-r from-blue-500 via-cyan-400 to-blue-600"></div>
+
+      <div class="px-8 py-10">
+
+        <!-- Icon + title -->
+        <div class="flex flex-col items-center mb-8">
+          <div class="w-14 h-14 rounded-full bg-blue-500/20 border border-blue-400/30 flex items-center justify-center mb-4">
+            <svg class="w-7 h-7 text-blue-400" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"/>
+            </svg>
+          </div>
+          <h2 class="text-2xl font-bold text-white tracking-wide">Benvingut de nou</h2>
+          <p class="text-gray-400 text-sm mt-1">Inicia sessió al teu compte</p>
+        </div>
+
+        <!-- Errors -->
+        {% if login_form.errors %}
+        <div class="mb-5 flex items-start gap-3 bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-xl px-4 py-3">
+          <svg class="w-4 h-4 mt-0.5 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-8-5a.75.75 0 01.75.75v4.5a.75.75 0 01-1.5 0v-4.5A.75.75 0 0110 5zm0 10a1 1 0 100-2 1 1 0 000 2z" clip-rule="evenodd"/>
+          </svg>
+          <span>{{ login_form.non_field_errors }}</span>
+        </div>
+        {% endif %}
+
+        <!-- Messages -->
+        {% for message in messages %}
+        <div class="mb-5 bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-xl px-4 py-3">
+          {{ message }}
+        </div>
+        {% endfor %}
+
+        <!-- Form -->
+        <form method="post" class="space-y-5">
+          {% csrf_token %}
+
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">Usuari</label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0"/>
+                </svg>
+              </div>
+              <input type="text" name="username" required autocomplete="username"
+                class="w-full bg-gray-900/70 border border-gray-700 text-white placeholder-gray-500 rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition"
+                placeholder="El teu usuari">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-300 mb-2">Contrasenya</label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
+                </svg>
+              </div>
+              <input type="password" name="password" required autocomplete="current-password"
+                class="w-full bg-gray-900/70 border border-gray-700 text-white placeholder-gray-500 rounded-xl pl-10 pr-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition"
+                placeholder="La teva contrasenya">
+            </div>
+          </div>
+
+          <button type="submit"
+            class="w-full mt-2 bg-blue-600 hover:bg-blue-500 active:scale-[0.98] text-white font-semibold py-3 rounded-xl text-sm tracking-wide transition-all duration-150 shadow-lg shadow-blue-900/40">
+            Iniciar sessió
+          </button>
+        </form>
+
+        <!-- Register link -->
+        <p class="text-center text-sm text-gray-500 mt-6">
+          No tens compte?
+          <a href="{% url 'register' %}" class="text-blue-400 hover:text-blue-300 font-medium transition">Registra't aquí</a>
+        </p>
+
+      </div>
+    </div>
+
+    <!-- Decorative glow -->
+    <div class="absolute inset-x-0 -bottom-20 h-40 bg-blue-500/5 blur-3xl pointer-events-none rounded-full mx-auto w-3/4"></div>
+  </div>
+</div>
+{% endblock %}
