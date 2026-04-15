@@ -9,9 +9,9 @@ from django.contrib.auth import login, authenticate
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib import messages
 from .forms import UserRegisterForm
-from .models import Profile
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
+from django.views.decorators.http import require_POST
+from .models import Profile, Lineup, Futdraft, Players
 
 def index(request):
     return render (request, "base.html")
@@ -33,6 +33,40 @@ def get_random_players(request):
     num_to_take = min(5, len(filtered_players))
     random_players = random.sample(filtered_players, num_to_take) if num_to_take > 0 else []
     return JsonResponse(random_players, safe=False)
+
+
+@login_required
+@require_POST  
+def save_draft(request):
+    try:
+        data = json.loads(request.body)
+        name = data.get('name', 'El meu equip')
+        formation_name = data.get('formation', '4-3-3')
+        player_ids = data.get('players', [])
+
+        parts = formation_name.split('-')
+        lineup, _ = Lineup.objects.get_or_create(
+            name=formation_name,
+            defaults={
+                'image': 'https://placeholder.com/1x1.png',  # URLField necessita valor vàlid
+                'forwards':    int(parts[2]),
+                'midfielders': int(parts[1]),
+                'defenders':   int(parts[0]),
+                'goalKeeper':  1,
+            }
+        )
+
+        draft = Futdraft.objects.create(
+            name=name,
+            user=request.user,
+            lineup=lineup,
+        )
+        draft.players.set(Players.objects.filter(id__in=player_ids))  # Players, no Player
+
+        return JsonResponse({'ok': True, 'id': draft.id})
+    except Exception as e:
+        return JsonResponse({'ok': False, 'error': str(e)}, status=400)
+    
 
 @login_required(login_url='login') # Redirects to your login named URL if not logged in
 def game_view(request):
@@ -71,4 +105,3 @@ def login_view(request):
         form = AuthenticationForm()
     
     return render(request, "myapp/login.html", {"login_form": form})
-

@@ -8,12 +8,12 @@ class Teams(models.Model):
     name = models.CharField(max_length=200)
 
 class Lineup(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=20)
     image = models.URLField()
     forwards = models.IntegerField()
     midfielders = models.IntegerField()
     defenders = models.IntegerField()
-    goalKeeper = models.IntegerField()
+    goalKeeper = models.IntegerField(default=1)
 
 class Players(models.Model):
     image = models.URLField()
