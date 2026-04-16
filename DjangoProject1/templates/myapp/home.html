@@ -1,60 +1,144 @@
-{% extends "base.html" %}
-{% block Title %}Home{% endblock %}
+{% extends 'base.html' %}
+
+{% block Title %}Home - Inazuma FutDraft{% endblock %}
+
 {% block body %}
-<a id="startButton" class="flex items-center justify-center py-4">
-    {% include 'components/button.html' with text="START" %}
-</a>
-<div id="overlay" class="fixed inset-0 bg-black/50 hidden z-50 flex items-start justify-center pt-20">
-    <div class="bg-gray-900 rounded-xl p-6 flex flex-col items-center max-w-4xl w-full">
-        <h2 class="text-2xl font-bold mb-4 text-white">Choose a formation</h2>
-        <div id="formations-container" class="flex gap-4 justify-center flex-nowrap"></div>
-        <button id="close-overlay" class="mt-4 px-4 py-2 bg-red-600 rounded hover:bg-red-600/50 text-white font-bold">
-            Close
-        </button>
+<div class="min-h-screen bg-gray-50">
+
+    <section class="relative h-[850px] flex items-center justify-center text-white overflow-hidden">
+        <div class="absolute inset-0 z-0">
+            <img src="https://media.vandal.net/i/1280x720/10-2023/17/20231017163114_3.jpg"
+                 alt="Inazuma Background"
+                 class="w-full h-full object-cover scale-105 animate-pulse-slow">
+            <div class="absolute inset-0 bg-gradient-to-r from-[#002b36]/90 to-transparent"></div>
+            <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-gray-50"></div>
+        </div>
+
+        <div class="relative z-10 text-left px-6 max-w-7xl w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div class="animate-fade-in-up">
+                <div class="inline-block bg-yellow-400 text-[#002b36] font-black px-4 py-1 rounded-md uppercase tracking-widest text-sm mb-6 shadow-lg">
+                    Victory Road Ready
+                </div>
+                <h1 class="text-6xl md:text-8xl font-black mb-6 tracking-tighter leading-none uppercase italic">
+                    BUILD YOUR <br>
+                    <span class="text-yellow-400 drop-shadow-[0_5px_15px_rgba(250,204,21,0.4)]">ULTIMATE</span> <br>
+                    SQUAD
+                </h1>
+                <p class="text-xl md:text-2xl mb-10 text-white/80 font-medium max-w-xl drop-shadow">
+                    Experience the first professional Draft Simulator for Inazuma Eleven.
+                    Choose your formation, pick your stars, and dominate the field.
+                </p>
+                <div class="flex flex-wrap gap-4">
+                    <a href="{% url 'game' %}"
+                       class="bg-yellow-400 hover:bg-yellow-300 text-[#002b36] text-2xl font-black py-5 px-12 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-xl flex items-center gap-3 group">
+                        START DRAFT
+                        <svg class="w-6 h-6 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 5l7 7-7 7M5 5l7 7-7 7"/></svg>
+                    </a>
+                    <a href="{% url 'players_list' %}"
+                       class="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white text-2xl font-black py-5 px-12 rounded-2xl transition-all border border-white/30">
+                        EXPLORE PLAYERS
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="max-w-6xl mx-auto -mt-16 relative z-20 px-6">
+        <div class="bg-white rounded-[2.5rem] shadow-2xl p-8 grid grid-cols-2 md:grid-cols-4 gap-8 border border-gray-100">
+            <div class="text-center border-r border-gray-100 last:border-0">
+                <p class="text-4xl font-black text-[#004e64]">4,500+</p>
+                <p class="text-gray-400 font-bold uppercase text-xs tracking-widest">Players</p>
+            </div>
+            <div class="text-center border-r border-gray-100 last:border-0">
+                <p class="text-4xl font-black text-[#004e64]">48</p>
+                <p class="text-gray-400 font-bold uppercase text-xs tracking-widest">Teams</p>
+            </div>
+            <div class="text-center border-r border-gray-100 last:border-0">
+                <p class="text-4xl font-black text-[#004e64]">4</p>
+                <p class="text-gray-400 font-bold uppercase text-xs tracking-widest">Elements</p>
+            </div>
+            <div class="text-center border-r border-gray-100 last:border-0">
+                <p class="text-4xl font-black text-yellow-500">∞</p>
+                <p class="text-gray-400 font-bold uppercase text-xs tracking-widest">Strategies</p>
+            </div>
+        </div>
     </div>
+
+    <section class="py-32 px-6">
+        <div class="max-w-6xl mx-auto">
+            <div class="text-center mb-20">
+                <h2 class="text-5xl font-black text-[#002b36] uppercase italic tracking-tighter">How to play</h2>
+                <div class="w-24 h-2 bg-yellow-400 mx-auto mt-4 rounded-full"></div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="relative group">
+                    <div class="bg-white rounded-[3rem] p-10 shadow-sm border border-gray-100 hover:shadow-2xl transition-all h-full">
+                        <span class="text-8xl font-black text-gray-50 absolute top-4 right-8 group-hover:text-yellow-100 transition-colors">01</span>
+                        <div class="relative z-10">
+                            <div class="w-16 h-16 bg-[#004e64] text-white rounded-2xl flex items-center justify-center mb-8 shadow-lg transform group-hover:rotate-12 transition-transform">
+                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                            </div>
+                            <h3 class="text-2xl font-black text-[#002b36] uppercase mb-4 tracking-tight">Pick Formation</h3>
+                            <p class="text-gray-500 font-medium leading-relaxed">Choose the classic 4-4-2, an offensive 4-3-3, or your own experimental layout.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="relative group">
+                    <div class="bg-white rounded-[3rem] p-10 shadow-sm border border-gray-100 hover:shadow-2xl transition-all h-full">
+                        <span class="text-8xl font-black text-gray-50 absolute top-4 right-8 group-hover:text-yellow-100 transition-colors">02</span>
+                        <div class="relative z-10">
+                            <div class="w-16 h-16 bg-[#004e64] text-white rounded-2xl flex items-center justify-center mb-8 shadow-lg transform group-hover:rotate-12 transition-transform">
+                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
+                            </div>
+                            <h3 class="text-2xl font-black text-[#002b36] uppercase mb-4 tracking-tight">Draft Stars</h3>
+                            <p class="text-gray-500 font-medium leading-relaxed">Select from random sets of players. Balancing elements and stats is the key to victory.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="relative group">
+                    <div class="bg-white rounded-[3rem] p-10 shadow-sm border border-gray-100 hover:shadow-2xl transition-all h-full">
+                        <span class="text-8xl font-black text-gray-50 absolute top-4 right-8 group-hover:text-yellow-100 transition-colors">03</span>
+                        <div class="relative z-10">
+                            <div class="w-16 h-16 bg-[#004e64] text-white rounded-2xl flex items-center justify-center mb-8 shadow-lg transform group-hover:rotate-12 transition-transform">
+                                <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                            </div>
+                            <h3 class="text-2xl font-black text-[#002b36] uppercase mb-4 tracking-tight">Final Team</h3>
+                            <p class="text-gray-500 font-medium leading-relaxed">Check your team's total power and save your favorite legendary lineups.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="bg-[#002b36] py-20 relative overflow-hidden">
+        <div class="absolute inset-0 opacity-10">
+            <svg class="w-full h-full" fill="none" stroke="white" stroke-width="2"><pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse"><path d="M 40 0 L 0 0 0 40" /></pattern><rect width="100%" height="100%" fill="url(#grid)" /></svg>
+        </div>
+        <div class="max-w-4xl mx-auto text-center px-6 relative z-10">
+            <h2 class="text-4xl md:text-5xl font-black text-white mb-8 uppercase italic leading-tight">Ready to prove your football sense?</h2>
+            <p class="text-white/70 text-lg mb-12 max-w-2xl mx-auto font-medium">Join thousands of managers and start your first draft today. No registration required.</p>
+            <a href="{% url 'game' %}" class="inline-block bg-yellow-400 text-[#002b36] px-16 py-5 rounded-full font-black text-xl hover:bg-yellow-300 transition-all shadow-2xl">
+                OPEN PACKS NOW
+            </a>
+        </div>
+    </section>
+
 </div>
 
-<script>
-// For the moment only this.
-const formations = [
-    { name: "4-3-3", description: "4 defenders, 3 midfielders, 3 forwards" },
-    { name: "4-4-2", description: "4 defenders, 4 midfielders, 2 forwards" },
-    { name: "3-5-2", description: "3 defenders, 5 midfielders, 2 forwards" },
-    { name: "5-3-2", description: "5 defenders, 3 midfielders, 2 forwards" },
-    { name: "3-4-3", description: "3 defenders, 4 midfielders, 3 forwards" }
-];
-document.querySelector('button').addEventListener('click', function() {
-    const container = document.getElementById('formations-container');
-    container.innerHTML = '';
-    formations.forEach((formation, index) => {
-        const div = document.createElement('div');
-        div.className = "bg-yellow-500 hover:bg-yellow-600 text-black rounded-lg p-4 cursor-pointer hover:scale-105 transition text-center min-w-[100px]";
-        div.innerHTML = `<div class="font-bold text-lg">${formation.name}</div>
-                         <div class="text-sm mt-1">${formation.description}</div>`;
-        div.dataset.index = index;
-        div.classList.add('select-formation');
-        container.appendChild(div);
-    });
-
-    document.getElementById('overlay').classList.remove('hidden');
-});
-
-document.getElementById('close-overlay').addEventListener('click', function() {
-    document.getElementById('overlay').classList.add('hidden');
-});
-
-document.addEventListener('click', function(e) {
-    const btn = e.target.closest('.select-formation');
-    if (btn) {
-        const index = btn.dataset.index;
-        const selectedFormation = formations[index];
-
-        //Save selection
-        sessionStorage.setItem('formation', JSON.stringify(selectedFormation));
-
-        // Redirect to the board screen
-        window.location.href = '/game/';
+<style>
+    @keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
     }
-});
-</script>
+    .animate-fade-in-up { animation: fadeInUp 1s ease-out forwards; }
+    .animate-pulse-slow { animation: pulse 10s infinite; }
+    @keyframes pulse {
+        0%, 100% { transform: scale(1.05); }
+        50% { transform: scale(1); }
+    }
+</style>
 {% endblock %}
