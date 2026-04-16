@@ -7,7 +7,7 @@ import urllib.request
 
 # Funció auxiliar per no repetir codi de l'API
 def fetch_api_data():
-    url = "http://api:5000/all"
+    url = "https://inazumaeleven-api.onrender.com/all"
     try:
         with urllib.request.urlopen(url) as response:
             data = json.loads(response.read().decode())
@@ -144,7 +144,7 @@ def players_list(request):
     })
 
 def teams_list(request):
-    url_all_teams = "http://api:5000/teams/"
+    url_all_teams = "https://inazumaeleven-api.onrender.com/teams"
     teams_info = []
 
     try:
@@ -161,7 +161,7 @@ def teams_list(request):
 
     for name in team_names[:20]:
         safe_name = urllib.parse.quote(name)
-        url_detail = f"http://api:5000/teams/{safe_name}"
+        url_detail = f"https://inazumaeleven-api.onrender.com/teams/{safe_name}"
 
         try:
             with urllib.request.urlopen(url_detail) as resp:
@@ -200,7 +200,7 @@ def team_detail(request, team_name):
     team_name = urllib.parse.unquote(team_name)
 
     safe_name = urllib.parse.quote(team_name)
-    url_team = f"http://api:5000/teams/{safe_name}"
+    url_team = f"https://inazumaeleven-api.onrender.com/teams/{safe_name}"
 
     try:
         with urllib.request.urlopen(url_team) as response:
