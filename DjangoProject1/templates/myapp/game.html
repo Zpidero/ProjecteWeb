@@ -1,8 +1,25 @@
 {% extends "base.html" %}
 {% load static %}
+{% block Title %}Inazuma FutDraft{% endblock %}
 {% block Title %}Game - Draft{% endblock %}
 
 {% block body %}
+<div id="setup-container" class="flex flex-col items-center justify-center min-h-screen bg-gray-900 p-6">
+    <h1 class="text-5xl font-black text-white mb-10 italic uppercase tracking-tighter">Select Formation</h1>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <button onclick="startDraft('4-4-2')" class="formation-btn">4-4-2</button>
+        <button onclick="startDraft('4-3-3')" class="formation-btn">4-3-3</button>
+        <button onclick="startDraft('3-5-2')" class="formation-btn">3-5-2</button>
+    </div>
+</div>
+
+<div id="game-container" class="hidden flex flex-col items-center justify-center min-h-screen gap-6 p-4 bg-[#002b36] overflow-hidden relative">
+    <div id="formation-container" class="flex flex-col-reverse items-center justify-center gap-6 w-full"></div>
+
+    <button onclick="resetDraft()" class="mt-8 px-4 py-2 bg-red-500/20 hover:bg-red-500 text-red-500 hover:text-white border border-red-500 rounded-full font-bold transition-all">
+        Reset Draft
+    </button>
+</div>
 
 <div id="formation-overlay" class="fixed inset-0 bg-black/90 z-[60] flex items-center justify-center">
     <div class="bg-gray-900 rounded-xl p-8 flex flex-col items-center max-w-4xl w-full border border-yellow-500">
@@ -15,10 +32,13 @@
 <div id="formation-container" class="flex flex-col-reverse items-center justify-center min-h-screen gap-6 p-4 bg-gray-800 overflow-hidden">
     </div>
 
-<div id="overlay" class="fixed inset-0 bg-black/50 hidden z-50 flex items-start justify-center pt-20 overflow-auto">
-    <div class="bg-gray-900 rounded-xl p-8 flex flex-col items-center max-w-7xl w-full">
-        <h2 class="text-4xl font-bold mb-6 text-white">Choose a player</h2>
+<div id="overlay" class="fixed inset-0 bg-black/80 hidden z-50 flex items-start justify-center pt-10 overflow-auto backdrop-blur-sm">
+    <div class="bg-gray-900 rounded-[3rem] p-10 flex flex-col items-center max-w-7xl w-full border border-white/10 shadow-2xl">
+        <h2 class="text-4xl font-black mb-8 text-white italic uppercase">Select your Player</h2>
         <div id="players-container" class="flex flex-wrap gap-6 justify-center"></div>
+        <button id="close-overlay" class="mt-10 px-8 py-3 bg-gray-700 rounded-full hover:bg-white hover:text-black text-white font-bold transition-all">
+            Cancel
+        </button>
     </div>
 </div>
 
@@ -33,24 +53,39 @@
 </div>
 
 <style>
+.formation-btn {
+    @apply px-10 py-6 bg-white text-[#002b36] text-3xl font-black rounded-2xl hover:bg-yellow-400 hover:scale-110 transition-all duration-300 shadow-xl italic;
+}
+
 /* Your existing styles */
 .player-card {
-    width: clamp(100px, 12vw, 150px);
-    height: clamp(160px, 20vw, 220px);
+    width: clamp(110px, 12vw, 160px);
+    height: clamp(160px, 20vw, 230px);
     background-color: #C9A66B;
-    border-radius: 12px;
-    font-weight: bold;
-    font-size: clamp(0.9rem, 2vw, 1.2rem);
+    border: 3px solid rgba(0,0,0,0.2);
+    border-radius: 15px;
+    font-weight: 900;
+    font-style: italic;
+    color: rgba(0,0,0,0.4);
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
+    transition: all 0.3s;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
     transition: transform 0.2s;
     overflow: hidden; /* Important for SVG display */
 }
-.player-card:hover { transform: scale(1.1); }
+.player-card:hover {
+    transform: translateY(-10px) scale(1.05);
+    background-color: #e2bd81;
+    border-color: white;
+}
 
 .select-player {
+    width: 240px;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
     width: clamp(150px, 18vw, 220px);
     height: clamp(200px, 24vw, 280px);
     cursor: pointer;
@@ -72,6 +107,24 @@
 </style>
 
 <script>
+function startDraft(formation) {
+    sessionStorage.setItem("formation", JSON.stringify({ name: formation }));
+    document.getElementById('setup-container').classList.add('hidden');
+    document.getElementById('game-container').classList.remove('hidden');
+    renderPitch();
+}
+
+function resetDraft() {
+    sessionStorage.removeItem("formation");
+    location.reload();
+}
+
+function renderPitch() {
+    const formation_chosen = JSON.parse(sessionStorage.getItem("formation"));
+    if (!formation_chosen) return;
+
+    const [def, mid, att] = formation_chosen.name.split("-").map(Number);
+    const formationContainer = document.getElementById("formation-container");
 document.addEventListener('DOMContentLoaded', function() {
     const formationOverlay = document.getElementById('formation-overlay');
     const formationsList = document.getElementById('formations-list');
@@ -103,6 +156,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const [def, mid, att] = formationName.split("-").map(Number);
         const container = document.getElementById("formation-container");
 
+    function createRow(count, positionCode, prefix) {
+        let html = `<div class="flex gap-6 justify-center w-full">`;
+        for (let i = 1; i <= count; i++) {
+            html += `<button class="player-card" data-position="${positionCode}">${prefix}${i}</button>`;
+        }
+        html += `</div>`;
+        return html;
+    }
         function createRow(count, positionCode, prefix) {
             let html = `<div class="flex gap-4 justify-center w-full">`;
             for (let i = 1; i <= count; i++) {
@@ -112,6 +173,26 @@ document.addEventListener('DOMContentLoaded', function() {
             return html;
         }
 
+    let html = "";
+    html += createRow(att, "FW", "FW");
+    html += createRow(mid, "MF", "MF");
+    html += createRow(def, "DF", "DF");
+    html += `<div class="flex justify-center w-full"><button class="player-card" data-position="GK">GK</button></div>`;
+    formationContainer.innerHTML = html;
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Si ja hi havia una formació, anem directes al joc
+    if (sessionStorage.getItem("formation")) {
+        document.getElementById('setup-container').classList.add('hidden');
+        document.getElementById('game-container').classList.remove('hidden');
+        renderPitch();
+    }
+
+    const formationContainer = document.getElementById("formation-container");
+    let selectedButton = null;
+
+    formationContainer.addEventListener('click', function(e) {
         container.innerHTML = createRow(att, "FW", "FW") + 
                             createRow(mid, "MF", "MF") + 
                             createRow(def, "DF", "DF") + 
@@ -124,14 +205,20 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!btn) return;
 
         selectedButton = btn;
-        document.getElementById('overlay').classList.remove('hidden');
+        const overlay = document.getElementById('overlay');
+        const container = document.getElementById('players-container');
+
+        overlay.classList.remove('hidden');
+        container.innerHTML = '<div class="text-white text-2xl font-bold animate-pulse">Searching players...</div>';
 
         fetch(`/random-players/?position=${btn.dataset.position}&min=965&max=999`)
             .then(res => res.json())
             .then(players => {
-                const container = document.getElementById('players-container');
                 container.innerHTML = '';
                 players.forEach(player => {
+                    // Fem servir un placeholder si no hi ha foto
+                    const imgUrl = player.Image || 'https://via.placeholder.com/300x300?text=No+Photo';
+
 
                     const categoryStyles = {
                         1: "bg-gradient-to-br from-[#7a4a1f] to-[#cd7f32] shadow-[0_0_10px_#cd7f32]",
@@ -141,6 +228,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     };
                     const fill = `url(#cat${player.Category})`;
                     container.innerHTML += `
+                        <button class="select-player text-black hover:z-50">
+                            <svg viewBox="0 0 300 420" class="w-full h-full drop-shadow-2xl">
                         <button class="select-player text-black hover:scale-110 transition" data-player-id="${player.id}">
                             <svg viewBox="0 0 300 420" class="w-full h-full">
                                 <defs>
@@ -174,6 +263,10 @@ document.addEventListener('DOMContentLoaded', function() {
                                     </filter>
                                 </defs>
                                 <path d="M40 20 Q20 40 20 80 L20 300 Q20 340 60 360 L150 410 L240 360 Q280 340 280 300 L280 80 Q280 40 260 20 Q220 0 150 0 Q80 0 40 20 Z"
+                                      stroke="black" stroke-width="3" fill="#C9A66B"/>
+                                <foreignObject x="50" y="215" width="200" height="65">
+                                    <div xmlns="http://www.w3.org/1999/xhtml" class="text-center font-black text-2xl leading-tight uppercase italic">
+                                        ${player.Name}
                                       stroke="black" stroke-width="3" fill="${fill}" filter="url(#glow)"/>
                                 <foreignObject x="50" y="220" width="200" height="60">
                                     <div xmlns="http://www.w3.org/1999/xhtml"
@@ -181,6 +274,23 @@ document.addEventListener('DOMContentLoaded', function() {
                                         ${(player.Name?.length || 0) > 14 ? (player.Nickname || player.Name) : player.Name}
                                     </div>
                                 </foreignObject>
+                                <text x="40" y="65" class="font-black text-5xl" style="font-family: sans-serif;">${player.Total}</text>
+                                <text x="45" y="95" class="font-bold text-xl opacity-60">${player.Position}</text>
+
+                                <g class="stats text-[14px] font-bold">
+                                    <text x="50" y="290">POW ${player.Power}</text>
+                                    <text x="50" y="320">CON ${player.Control}</text>
+                                    <text x="50" y="350">TEC ${player.Technique}</text>
+                                    <text x="160" y="290">PRE ${player.Pressure}</text>
+                                    <text x="160" y="320">PHY ${player.Physical}</text>
+                                    <text x="160" y="350">AGI ${player.Agility}</text>
+                                    <text x="105" y="380">INT ${player.Intelligence}</text>
+                                </g>
+
+                                <image x="100" y="45" width="165" height="165" href="${imgUrl}" preserveAspectRatio="xMidYMid slice"/>
+                            </svg>
+                        </button>
+                    `;
                                 <text x="40" y="60" class="font-mono font-extrabold text-4xl">${player.Total}</text>
                                 <text x="40" y="90" class="font-extrabold text-2xl">${player.Position}</text>
                                 <image x="100" y="50" width="160" height="160" href="${player.Image}" preserveAspectRatio="xMidYMid slice"/>
@@ -194,15 +304,26 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     });
 
+    document.getElementById('close-overlay').addEventListener('click', () => {
+        document.getElementById('overlay').classList.add('hidden');
+            });
+    });
+
+    // Seleccionar jugador
     // --- 4. SELECCIONAR JUGADOR DE LA LLISTA ---
     document.addEventListener('click', function(e) {
-        if(e.target.closest('.select-player') && selectedButton) {
-            const playerBtn = e.target.closest('.select-player');
+        const playerBtn = e.target.closest('.select-player');
+        if(playerBtn && selectedButton) {
             selectedButton.innerHTML = playerBtn.innerHTML;
             selectedButton.style.background = "transparent";
+            selectedButton.style.border = "none";
+            selectedButton.style.width = "180px";
+            selectedButton.style.height = "auto";
             selectedButton.disabled = true;
             document.getElementById('overlay').classList.add('hidden');
         }
+    });
+});
         
         if (playerBtn && selectedButton) {
             const playerId = playerBtn.getAttribute('data-player-id');
@@ -289,5 +410,4 @@ document.addEventListener('DOMContentLoaded', function() {
 
 
 </script>
-
 {% endblock %}

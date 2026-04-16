@@ -1,21 +1,46 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ca">
 <head>
     <meta charset="UTF-8">
-    <title>{% block Title %}{% endblock %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block Title %}Inazuma FutDraft{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+    </style>
 </head>
-<body class="bg-gray-900">
-<header class="h-64 bg-cover bg-center relative"
-  style="background-image: url(https://media.vandal.net/i/1280x720/10-2023/17/20231017163114_3.jpg);">
-  <div class="absolute inset-0 backdrop-blur-[2px] bg-gradient-to-t from-gray-900 via-gray-900/20 to-transparent"></div>
-  <div class="relative z-10 flex items-center justify-center h-full text-white">
-    <h1 class="text-7xl font-extrabold text-gray-400 px-6 py-3 rounded-lg bg-gradient-to-t from-gray-900/70 via-gray-900/40 to-transparent ">
-        INAZUMA-DRAFT
-    </h1>
-  </div>
-</header>
-{% block body %}
-{% endblock %}
+<body class="bg-white">
+
+    <div class="fixed top-0 w-full z-50 px-4 pt-4">
+        <nav class="max-w-7xl mx-auto bg-[#002b36] rounded-full px-6 py-3 flex justify-between items-center shadow-2xl border border-white/10">
+            <a href="{% url 'home' %}" class="flex items-center space-x-2 hover:opacity-80 transition">
+                <div class="bg-yellow-500 text-[#002b36] font-black px-2 py-0.5 rounded text-[10px] uppercase">
+                    Inazuma Eleven
+                </div>
+                <span class="text-white font-bold tracking-tight text-lg">FutDraft</span>
+            </a>
+
+            <div class="hidden md:flex space-x-10 text-sm font-medium">
+                <a href="{% url 'home' %}" class="{% if request.resolver_match.url_name == 'home' %}text-yellow-400{% else %}text-white/80{% endif %} hover:text-yellow-400 transition">Home</a>
+
+                <a href="{% url 'players_list' %}" class="{% if request.resolver_match.url_name == 'players_list' %}text-yellow-400{% else %}text-white/80{% endif %} hover:text-yellow-400 transition">Players</a>
+
+                <a href="{% url 'teams_list' %}" class="{% if request.resolver_match.url_name == 'teams_list' %}text-yellow-400{% else %}text-white/80{% endif %} hover:text-yellow-400 transition">Teams</a>
+
+                <a href="{% url 'game' %}" class="{% if request.resolver_match.url_name == 'game' %}text-yellow-400{% else %}text-white/80{% endif %} hover:text-yellow-400 transition italic font-bold">Futdraft</a>
+            </div>
+
+            <div class="bg-yellow-400 p-2 rounded-full text-[#002b36] cursor-pointer hover:bg-yellow-300 transition shadow-lg">
+                <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
+                </svg>
+            </div>
+        </nav>
+    </div>
+
+    {% block body %}
+    {% endblock %}
+
 </body>
 </html>

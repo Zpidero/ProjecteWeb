@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="pt-32 pb-12 bg-gray-50 min-h-screen">
+    <div class="max-w-5xl mx-auto px-6">
+        
+        <a href="{% url 'players_list' %}" class="inline-block mb-8 text-[#004e64] font-bold hover:underline">
+            ← Back to Database
+        </a>
+
+        <div class="bg-white rounded-[3rem] shadow-xl overflow-hidden flex flex-col md:flex-row">
+
+            <div class="md:w-1/3 bg-[#002b36] p-10 text-center text-white">
+                <div class="bg-white/10 rounded-[2rem] p-6 mb-6">
+                    <img src="{{ p.Image }}" alt="{{ p.Name }}" class="w-full h-auto object-contain">
+                </div>
+                <h1 class="text-3xl font-black uppercase italic">{{ p.Name }}</h1>
+                <p class="text-yellow-400 font-bold mb-4">"{{ p.Nickname }}"</p>
+                <div class="inline-block bg-yellow-500 text-[#002b36] font-black px-4 py-1 rounded-full text-sm">
+                    {{ p.Position }} | {{ p.Element }}
+                </div>
+                <div class="mt-6 text-left space-y-2 text-sm opacity-80">
+                    <p><strong>Team:</strong> {{ p.Team }}</p>
+                    <p><strong>Game:</strong> {{ p.Game }}</p>
+                    <p><strong>Archetype:</strong> {{ p.Archetype }}</p>
+                </div>
+            </div>
+
+            <div class="md:w-2/3 p-10">
+                <h2 class="text-2xl font-black text-[#002b36] mb-8 uppercase tracking-tight border-b pb-4">Technical Stats</h2>
+
+                <div class="grid grid-cols-2 gap-x-12 gap-y-6">
+                    {% for stat, value in p.items %}
+                        {% if stat in "Power Control Technique Pressure Physical Agility Intelligence" %}
+                        <div class="flex justify-between items-end border-b-2 border-gray-50 pb-2">
+                            <span class="text-gray-400 font-bold uppercase text-xs">{{ stat }}</span>
+                            <span class="text-xl font-black text-[#004e64]">{{ value }}</span>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <div class="mt-12 bg-[#004e64] rounded-2xl p-6 text-center text-white">
+                    <p class="text-xs font-bold uppercase opacity-70">Total Power Rating</p>
+                    <p class="text-5xl font-black italic">{{ p.Total }}</p>
+                </div>
+
+                <div class="mt-8 grid grid-cols-2 gap-4 text-sm bg-gray-50 p-6 rounded-2xl">
+                    <p><span class="text-gray-400 font-bold uppercase">Age Group:</span> {{ p.Age_group }}</p>
+                    <p><span class="text-gray-400 font-bold uppercase">Gender:</span> {{ p.Gender }}</p>
+                    <p><span class="text-gray-400 font-bold uppercase">School Year:</span> {{ p.School_year }}</p>
+                    <p><span class="text-gray-400 font-bold uppercase">Role:</span> {{ p.Role }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
