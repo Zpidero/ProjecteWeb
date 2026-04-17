@@ -292,6 +292,7 @@ def save_draft(request):
             name=name,
             user=request.user,
             lineup=lineup,
+            player_order=player_ids,
         )
         draft.players.set(saved_players)
 
@@ -338,3 +339,37 @@ def login_view(request):
         form = AuthenticationForm()
     
     return render(request, "myapp/login.html", {"login_form": form})
+
+
+@login_required(login_url='login')
+def my_drafts(request):
+    user_drafts = Futdraft.objects.filter(user=request.user).order_by('-date').prefetch_related('players', 'lineup')
+    
+    for draft in user_drafts:
+        # Recuperamos los jugadores en orden
+        player_dict = {str(p.id): p for p in draft.players.all()}
+        ordered_list = []
+        if draft.player_order:
+            ordered_list = [player_dict[str(pid)] for pid in draft.player_order if str(pid) in player_dict]
+        else:
+            ordered_list = list(draft.players.all())
+
+        # Creamos una lista de diccionarios con los nombres de variables exactos que usa tu JS
+        js_players = []
+        for p in ordered_list:
+            js_players.append({
+                'Name': p.name,
+                'Nickname': p.nickname,
+                'Position': p.position,
+                'Total': p.total,
+                'Image': p.image,
+                'Element': p.element,
+                'Team': p.team.name,
+                'Power': p.power,
+                'Pressure': p.physical  # Mapeado a physical como en la BD
+            })
+            
+        # Convertimos la lista a JSON y la guardamos en el objeto draft
+        draft.js_data = json.dumps(js_players)
+        
+    return render(request, 'myapp/my_drafts.html', {'drafts': user_drafts})
