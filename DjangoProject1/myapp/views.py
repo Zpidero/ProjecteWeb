@@ -27,7 +27,8 @@ from django.contrib import messages
 from .forms import UserRegisterForm
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
-from .models import Profile, Lineup, Futdraft, Players
+from .models import Profile, Lineup, Futdraft, Players, Teams
+import traceback
 
 def index(request):
     return render(request, "base.html")
@@ -234,6 +235,49 @@ def save_draft(request):
         formation_name = data.get('formation', '4-3-3')
         player_ids = data.get('players', [])
 
+        all_players = fetch_api_data()
+        selected_api_players = [p for p in all_players if str(p.get('ID')) in map(str, player_ids)]
+
+        def safe_int(val, default=0):
+            try:
+                return int(val) if val else default
+            except (ValueError, TypeError):
+                return default
+
+        saved_players = []
+        for p in selected_api_players:
+            team_name = p.get('Team', 'Desconegut')
+            team_obj, _ = Teams.objects.get_or_create(
+                name=team_name,
+                defaults={'image': 'https://placeholder.com/1x1.png'}
+            )
+            
+            player_obj, _ = Players.objects.update_or_create(
+                id=p.get('ID'),
+                defaults={
+                    'image': p.get('Image', ''),
+                    'name': p.get('Name', ''),
+                    'nickname': p.get('Nickname', ''),
+                    'game': p.get('Game', ''),
+                    'archetype': p.get('Archetype', ''),
+                    'position': p.get('Position', ''),
+                    'element': p.get('Element', ''),
+                    'power': safe_int(p.get('Power')),
+                    'control': safe_int(p.get('Control')),
+                    'technique': safe_int(p.get('Technique')),
+                    'physical': safe_int(p.get('Physical')),
+                    'agility': safe_int(p.get('Agility')),
+                    'intelligence': safe_int(p.get('Intelligence')),
+                    'total': safe_int(p.get('Total')),
+                    'age_Group': p.get('Age group', ''),
+                    'school_Year': p.get('School year', ''),
+                    'gender': p.get('Gender', ''),
+                    'role': p.get('Role', ''),
+                    'team': team_obj,
+                }
+            )
+            saved_players.append(player_obj)
+
         parts = formation_name.split('-')
         lineup, _ = Lineup.objects.get_or_create(
             name=formation_name,
@@ -250,11 +294,13 @@ def save_draft(request):
             name=name,
             user=request.user,
             lineup=lineup,
+            player_order=player_ids,
         )
-        draft.players.set(Players.objects.filter(id__in=player_ids))  # Players, no Player
+        draft.players.set(saved_players)
 
         return JsonResponse({'ok': True, 'id': draft.id})
     except Exception as e:
+        traceback.print_exc()
         return JsonResponse({'ok': False, 'error': str(e)}, status=400)
     
 
@@ -295,3 +341,37 @@ def login_view(request):
         form = AuthenticationForm()
     
     return render(request, "myapp/login.html", {"login_form": form})
+
+
+@login_required(login_url='login')
+def my_drafts(request):
+    user_drafts = Futdraft.objects.filter(user=request.user).order_by('-date').prefetch_related('players', 'lineup')
+    
+    for draft in user_drafts:
+        # Recuperamos los jugadores en orden
+        player_dict = {str(p.id): p for p in draft.players.all()}
+        ordered_list = []
+        if draft.player_order:
+            ordered_list = [player_dict[str(pid)] for pid in draft.player_order if str(pid) in player_dict]
+        else:
+            ordered_list = list(draft.players.all())
+
+        # Creamos una lista de diccionarios con los nombres de variables exactos que usa tu JS
+        js_players = []
+        for p in ordered_list:
+            js_players.append({
+                'Name': p.name,
+                'Nickname': p.nickname,
+                'Position': p.position,
+                'Total': p.total,
+                'Image': p.image,
+                'Element': p.element,
+                'Team': p.team.name,
+                'Power': p.power,
+                'Pressure': p.physical  # Mapeado a physical como en la BD
+            })
+            
+        # Convertimos la lista a JSON y la guardamos en el objeto draft
+        draft.js_data = json.dumps(js_players)
+        
+    return render(request, 'myapp/my_drafts.html', {'drafts': user_drafts})

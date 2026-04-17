@@ -29,6 +29,10 @@
                 <a href="{% url 'teams_list' %}" class="{% if request.resolver_match.url_name == 'teams_list' %}text-yellow-400{% else %}text-white/80{% endif %} hover:text-yellow-400 transition">Teams</a>
 
                 <a href="{% url 'game' %}" class="{% if request.resolver_match.url_name == 'game' %}text-yellow-400{% else %}text-white/80{% endif %} hover:text-yellow-400 transition italic font-bold">Futdraft</a>
+                
+                {% if user.is_authenticated %}
+                    <a href="{% url 'my_drafts' %}" class="{% if request.resolver_match.url_name == 'my_drafts' %}text-yellow-400{% else %}text-white/80{% endif %} hover:text-yellow-400 transition">My Drafts</a>
+                {% endif %}
             </div>
 
             <div class="bg-yellow-400 p-2 rounded-full text-[#002b36] cursor-pointer hover:bg-yellow-300 transition shadow-lg">

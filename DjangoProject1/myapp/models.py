@@ -50,3 +50,4 @@ class Futdraft(models.Model):
 
     players = models.ManyToManyField(Players, related_name= "draft_players")
     lineup = models.ForeignKey(Lineup, on_delete=models.CASCADE)
+    player_order = models.JSONField(default=list, blank=True, null=True)
