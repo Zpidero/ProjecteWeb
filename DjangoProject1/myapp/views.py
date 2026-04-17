@@ -27,7 +27,8 @@ from django.contrib import messages
 from .forms import UserRegisterForm
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
-from .models import Profile, Lineup, Futdraft, Players
+from .models import Profile, Lineup, Futdraft, Players, Teams
+import traceback
 
 def index(request):
     return render(request, "base.html")
@@ -232,6 +233,49 @@ def save_draft(request):
         formation_name = data.get('formation', '4-3-3')
         player_ids = data.get('players', [])
 
+        all_players = fetch_api_data()
+        selected_api_players = [p for p in all_players if str(p.get('ID')) in map(str, player_ids)]
+
+        def safe_int(val, default=0):
+            try:
+                return int(val) if val else default
+            except (ValueError, TypeError):
+                return default
+
+        saved_players = []
+        for p in selected_api_players:
+            team_name = p.get('Team', 'Desconegut')
+            team_obj, _ = Teams.objects.get_or_create(
+                name=team_name,
+                defaults={'image': 'https://placeholder.com/1x1.png'}
+            )
+            
+            player_obj, _ = Players.objects.update_or_create(
+                id=p.get('ID'),
+                defaults={
+                    'image': p.get('Image', ''),
+                    'name': p.get('Name', ''),
+                    'nickname': p.get('Nickname', ''),
+                    'game': p.get('Game', ''),
+                    'archetype': p.get('Archetype', ''),
+                    'position': p.get('Position', ''),
+                    'element': p.get('Element', ''),
+                    'power': safe_int(p.get('Power')),
+                    'control': safe_int(p.get('Control')),
+                    'technique': safe_int(p.get('Technique')),
+                    'physical': safe_int(p.get('Physical')),
+                    'agility': safe_int(p.get('Agility')),
+                    'intelligence': safe_int(p.get('Intelligence')),
+                    'total': safe_int(p.get('Total')),
+                    'age_Group': p.get('Age group', ''),
+                    'school_Year': p.get('School year', ''),
+                    'gender': p.get('Gender', ''),
+                    'role': p.get('Role', ''),
+                    'team': team_obj,
+                }
+            )
+            saved_players.append(player_obj)
+
         parts = formation_name.split('-')
         lineup, _ = Lineup.objects.get_or_create(
             name=formation_name,
@@ -249,10 +293,11 @@ def save_draft(request):
             user=request.user,
             lineup=lineup,
         )
-        draft.players.set(Players.objects.filter(id__in=player_ids))  # Players, no Player
+        draft.players.set(saved_players)
 
         return JsonResponse({'ok': True, 'id': draft.id})
     except Exception as e:
+        traceback.print_exc()
         return JsonResponse({'ok': False, 'error': str(e)}, status=400)
     
 

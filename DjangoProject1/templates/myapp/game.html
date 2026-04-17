@@ -141,7 +141,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     };
                     const fill = `url(#cat${player.Category})`;
                     container.innerHTML += `
-                        <button class="select-player text-black hover:scale-110 transition" data-player-id="${player.id}">
+                        <button class="select-player text-black hover:scale-110 transition" data-player-id="${player.ID}">
                             <svg viewBox="0 0 300 420" class="w-full h-full">
                                 <defs>
                                     <linearGradient id="cat1" x1="0" y1="0" x2="1" y2="1">
@@ -196,14 +196,16 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // --- 4. SELECCIONAR JUGADOR DE LA LLISTA ---
     document.addEventListener('click', function(e) {
-        if(e.target.closest('.select-player') && selectedButton) {
+
+        /* if(e.target.closest('.select-player') && selectedButton) {
             const playerBtn = e.target.closest('.select-player');
             selectedButton.innerHTML = playerBtn.innerHTML;
             selectedButton.style.background = "transparent";
             selectedButton.disabled = true;
             document.getElementById('overlay').classList.add('hidden');
-        }
+        } */
 
+        const playerBtn = e.target.closest('.select-player');
         if (playerBtn && selectedButton) {
             const playerId = playerBtn.getAttribute('data-player-id');
             const allCards = [...document.querySelectorAll('#formation-container .player-card')];
@@ -214,15 +216,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 selectedButton.innerHTML = playerBtn.innerHTML;
                 selectedButton.style.background = "transparent";
+                selectedButton.disabled = true;
 
                 document.getElementById('overlay').classList.add('hidden');
-                document.getElementById('save-bar').classList.remove('hidden'); // MOSTRAR BOTÓ GUARDAR
+                
+                // MOSTRAR BOTÓ GUARDAR NOMÉS QUAN S'HAGIN SELECCIONAT 11 JUGADORS
+                if (Object.keys(selectedPlayers).length === 11) {
+                    document.getElementById('save-bar').classList.remove('hidden');
+                }
             }
         }
     });
 
     // Botó tancar overlay
-    document.getElementById('close-overlay').onclick = () => document.getElementById('overlay').classList.add('hidden');
+    const closeBtn = document.getElementById('close-overlay');
+    if (closeBtn) {
+        closeBtn.onclick = () => document.getElementById('overlay').classList.add('hidden');
+    }
 
     // --- 5. GUARDAR A LA BASE DE DADES ---
     document.getElementById('save-btn').onclick = async function() {
@@ -251,7 +261,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const data = await res.json();
             if (data.ok) {
                 showMsg('✓ Equip guardat!', 'text-green-400');
-                window.location.href = '/meus-drafts/'; // Opcional: Redirigir a la llista
+                setTimeout(() => window.location.href = '/', 2000); // Redirigim a la pàgina principal després de 2 segons
             } else {
                 showMsg('Error: ' + data.error, 'text-red-400');
             }
