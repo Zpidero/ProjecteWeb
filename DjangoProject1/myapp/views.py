@@ -41,15 +41,17 @@ def game_view(request):
     return render(request, 'myapp/game.html')
 
 
-# --- DRAFT LOGIC ---
 def get_random_players(request):
     position = request.GET.get("position", "").upper()
+    selected = request.GET.get("excluded", "")
+    selected_ids = set(selected.split(",")) if selected else set()
     all_players = fetch_api_data()
 
-    if position:
-        filtered_players = [p for p in all_players if p.get("Position", "").upper() == position]
+    if position and selected_ids:
+        position_filter = [p for p in all_players if p.get("Position", "").upper() == position]
+        filtered_players = [p for p in position_filter if p.get("ID", "") not in selected_ids]
     else:
-        filtered_players = all_players
+        filtered_players = [p for p in all_players if p.get("ID", "") not in selected_ids]
 
     num_to_take = min(5, len(filtered_players))
     random_players = random.sample(filtered_players, num_to_take) if num_to_take > 0 else []
