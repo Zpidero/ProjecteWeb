@@ -239,7 +239,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const name = document.getElementById('draft-name').value.trim() || 'El meu equip';
         const formationObj = JSON.parse(sessionStorage.getItem('formation') || '{}');
         const formation = formationObj.name || "4-3-3";
-        const players = Object.values(selectedPlayers).filter(Boolean);
+        /* const players = Object.values(selectedPlayers).filter(Boolean); */
+        const totalCards = document.querySelectorAll('#formation-container .player-card').length;
+        const players = [];
+        for (let i = 0; i < totalCards; i++) {
+            if (selectedPlayers[i]) {
+                players.push(selectedPlayers[i]);
+            }
+        }
 
         if (players.length === 0) {
             showMsg('Tria almenys un jugador!', 'text-red-400');
