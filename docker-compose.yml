@@ -1,5 +1,8 @@
 services:
   django:
+    env_file:
+      - .env
+    
     build:
       context: ./DjangoProject1
       dockerfile: Dockerfile
@@ -13,3 +16,4 @@ services:
       - ./DjangoProject1/db.sqlite3:/app/db.sqlite3
       - ./DjangoProject1:/app
     #   - webdata:/app/db #producció naim diu k esta perfe
+    

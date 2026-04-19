@@ -8,43 +8,50 @@
             ← Back to Teams
         </a>
 
+        {% if team %}
         <div class="bg-white rounded-[3rem] shadow-xl p-10 mb-12 flex flex-col md:flex-row items-center gap-10 border border-gray-100">
             <div class="w-48 h-48 flex-shrink-0">
-                <img src="{{ team.Image }}" alt="{{ team.Team }}" class="w-full h-full object-contain">
+                {% if team.image %}
+                    <img src="{{ team.image }}" alt="{{ team.name }}" class="w-full h-full object-contain" onerror="this.src='/static/images/teams/Reclutas.png';">
+                {% else %}
+                    <div class="text-8xl opacity-20">⚽</div>
+                {% endif %}
             </div>
             <div class="text-center md:text-left">
-                <h1 class="text-5xl font-black text-[#002b36] uppercase italic mb-2">{{ team.Team }}</h1>
+                <h1 class="text-5xl font-black text-[#002b36] uppercase italic mb-2">{{ team.name }}</h1>
                 <p class="text-yellow-500 font-bold tracking-widest uppercase text-sm">Official Squad List</p>
                 <div class="mt-4 inline-block bg-[#004e64] text-white px-6 py-2 rounded-full font-bold">
                     {{ team_players|length }} Members
                 </div>
             </div>
         </div>
+        {% endif %}
 
         <h2 class="text-2xl font-black text-[#002b36] mb-6 uppercase italic tracking-tighter">Squad Members</h2>
 
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
             {% for p in team_players %}
-            <div class="bg-white p-4 rounded-[2rem] shadow-sm border border-gray-100 flex items-center gap-4 transition-all hover:border-[#004e64]/20">
+            <a href="{% url 'player_detail' p.id %}"
+               class="bg-white p-4 rounded-[2rem] shadow-sm border border-gray-100 flex items-center gap-4 transition-all hover:border-[#004e64]/20 hover:shadow-md">
 
                 <div class="w-16 h-16 bg-gray-50 rounded-2xl overflow-hidden flex-shrink-0 border border-gray-100">
-                    <img src="{{ p.Image }}"
+                    <img src="{{ p.image }}"
                          onerror="this.src='https://via.placeholder.com/150?text=?';"
                          class="w-full h-full object-contain">
                 </div>
 
                 <div class="flex flex-col">
-                    <span class="text-[9px] font-black text-yellow-500 uppercase tracking-widest">{{ p.Position }}</span>
-                    <span class="font-bold text-[#002b36] text-lg leading-tight">{{ p.Name }}</span>
-                    <span class="text-xs text-gray-400 font-bold">#{{ p.ID }}</span>
+                    <span class="text-[9px] font-black text-yellow-500 uppercase tracking-widest">{{ p.position }}</span>
+                    <span class="font-bold text-[#002b36] text-lg leading-tight">{{ p.name }}</span>
+                    <span class="text-xs text-gray-400 font-bold">#{{ p.id }}</span>
                 </div>
 
-                <div class="ml-auto opacity-10">
-                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" />
+                <div class="ml-auto text-gray-200">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                     </svg>
                 </div>
-            </div>
+            </a>
             {% empty %}
             <div class="col-span-full py-10 text-center text-gray-400 font-bold">
                 No squad members found for this team.

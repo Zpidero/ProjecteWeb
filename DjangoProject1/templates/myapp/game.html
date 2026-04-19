@@ -198,7 +198,7 @@
                                     <text x="40" y="60" class="font-mono font-extrabold text-4xl">${Math.trunc(((player.Total - 914) / (970 - 914)) * (99 - 50) + 50)}</text>
                                     <text x="40" y="90" class="font-extrabold text-2xl">${player.Position}</text>
                                     <image x="35" y="160" width="55" height="55" href="/static/images/elements/${player.Element}.png"/>
-                                    <image x="30" y="80" width="70" height="100" href="/static/images/teams/${player.Team}.png"/>
+                                    <image x="30" y="80" width="70" height="100" href="${player.Team_image}" onerror="this.href.baseVal='/static/images/teams/Reclutas.png'"/>
                                     <text x="50" y="280" class="font-extrabold text-xl">POW</text>
                                     <text x="105" y="280" class="font-bold text-xl">${noise(Math.round(((player.Power - 114) / (169 - 114)) * 99))}</text>
                                     <text x="50" y="310" class="font-extrabold text-xl">CON</text>
