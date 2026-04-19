@@ -2,3 +2,4 @@
 *.venv
 api/data/.venv
 **/__pycache__/*
+.env

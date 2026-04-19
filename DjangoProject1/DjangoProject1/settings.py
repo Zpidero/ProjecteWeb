@@ -19,9 +19,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-)%0p-@ex)6492r7x4(6!@)*u^w8m#=a)5vlsop(obl(*9-%v+4'
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
@@ -123,6 +120,6 @@ MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = '/media/'
 
 #login settings
-LOGIN_URL = 'login'          # The name of your login URL
+LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'  # Where to go after logging in
 LOGOUT_REDIRECT_URL = 'home' # Where to go after logging out

@@ -3,7 +3,16 @@ from django.http import HttpResponse
 import random
 import json
 import urllib.request
-
+from django.contrib.auth.models import User
+from django.shortcuts import render, redirect
+from django.contrib.auth import login, authenticate
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib import messages
+from .forms import UserRegisterForm
+from django.contrib.auth.decorators import login_required
+from django.views.decorators.http import require_POST
+from .models import Profile, Lineup, Futdraft, Players, Teams
+import traceback
 
 # Funció auxiliar per no repetir codi de l'API
 def fetch_api_data():
@@ -19,16 +28,6 @@ def fetch_api_data():
         print(f"Error connectant a l'API: {e}")
         return []
 
-from django.contrib.auth.models import User
-from django.shortcuts import render, redirect
-from django.contrib.auth import login, authenticate
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
-from django.contrib import messages
-from .forms import UserRegisterForm
-from django.contrib.auth.decorators import login_required
-from django.views.decorators.http import require_POST
-from .models import Profile, Lineup, Futdraft, Players, Teams
-import traceback
 
 def index(request):
     return render(request, "base.html")
