@@ -253,13 +253,20 @@
                     selectedButton.disabled = true;
 
                     document.getElementById('overlay').classList.add('hidden');
-                    document.getElementById('save-bar').classList.remove('hidden');
+                    // document.getElementById('save-bar').classList.remove('hidden');
+                    // MOSTRAR BOTÓ GUARDAR NOMÉS QUAN S'HAGIN SELECCIONAT 11 JUGADORS
+                    if (Object.keys(selectedPlayers).length === 11) {
+                        document.getElementById('save-bar').classList.remove('hidden');
+                    }
                 }
             }
         });
 
         // Botó tancar overlay
-        document.getElementById('close-overlay').onclick = () => document.getElementById('overlay').classList.add('hidden');
+        const closeBtn = document.getElementById('close-overlay');
+        if (closeBtn) {
+            closeBtn.onclick = () => document.getElementById('overlay').classList.add('hidden');
+        }
 
         // --- 5. GUARDAR A LA BASE DE DADES ---
         document.getElementById('save-btn').onclick = async function() {
@@ -288,7 +295,7 @@
                 const data = await res.json();
                 if (data.ok) {
                     showMsg('✓ Equip guardat!', 'text-green-400');
-                    window.location.href = '/meus-drafts/'; // Opcional: Redirigir a la llista
+                    window.location.href = '/my-drafts/'; // Opcional: Redirigir a la llista
                 } else {
                     showMsg('Error: ' + data.error, 'text-red-400');
                 }
