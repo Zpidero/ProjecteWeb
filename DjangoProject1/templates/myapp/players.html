@@ -78,9 +78,9 @@
                             </select>
                             <select name="school_year" class="custom-select text-sm">
                                 <option value="">School Year</option>
-                                <option value="1st Year" {% if request.GET.school_year == "1st Year" %}selected{% endif %}>1st Year</option>
-                                <option value="2nd Year" {% if request.GET.school_year == "2nd Year" %}selected{% endif %}>2nd Year</option>
-                                <option value="3rd Year" {% if request.GET.school_year == "3rd Year" %}selected{% endif %}>3rd Year</option>
+                                <option value="Grade 7" {% if request.GET.school_year == "Grade 7" %}selected{% endif %}>Grade 7</option>
+                                <option value="Grade 8" {% if request.GET.school_year == "Grade 8" %}selected{% endif %}>Grade 8</option>
+                                <option value="Grade 9" {% if request.GET.school_year == "Grade 9" %}selected{% endif %}>Grade 9</option>
                             </select>
                         </div>
                         <select name="game" class="custom-select">
