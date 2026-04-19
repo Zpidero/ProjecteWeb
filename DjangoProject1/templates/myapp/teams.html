@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block body %}
+<div class="pt-32 pb-12 bg-gray-50 min-h-screen font-sans">
+    <div class="max-w-7xl mx-auto px-6">
+
+        <h1 class="text-5xl font-black text-[#002b36] mb-10 uppercase italic tracking-tighter">Teams Database</h1>
+
+        <form method="GET" class="mb-20">
+            <div class="bg-white p-8 rounded-[3rem] shadow-2xl shadow-gray-200/50 border border-gray-100 flex flex-col gap-8 transition-all relative">
+                <div class="relative group">
+                    <div class="absolute inset-y-0 left-0 pl-6 flex items-center pointer-events-none">
+                        <svg class="w-6 h-6 text-[#004e64]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1" />
+                        </svg>
+                    </div>
+                    <input type="text" name="search" placeholder="Search for your favorite team..."
+                           value="{{ request.GET.search }}"
+                           class="w-full pl-16 pr-8 py-5 bg-gray-50 border-2 border-transparent focus:border-[#004e64] focus:bg-white rounded-full outline-none font-bold text-lg text-[#002b36] transition-all shadow-inner">
+                </div>
+                <div class="flex justify-center -mb-14">
+                    <button type="submit"
+                            class="px-12 py-5 bg-[#002b36] text-white rounded-full font-black uppercase italic tracking-[0.2em] shadow-xl hover:shadow-2xl hover:bg-[#004e64] hover:-translate-y-1 transition-all active:scale-95 flex items-center gap-3">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                        Search
+                    </button>
+                </div>
+            </div>
+        </form>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+            {% for team in teams %}
+            <div class="group bg-white rounded-[3rem] p-8 border border-gray-100 shadow-sm hover:shadow-2xl hover:border-[#004e64]/20 transition-all duration-500 transform hover:-translate-y-3 flex flex-col items-center justify-between min-h-[350px] relative overflow-hidden">
+
+                <div class="absolute -top-10 -right-10 w-32 h-32 bg-gray-50 rounded-full group-hover:bg-[#004e64]/5 transition-colors duration-500"></div>
+
+                <div class="w-40 h-40 flex items-center justify-center mb-6 relative z-10">
+                    {% if team.image %}
+                        <img src="{{ team.image }}" alt="{{ team.name }}" onerror="this.src='/static/images/teams/Reclutas.png';">
+                    {% else %}
+                        <div class="text-7xl opacity-20 filter grayscale">⚽</div>
+                    {% endif %}
+                </div>
+
+                <div class="relative z-10 text-center">
+                    <h3 class="text-2xl font-black text-gray-800 uppercase leading-tight mb-3 group-hover:text-[#004e64] transition-colors">
+                        {{ team.name }}
+                    </h3>
+                    <span class="text-[10px] font-black bg-gray-100 text-[#004e64] px-4 py-2 rounded-full uppercase tracking-[0.15em]">
+                        {{ team.player_count }} Official Players
+                    </span>
+                </div>
+
+                <div class="mt-8 w-full relative z-10">
+                    <a href="{% url 'team_detail' team.name %}"
+                       class="block w-full py-4 rounded-2xl bg-gray-50 text-[#004e64] text-center font-black uppercase italic text-sm tracking-wider hover:bg-[#002b36] hover:text-white transition-all duration-300 shadow-sm active:scale-95">
+                        View Squad
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-full text-center py-24 bg-white rounded-[3rem] border-2 border-dashed border-gray-200">
+                <p class="text-3xl text-gray-300 font-black italic uppercase tracking-widest">No teams found</p>
+                <p class="text-gray-400 font-bold mt-2">Try searching for another club</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- pagination -->
+<div class="flex justify-center gap-2 mt-10">
+    {% if teams.has_previous %}
+        <a href="?page={{ teams.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
+           class="px-4 py-2 rounded-full bg-white border border-gray-200 hover:bg-gray-50">
+            ←
+        </a>
+    {% endif %}
+
+    <span class="px-4 py-2 rounded-full bg-[#004e64] text-white">
+        {{ teams.number }} / {{ teams.paginator.num_pages }}
+    </span>
+
+    {% if teams.has_next %}
+        <a href="?page={{ teams.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
+           class="px-4 py-2 rounded-full bg-white border border-gray-200 hover:bg-gray-50">
+            →
+        </a>
+    {% endif %}
+</div>
+
+
+{% endblock %}
+

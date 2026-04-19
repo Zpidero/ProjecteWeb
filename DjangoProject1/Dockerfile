@@ -18,3 +18,8 @@ COPY . .
 EXPOSE 8080
 
 CMD ["uv", "run", "manage.py", "runserver", "0.0.0.0:8080"]
+
+
+# release CMD :
+
+    # CMD ["sh", "-c", "uv run manage.py migrate && uv run manage.py sync_players && uv run manage.py runserver 0.0.0.0:8080"]

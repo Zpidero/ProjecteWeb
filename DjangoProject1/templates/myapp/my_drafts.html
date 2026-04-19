@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block Title %}Mis Formaciones - Inazuma FutDraft{% endblock %}
+
+{% block body %}
+<svg style="width:0; height:0; position:absolute;" aria-hidden="true" focusable="false">
+    <defs>
+        <linearGradient id="cat1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3a2a1a"/><stop offset="100%" stop-color="#cd7f32"/></linearGradient>
+        <linearGradient id="cat2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f5f5f5"/><stop offset="100%" stop-color="#c0c0c0"/></linearGradient>
+        <linearGradient id="cat3" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fff7b0"/><stop offset="50%" stop-color="#ffd700"/><stop offset="100%" stop-color="#b8860b"/></linearGradient>
+        <linearGradient id="cat4" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00ffff"/><stop offset="50%" stop-color="#008cff"/><stop offset="100%" stop-color="#00ffff"/></linearGradient>
+        <filter id="glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    </defs>
+</svg>
+
+<div class="pt-32 pb-12 bg-gray-50 min-h-screen font-sans">
+    <div class="max-w-7xl mx-auto px-6">
+        
+        <div class="flex justify-between items-center mb-10">
+            <h1 class="text-5xl font-black text-[#002b36] uppercase italic tracking-tighter">Tactical History</h1>
+            <a href="{% url 'game' %}">
+                {% include 'components/button.html' with text="+ NEW DRAFT" %}
+            </a>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+            {% for draft in drafts %}
+            <div class="bg-[#002b36] rounded-[3rem] p-8 shadow-2xl border border-white/5 relative overflow-hidden flex flex-col h-[750px]">
+                
+                <div class="flex justify-between items-center mb-6 relative z-10">
+                    <div>
+                        <h2 class="text-3xl font-black text-white uppercase italic tracking-tighter">{{ draft.name }}</h2>
+                        <span class="text-yellow-400 font-bold text-xs uppercase tracking-widest">{{ draft.date|date:"d M Y" }}</span>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-white/40 text-[10px] font-black uppercase">Formation</p>
+                        <p class="text-2xl font-black text-yellow-400 italic">{{ draft.lineup.name }}</p>
+                    </div>
+                </div>
+
+                <div class="pitch-container flex-grow bg-[#003644] rounded-[2rem] border border-white/10 relative p-4 flex flex-col-reverse justify-around shadow-inner" 
+                     data-id="{{ draft.id }}" 
+                     data-formation="{{ draft.lineup.name }}">
+                    
+                    <div class="absolute inset-x-0 top-1/2 h-[1px] bg-white/5"></div>
+                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 border border-white/5 rounded-full"></div>
+                </div>
+
+                <script type="application/json" id="draft-data-{{ draft.id }}">
+                    {{ draft.js_data|safe }}
+                </script>
+
+            </div>
+            {% empty %}
+            <div class="col-span-full text-center py-24 bg-white rounded-[3rem] border-2 border-dashed border-gray-200">
+                <p class="text-3xl text-gray-300 font-black italic uppercase tracking-widest">No drafts found</p>
+                <a href="{% url 'game' %}">{% include 'components/button.html' with text="START A NEW DRAFT" %}</a>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const pitchContainers = document.querySelectorAll('.pitch-container');
+
+    pitchContainers.forEach(container => {
+        const draftId = container.dataset.id;
+        const formation = container.dataset.formation; 
+        
+        // Leemos el JSON de los jugadores inyectado por Django
+        const rawData = document.getElementById(`draft-data-${draftId}`).textContent;
+        const players = JSON.parse(rawData);
+
+        // Desglosamos la formación (Ej: "4-3-3")
+        const parts = formation.split('-');
+        const defCount = parseInt(parts[0]);
+        const midCount = parseInt(parts[1]);
+        const attCount = parseInt(parts[2]);
+
+        // Aseguramos tener 11 jugadores
+        if (players.length !== 11) return;
+
+        // Troceamos el array en filas
+        const fwPlayers = players.slice(0, attCount);
+        const mfPlayers = players.slice(attCount, attCount + midCount);
+        const dfPlayers = players.slice(attCount + midCount, 10);
+        const gkPlayers = players.slice(10, 11);
+
+        // LÓGICA EXACTA DE GAME.HTML
+        function generatePlayerCard(player) {
+            let cat = 1;
+            if (player.Total >= 961) cat = 4;
+            else if (player.Total >= 946) cat = 3;
+            else if (player.Total >= 931) cat = 2;
+
+            const fill = `url(#cat${cat})`;
+            const filter = cat === 4 ? 'filter="url(#glow)"' : '';
+            const pulseClass = cat === 4 ? 'animate-pulse' : '';
+            
+            // Fórmula matemática exacta del juego
+            const rating = Math.trunc(((player.Total - 925) / (970 - 925)) * (99 - 50) + 50);
+            
+            const displayName = player.Nickname || player.Name;
+
+            return `
+            <div class="w-16 sm:w-24 drop-shadow-xl ${pulseClass}">
+                <svg viewBox="0 0 300 420" class="w-full h-full">
+                    <path d="M40 20 Q20 40 20 80 L20 300 Q20 340 60 360 L150 410 L240 360 Q280 340 280 300 L280 80 Q280 40 260 20 Q220 0 150 0 Q80 0 40 20 Z"
+                          stroke="black" stroke-width="3" fill="${fill}" ${filter}/>
+                    
+                    <foreignObject x="50" y="220" width="200" height="60">
+                        <div xmlns="http://www.w3.org/1999/xhtml" class="text-center font-extrabold text-2xl leading-tight break-words text-black">
+                            ${displayName}
+                        </div>
+                    </foreignObject>
+                    
+                    <text x="40" y="60" class="font-mono font-extrabold text-4xl text-black">${rating}</text>
+                    <text x="40" y="90" class="font-extrabold text-2xl text-black">${player.Position}</text>
+                    
+                    <image x="100" y="50" width="160" height="160" href="${player.Image}" preserveAspectRatio="xMidYMid slice"/>
+                    <image x="40" y="160" width="60" height="60" href="/static/images/elements/${player.Element}.png"/>
+                    <image x="30" y="80" width="70" height="100" href="${player.Team_image}" onerror="this.href.baseVal='/static/images/teams/Reclutas.png'"/>
+                    
+                    <text x="50" y="280" class="font-bold text-xl text-black">POW ${player.Power}</text>
+                    <text x="160" y="280" class="font-bold text-xl text-black">PRE ${player.Pressure}</text>
+                </svg>
+            </div>`;
+        }
+
+        function renderRow(playerArray) {
+            return `<div class="flex justify-center gap-1 sm:gap-2 z-10">
+                        ${playerArray.map(generatePlayerCard).join('')}
+                    </div>`;
+        }
+
+        // Insertamos en orden Inverso porque usamos flex-col-reverse
+        // Así el GK queda arriba de todo.
+        container.innerHTML += renderRow(fwPlayers);
+        container.innerHTML += renderRow(mfPlayers);
+        container.innerHTML += renderRow(dfPlayers);
+        container.innerHTML += renderRow(gkPlayers);
+    });
+});
+</script>
+{% endblock %}

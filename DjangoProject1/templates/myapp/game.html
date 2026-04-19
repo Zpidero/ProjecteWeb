@@ -1,179 +1,337 @@
-{% extends "base.html" %}
-{% load static %}
-{% block Title %}Game{% endblock %}
+    {% extends "base.html" %}
+    {% load static %}
+    {% block Title %}Game - Draft{% endblock %}
 
-{% block body %}
+    {% block body %}
 
-<div id="formation-container" class="flex flex-col-reverse items-center justify-center min-h-screen gap-6 p-4 bg-gray-800 overflow-hidden"></div>
-
-<div id="overlay" class="fixed inset-0 bg-black/50 hidden z-50 flex items-start justify-center pt-20 overflow-auto">
-    <div class="bg-gray-900 rounded-xl p-8 flex flex-col items-center max-w-7xl w-full">
-        <h2 class="text-4xl font-bold mb-6 text-white">Choose a player</h2>
-        <div id="players-container" class="flex flex-wrap gap-6 justify-center"></div>
-        <button id="close-overlay" class="mt-6 px-6 py-3 bg-red-600 rounded hover:bg-red-700 text-white font-bold text-lg">
-            Close
-        </button>
+    <div id="formation-overlay" class="fixed inset-0 bg-black/90 z-[60] flex items-center justify-center">
+        <div class="bg-gray-900 rounded-xl p-8 flex flex-col items-center max-w-4xl w-full border border-yellow-500">
+            <h2 class="text-4xl font-bold mb-6 text-white uppercase italic">Select Formation</h2>
+            <div id="formations-list" class="flex flex-wrap gap-4 justify-center">
+                </div>
+        </div>
     </div>
-</div>
 
-<style>
-.player-card {
-    width: clamp(100px, 12vw, 150px);
-    height: clamp(160px, 20vw, 220px);
-    background-color: #C9A66B;
-    border-radius: 12px;
-    font-weight: bold;
-    font-size: clamp(0.9rem, 2vw, 1.2rem);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: transform 0.2s;
-}
-.player-card:hover { transform: scale(1.1); }
+    <div id="formation-container" class="flex flex-col-reverse items-center justify-center min-h-screen gap-6 p-4 bg-gray-800 overflow-hidden">
+        </div>
 
-.select-player {
-    width: clamp(150px, 18vw, 220px);
-    height: clamp(200px, 24vw, 280px);
-    cursor: pointer;
-    transition: transform 0.2s;
-}
-.select-player:hover { transform: scale(1.05); }
-</style>
+    <div id="team-rating"
+         class="fixed top-100 right-100 bg-gray-900 border border-yellow-500 rounded-xl px-4 py-3 text-white text-center shadow-lg z-50">
+        <div class="text-xs text-gray-400">TEAM RATING</div>
+        <div id="rating-value" class="text-2xl font-bold">0</div>
+    </div>
 
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const formation_chosen = JSON.parse(sessionStorage.getItem("formation"));
-    if (!formation_chosen) return;
+    <div id="overlay" class="fixed inset-0 bg-black/50 hidden z-50 flex items-start justify-center pt-20 overflow-auto">
+        <div class="bg-gray-900 rounded-xl p-8 flex flex-col items-center max-w-7xl w-full">
+            <h2 class="text-4xl font-bold mb-6 text-white">Choose a player</h2>
+            <div id="players-container" class="flex flex-wrap gap-6 justify-center"></div>
+        </div>
+    </div>
 
-    const [def, mid, att] = formation_chosen.name.split("-").map(Number);
-    const formationContainer = document.getElementById("formation-container");
+    <div id="save-bar" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 bg-gray-900 border border-yellow-500 rounded-2xl px-6 py-4 shadow-2xl">
+        <input id="draft-name" type="text" placeholder="Nom de l'equip..."
+            class="bg-gray-800 text-white border border-gray-600 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-yellow-400 w-52">
+        <button id="save-btn"
+            class="bg-yellow-500 hover:bg-yellow-400 text-black font-bold px-5 py-2 rounded-xl text-sm transition active:scale-95">
+            Guardar equip
+        </button>
+        <span id="save-msg" class="text-sm hidden"></span>
+    </div>
 
-    function createRow(count, positionCode, prefix) {
-        let html = `<div class="flex gap-4 justify-center w-full">`;
-        for (let i = 1; i <= count; i++) {
-            html += `
-                <button class="player-card" data-position="${positionCode}">
-                    ${prefix}${i}
-                </button>
-            `;
-        }
-        html += `</div>`;
-        return html;
+    <style>
+    /* Your existing styles */
+    .player-card {
+        width: clamp(100px, 12vw, 150px);
+        height: clamp(160px, 20vw, 220px);
+        background-color: #C9A66B;
+        border-radius: 12px;
+        font-weight: bold;
+        font-size: clamp(0.9rem, 2vw, 1.2rem);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: transform 0.2s;
+        overflow: hidden; /* Important for SVG display */
     }
+    .player-card:hover { transform: scale(1.1); }
 
-    let html = "";
-    html += createRow(att, "FW", "FW");
-    html += createRow(mid, "MF", "MF");
-    html += createRow(def, "DF", "DF");
-    html += `<div class="flex justify-center w-full"><button class="player-card" data-position="GK">GK</button></div>`;
-    formationContainer.innerHTML = html;
+    .select-player {
+        width: clamp(150px, 18vw, 220px);
+        height: clamp(200px, 24vw, 280px);
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+    .select-player:hover { transform: scale(1.05); }
 
-    let selectedButton = null;
+    /* Formation button style */
+    .formation-btn {
+        background: #eab308;
+        color: black;
+        padding: 1.5rem;
+        border-radius: 0.75rem;
+        font-weight: bold;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    .formation-btn:hover { background: #facc15; transform: translateY(-5px); }
+    </style>
 
-    formationContainer.addEventListener('click', function(e) {
-        const btn = e.target.closest('.player-card');
-        if (!btn) return;
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const formationOverlay = document.getElementById('formation-overlay');
+        const formationsList = document.getElementById('formations-list');
+        const selectedPlayers = {};
+        const selectedTotals = {};
+        const selectedPlayerIds = new Set();
+        let selectedButton = null;
 
-        selectedButton = btn;
-        document.getElementById('overlay').classList.remove('hidden');
+        const formations = [
+            { name: "4-3-3", description: "4 Defenders, 3 Midfielders, 3 Forwards" },
+            { name: "4-4-2", description: "4 Defenders, 4 Midfielders, 2 Forwards" },
+            { name: "3-5-2", description: "3 Defenders, 5 Midfielders, 2 Forwards" },
+            { name: "5-3-2", description: "5 Defenders, 3 Midfielders, 2 Forwards" }
+        ];
 
-        fetch(`/random-players/?position=${btn.dataset.position}&min=965&max=999`)
-            .then(res => res.json())
-            .then(players => {
-                const container = document.getElementById('players-container');
-                container.innerHTML = '';
+        // --- 1. SELECCIÓ DE FORMACIÓ ---
+        formations.forEach(f => {
+            const btn = document.createElement('div');
+            btn.className = "formation-btn text-center min-w-[150px]";
+            btn.innerHTML = `<div class="text-2xl">${f.name}</div><div class="text-xs">${f.description}</div>`;
+            btn.onclick = () => {
+                sessionStorage.setItem("formation", JSON.stringify(f));
+                formationOverlay.classList.add('hidden');
+                renderPitch(f.name);
+            };
+            formationsList.appendChild(btn);
+        });
 
-                if (players.length === 0) {
-                    container.innerHTML = '<p class="text-white">No players available for this position</p>';
-                    return;
+        // --- 2. DIBUIXAR EL CAMP ---
+        function renderPitch(formationName) {
+            const [def, mid, att] = formationName.split("-").map(Number);
+            const container = document.getElementById("formation-container");
+
+            function createRow(count, positionCode, prefix) {
+                let html = `<div class="flex gap-4 justify-center w-full">`;
+                for (let i = 1; i <= count; i++) {
+                    html += `<button class="player-card" data-position="${positionCode}">${prefix}${i}</button>`;
                 }
+                html += `</div>`;
+                return html;
+            }
 
-                players.forEach(player => {
+            container.innerHTML = createRow(att, "FW", "FW") +
+                                createRow(mid, "MF", "MF") +
+                                createRow(def, "DF", "DF") +
+                                `<div class="flex justify-center w-full"><button class="player-card" data-position="GK">GK</button></div>`;
+        }
 
-                    const categoryStyles = {
-                        1: "bg-gradient-to-br from-[#7a4a1f] to-[#cd7f32] shadow-[0_0_10px_#cd7f32]",
-                        2: "bg-gradient-to-br from-gray-200 to-[#c0c0c0] shadow-[0_0_10px_#c0c0c0]",
-                        3: "bg-gradient-to-br from-yellow-200 via-yellow-400 to-[#ffd700] shadow-[0_0_15px_#ffd700]",
-                        4: "bg-gradient-to-br from-cyan-200 via-blue-300 to-[#00ffff] shadow-[0_0_20px_#00ffff] animate-pulse"
-                    };
-                    const fill = `url(#cat${player.Category})`;
-                    container.innerHTML += `
-                        <button class="select-player text-black hover:scale-110 transition">
-                            <svg viewBox="0 0 300 420" class="w-full h-full">
-                                <defs>
-                                    <linearGradient id="cat1" x1="0" y1="0" x2="1" y2="1">
-                                        <stop offset="0%" stop-color="#3a2a1a"/>
-                                        <stop offset="100%" stop-color="#cd7f32"/>
-                                    </linearGradient>
+        // --- 3. CLIC AL BOTÓ DEL CAMP (OBRIR OVERLAY) ---
+        document.getElementById("formation-container").addEventListener('click', function(e) {
+            const btn = e.target.closest('.player-card');
+            if (!btn) return;
 
-                                    <linearGradient id="cat2">
-                                        <stop offset="0%" stop-color="#f5f5f5"/>
-                                        <stop offset="100%" stop-color="#c0c0c0"/>
-                                    </linearGradient>
+            selectedButton = btn;
+            document.getElementById('overlay').classList.remove('hidden');
 
-                                    <linearGradient id="cat3">
-                                        <stop offset="0%" stop-color="#fff7b0"/>
-                                        <stop offset="50%" stop-color="#ffd700"/>
-                                        <stop offset="100%" stop-color="#b8860b"/>
-                                    </linearGradient>
+            fetch(`/random-players/?position=${btn.dataset.position}&excluded=${[...selectedPlayerIds].join(',')}`)
+                .then(res => res.json())
+                .then(players => {
+                    const container = document.getElementById('players-container');
+                    container.innerHTML = '';
+                    players.forEach(player => {
 
-                                    <linearGradient id="cat4">
-                                        <stop offset="0%" stop-color="#00ffff"/>
-                                        <stop offset="50%" stop-color="#008cff"/>
-                                        <stop offset="100%" stop-color="#00ffff"/>
-                                    </linearGradient>
-                                    <filter id="glow">
-                                        <feGaussianBlur stdDeviation="3" result="blur"/>
-                                        <feMerge>
-                                            <feMergeNode in="blur"/>
-                                            <feMergeNode in="SourceGraphic"/>
-                                        </feMerge>
-                                    </filter>
-                                </defs>
-                                <path d="M40 20 Q20 40 20 80 L20 300 Q20 340 60 360 L150 410 L240 360 Q280 340 280 300 L280 80 Q280 40 260 20 Q220 0 150 0 Q80 0 40 20 Z"
-                                      stroke="black" stroke-width="3" fill="${fill}" filter="url(#glow)"/>
-                                <foreignObject x="50" y="220" width="200" height="60">
-                                    <div xmlns="http://www.w3.org/1999/xhtml"
-                                         class="text-center font-extrabold text-2xl leading-tight break-words">
-                                        ${(player.Name?.length || 0) > 14 ? (player.Nickname || player.Name) : player.Name}
-                                    </div>
-                                </foreignObject>
-                                <text x="40" y="60" class="font-mono font-extrabold text-4xl">${player.Total}</text>
-                                <text x="40" y="90" class="font-extrabold text-2xl">${player.Position}</text>
-                                <text x="50" y="280" class="font-bold text-xl">POW ${player.Power}</text>
-                                <text x="50" y="310" class="font-bold text-xl">CON ${player.Control}</text>
-                                <text x="50" y="340" class="font-bold text-xl">TEC ${player.Technique}</text>
-                                <text x="160" y="280" class="font-bold text-xl">PRE ${player.Pressure}</text>
-                                <text x="160" y="310" class="font-bold text-xl">PHY ${player.Physical}</text>
-                                <text x="160" y="340" class="font-bold text-xl">AGI ${player.Agility}</text>
-                                <text x="110" y="370" class="font-bold text-xl">INT ${player.Intelligence}</text>
-                                <image x="100" y="50" width="160" height="160" href="${player.Image}" preserveAspectRatio="xMidYMid slice"/>
-                                <image x="40" y="160" width="60" height="60" href="/static/images/elements/${player.Element}.png"/>
-                                <image x="30" y="80" width="70" height="100" href="/static/images/teams/${player.Team}.png"/>
-                            </svg>
-                        </button>
-                    `;
+                        const categoryStyles = {
+                            1: "bg-gradient-to-br from-[#7a4a1f] to-[#cd7f32] shadow-[0_0_10px_#cd7f32]",
+                            2: "bg-gradient-to-br from-gray-200 to-[#c0c0c0] shadow-[0_0_10px_#c0c0c0]",
+                            3: "bg-gradient-to-br from-yellow-200 via-yellow-400 to-[#ffd700] shadow-[0_0_15px_#ffd700]",
+                            4: "bg-gradient-to-br from-pink-200 via-blue-300 to-[#00ffff] shadow-[0_0_20px_#00ffff] animate-pulse"
+                        };
+                        function noise(stat) {
+                            const noise = Math.floor(Math.random() * 11) - 5; // número aleatorio entre -5 y 5
+                            return Math.max(1, Math.min(99, stat + noise));
+
+                        }
+                        const fill = `url(#cat${player.Category})`;
+                        container.innerHTML += `
+                            <button class="select-player text-black hover:scale-110 transition" data-player-id="${player.ID}" data-total="${player.Total}">
+                                <svg viewBox="0 0 300 420" class="w-full h-full">
+                                    <defs>
+                                        <linearGradient id="cat1" x1="0" y1="0" x2="1" y2="1">
+                                            <stop offset="0%" stop-color="#3a2a1a"/>
+                                            <stop offset="100%" stop-color="#cd7f32"/>
+                                        </linearGradient>
+
+                                        <linearGradient id="cat2">
+                                            <stop offset="0%" stop-color="#f5f5f5"/>
+                                            <stop offset="100%" stop-color="#c0c0c0"/>
+                                        </linearGradient>
+
+                                        <linearGradient id="cat3">
+                                            <stop offset="0%" stop-color="#fff7b0"/>
+                                            <stop offset="50%" stop-color="#ffd700"/>
+                                            <stop offset="100%" stop-color="#b8860b"/>
+                                        </linearGradient>
+
+                                        <linearGradient id="cat4">
+                                            <stop offset="0%" stop-color="#00ffff"/>
+                                            <stop offset="50%" stop-color="#008cff"/>
+                                            <stop offset="100%" stop-color="#00ffff"/>
+                                        </linearGradient>
+                                        <filter id="glow">
+                                            <feGaussianBlur stdDeviation="3" result="blur"/>
+                                            <feMerge>
+                                                <feMergeNode in="blur"/>
+                                                <feMergeNode in="SourceGraphic"/>
+                                            </feMerge>
+                                        </filter>
+                                    </defs>
+                                    <path d="M40 20 Q20 40 20 80 L20 300 Q20 340 60 360 L150 410 L240 360 Q280 340 280 300 L280 80 Q280 40 260 20 Q220 0 150 0 Q80 0 40 20 Z"
+                                          stroke="black" stroke-width="3" fill="${fill}" filter="url(#glow)"/>
+                                    <foreignObject x="50" y="220" width="200" height="60">
+                                        <div xmlns="http://www.w3.org/1999/xhtml"
+                                             class="text-center font-extrabold text-2xl leading-tight break-words">
+                                            ${(player.Name?.length || 0) > 13 ? (player.Nickname || player.Name) : player.Name}
+                                        </div>
+                                    </foreignObject>
+                                    <image x="97" y="35" width="180" height="180" href="${player.Image}" preserveAspectRatio="xMidYMid slice"/>
+                                    <text x="40" y="60" class="font-mono font-extrabold text-4xl">${Math.trunc(((player.Total - 914) / (970 - 914)) * (99 - 50) + 50)}</text>
+                                    <text x="40" y="90" class="font-extrabold text-2xl">${player.Position}</text>
+                                    <image x="35" y="160" width="55" height="55" href="/static/images/elements/${player.Element}.png"/>
+                                    <image x="30" y="80" width="70" height="100" href="${player.Team_image}" onerror="this.href.baseVal='/static/images/teams/Reclutas.png'"/>
+                                    <text x="50" y="280" class="font-extrabold text-xl">POW</text>
+                                    <text x="105" y="280" class="font-bold text-xl">${noise(Math.round(((player.Power - 114) / (169 - 114)) * 99))}</text>
+                                    <text x="50" y="310" class="font-extrabold text-xl">CON</text>
+                                    <text x="105" y="310" class="font-bold text-xl">${noise(Math.round(((player.Control - 119) / (161 - 119)) * 99))}</text>
+                                    <text x="50" y="340" class="font-extrabold text-xl">TEC</text>
+                                    <text x="105" y="340" class="font-bold text-xl">${noise(Math.round(((player.Technique - 116) / (162 - 116)) * 99))}</text>
+                                    <text x="160" y="280" class="font-extrabold text-xl">PRE</text>
+                                    <text x="210" y="280" class="font-bold text-xl">${noise(Math.round(((player.Pressure - 116) / (147 - 116)) * 99))}</text>
+                                    <text x="160" y="310" class="font-extrabold text-xl">PHY</text>
+                                    <text x="210" y="310" class="font-bold text-xl">${noise(Math.round(((player.Physical - 113) / (152 - 113)) * 99))}</text>
+                                    <text x="160" y="340" class="font-extrabold text-xl">AGI</text>
+                                    <text x="210" y="340" class="font-bold text-xl">${noise(Math.round(((player.Agility - 112) / (155 - 112)) * 99))}</text>
+                                    <text x="105" y="370" class="font-extrabold text-xl">INT</text>
+                                    <text x="160" y="370" class="font-bold text-xl">${noise(Math.round(((player.Intelligence - 124) / (169 - 124)) * 99))}</text>
+
+                                    </svg>
+                            </button>`;
+                    });
                 });
-            })
-            .catch(err => console.error(err));
-    });
+        });
 
-    document.getElementById('close-overlay').addEventListener('click', function() {
-        document.getElementById('overlay').classList.add('hidden');
-    });
-
-    document.addEventListener('click', function(e) {
-        if(e.target.closest('.select-player') && selectedButton) {
+        // --- 4. SELECCIONAR JUGADOR DE LA LLISTA ---
+        document.addEventListener('click', function(e) {
             const playerBtn = e.target.closest('.select-player');
-            selectedButton.innerHTML = playerBtn.innerHTML;
-            selectedButton.style.background = "transparent";
-            selectedButton.disabled = true;
-            document.getElementById('overlay').classList.add('hidden');
+            function updateTeamRating() {
+                const totals = Object.values(selectedTotals);
+
+                let sum = totals.reduce((acc, val) => acc + val, 0);
+
+                // siempre dividido entre 11
+                let avg = Math.round(sum / 11);
+
+                document.getElementById("rating-value").innerText = avg;
+            }
+            if (playerBtn && selectedButton) {
+                const playerId = playerBtn.getAttribute('data-player-id');
+                const allCards = [...document.querySelectorAll('#formation-container .player-card')];
+                const btnIndex = allCards.indexOf(selectedButton);
+                const rawTotal = parseInt(playerBtn.dataset.total);
+                const playerTotal = Math.trunc(
+                    ((rawTotal - 914) / (970 - 914)) * (99 - 50) + 50
+                );
+
+                if (playerId && btnIndex !== -1) {
+                    selectedPlayerIds.add(playerId);
+
+                    selectedPlayers[btnIndex] = playerId;
+                    selectedTotals[btnIndex] = playerTotal;
+                    updateTeamRating();
+                    selectedButton.innerHTML = playerBtn.innerHTML;
+                    selectedButton.style.background = "transparent";
+                    selectedButton.disabled = true;
+
+                    document.getElementById('overlay').classList.add('hidden');
+                    // document.getElementById('save-bar').classList.remove('hidden');
+                    // MOSTRAR BOTÓ GUARDAR NOMÉS QUAN S'HAGIN SELECCIONAT 11 JUGADORS
+                    if (Object.keys(selectedPlayers).length === 11) {
+                        document.getElementById('save-bar').classList.remove('hidden');
+                    }
+                }
+            }
+        });
+
+        // Botó tancar overlay
+        const closeBtn = document.getElementById('close-overlay');
+        if (closeBtn) {
+            closeBtn.onclick = () => document.getElementById('overlay').classList.add('hidden');
+        }
+
+        // --- 5. GUARDAR A LA BASE DE DADES ---
+        document.getElementById('save-btn').onclick = async function() {
+            const name = document.getElementById('draft-name').value.trim() || 'El meu equip';
+            const formationObj = JSON.parse(sessionStorage.getItem('formation') || '{}');
+            const formation = formationObj.name || "4-3-3";
+            const players = Object.values(selectedPlayers).filter(Boolean);
+
+            if (players.length === 0) {
+                showMsg('Tria almenys un jugador!', 'text-red-400');
+                return;
+            }
+
+            this.disabled = true;
+            this.textContent = 'Guardant...';
+
+            try {
+                const res = await fetch('/save-draft/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': getCookie('csrftoken'),
+                    },
+                    body: JSON.stringify({ name, formation, players }),
+                });
+                const data = await res.json();
+                if (data.ok) {
+                    showMsg('✓ Equip guardat!', 'text-green-400');
+                    window.location.href = '/my-drafts/'; // Opcional: Redirigir a la llista
+                } else {
+                    showMsg('Error: ' + data.error, 'text-red-400');
+                }
+            } catch (e) {
+                showMsg('Error de connexió', 'text-red-400');
+            } finally {
+                this.disabled = false;
+                this.textContent = 'Guardar equip';
+            }
+        };
+
+        function showMsg(text, cls) {
+            const el = document.getElementById('save-msg');
+            el.textContent = text;
+            el.className = `text-sm ${cls}`;
+            el.classList.remove('hidden');
+            setTimeout(() => el.classList.add('hidden'), 3000);
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
         }
     });
 
-});
-</script>
 
-{% endblock %}
+    </script>
+
+    {% endblock %}

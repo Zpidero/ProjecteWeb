@@ -1,5 +1,8 @@
 services:
   django:
+    env_file:
+      - .env
+    
     build:
       context: ./DjangoProject1
       dockerfile: Dockerfile
@@ -13,16 +16,4 @@ services:
       - ./DjangoProject1/db.sqlite3:/app/db.sqlite3
       - ./DjangoProject1:/app
     #   - webdata:/app/db #producció naim diu k esta perfe
-  api:
-    build:
-      context: ./api
-      dockerfile: Dockerfile
-
-    restart: unless-stopped
-
-    ports:
-      - "5000:5000"
-    command: sh -c "sh /app/banners/apibanner.sh && uv run uvicorn main:app --host 0.0.0.0 --port 5000" # decoració per mostrar la url de l'API al iniciar el contenedor si algo falla podem borrar
-
-# volumes:
-#   webdata:
+    

@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User
 
 # Create your models here.
 
@@ -7,12 +8,12 @@ class Teams(models.Model):
     name = models.CharField(max_length=200)
 
 class Lineup(models.Model):
-    name = models.CharField(max_length=200)
+    name = models.CharField(max_length=20)
     image = models.URLField()
     forwards = models.IntegerField()
     midfielders = models.IntegerField()
     defenders = models.IntegerField()
-    goalKeeper = models.IntegerField()
+    goalKeeper = models.IntegerField(default=1)
 
 class Players(models.Model):
     image = models.URLField()
@@ -26,22 +27,28 @@ class Players(models.Model):
     power = models.IntegerField()
     control = models.IntegerField()
     technique = models.IntegerField()
+    pressure = models.IntegerField(default=0)
     physical = models.IntegerField()
     agility = models.IntegerField()
-    age_Group = models.CharField(max_length=200)
-    school_Year = models.IntegerField()
-    gender = models.IntegerField()
-    #role = models.IntegerField()
+    intelligence = models.IntegerField(default=0)
+    total = models.IntegerField()
+    age_group = models.CharField(max_length=200)
+    school_year = models.CharField(max_length=200)
+    gender = models.CharField(max_length=200)
+    role = models.CharField(max_length=200)
 
-class AppUser(models.Model):
-    name = models.CharField(max_length=200)
-    mail = models.CharField(max_length=200)
-    creation_date = models.DateTimeField(auto_now_add=True)
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    image = models.ImageField(default='default.jpg', upload_to='profile_pics')
+
+    def __str__(self):
+        return f'{self.user.username} Profile'
 
 class Futdraft(models.Model):
     name = models.CharField(max_length=200)
-    user = models.ForeignKey(AppUser, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     date = models.DateTimeField(auto_now_add=True)
 
     players = models.ManyToManyField(Players, related_name= "draft_players")
     lineup = models.ForeignKey(Lineup, on_delete=models.CASCADE)
+    player_order = models.JSONField(default=list, blank=True, null=True)
