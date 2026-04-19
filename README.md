@@ -4,7 +4,7 @@ A web application built with Django 6 that lets users explore players and teams 
 
 ---
 
-## 📋 Table of Contents
+## Table of Contents
 
 - [Overview](#overview)
 - [Features](#features)
@@ -23,21 +23,11 @@ A web application built with Django 6 that lets users explore players and teams 
 
 FutDraft is a fan-made interactive web game inspired by the FIFA FUT Draft mechanic, themed around *Inazuma Eleven*. Users are presented with randomised player choices (filtered by position and power tier), select their squad, choose a formation, name their draft, and save it for later viewing.
 
-Player and team data is fetched from the public REST API and **synced into the local database** via management commands, eliminating all real-time API calls during normal usage:
+Player and team data is fetched from the public REST API that our team also created and is **synced into the local database**:
+
 `https://inazumaeleven-api.onrender.com`
 
----
-
-## Features
-
-- 🔍 **Player Browser** — Search and filter all Inazuma Eleven players by position, element, archetype, gender, role, age group, school year, and minimum total stats. Paginated (20 per page).
-- 🏟️ **Team Browser** — Browse teams with images, paginated and searchable by name.
-- 🎲 **Draft Game** — Pick one player per round from 5 random options grouped by power tier. All data served from local DB — no API latency.
-- 📋 **My Drafts** — View saved draft lineups with formation and players displayed on a pitch.
-- 👤 **User Accounts** — Register, log in, and upload a profile picture.
-- 🔧 **Django Admin** — Full admin interface to add, modify and delete all model instances.
-- 🐳 **Docker + Docker Compose** — Fully containerised for easy deployment and team collaboration.
-- 🌍 **12-Factor compliant** — Secret key and configuration managed via environment variables.
+GithubProject: https://github.com/Zpidero/InazumaEleven_API
 
 ---
 
@@ -69,7 +59,7 @@ DjangoProject1/
 │   └── wsgi.py
 ├── myapp/                      # Main application
 │   ├── models.py               # Teams, Players, Lineup, Profile, Futdraft
-│   ├── views.py                # All view logic (DB-only, no live API calls)
+│   ├── views.py                # All view logic
 │   ├── urls.py                 # App URL patterns
 │   ├── forms.py                # User registration form
 │   ├── admin.py                # Django admin registration
@@ -87,8 +77,8 @@ DjangoProject1/
 │   └── images/
 │       ├── elements/           # Element PNG icons (local)
 │       └── teams/              # Local team shield fallback image
-├── .env.example                # Environment variable template (commit this)
-├── .env                        # Actual secrets (never commit)
+
+├── .env                        # Enviorment Variables
 ├── Dockerfile
 ├── docker-compose.yml
 ├── manage.py
@@ -177,7 +167,7 @@ docker compose exec django uv run manage.py sync_teams
 |---|---|---|
 | `/` | `home` | Landing page |
 | `/game/` | `game_view` | Draft game (login required) |
-| `/players/` | `players_list` | Player browser (paginated, filterable) |
+| `/players/` | `players_list` | Player browser (paginated, filterable, searchable) |
 | `/teams/` | `teams_list` | Team browser (paginated, searchable) |
 | `/player/<id>/` | `player_detail` | Player detail page |
 | `/teams/<n>/` | `team_detail` | Team detail + squad list |
@@ -189,22 +179,3 @@ docker compose exec django uv run manage.py sync_teams
 | `/admin/` | Django admin | Full admin interface |
 
 ---
-
-## 12-Factor Compliance
-
-| Factor | Implementation |
-|---|---|
-| Config | `SECRET_KEY` via environment variable (`python-decouple`, `.env` file) |
-| Dependencies | Declared in `pyproject.toml`, locked in `uv.lock` |
-| Backing services | SQLite configurable via `DATABASES` setting |
-| Build/run separation | Docker image build vs. runtime sync commands |
-| Dev/prod parity | Docker Compose ensures identical environments across team members |
-
----
-
-## Known Issues / TODOs
-
-- **Power tier filtering** — certain positions may not have players in all defined power ranges; the view falls back gracefully but ranges could be tuned per-position.
-- **SQLite in production** — should be replaced with PostgreSQL for multi-user deployments.
-- **Media files** — profile images are stored locally; a cloud storage backend should be used in production.
-- **`DEBUG = True`** — must be set to `False` and `ALLOWED_HOSTS` restricted before any public deployment.
