@@ -64,16 +64,36 @@
                                 <option value="Unknown" {% if request.GET.gender == "Unknown" %}selected{% endif %}>Unknown</option>
                             </select>
                         </div>
-                        <select name="age_group" class="custom-select">
-                            <option value="">Age Group</option>
-                            <option value="Middle School" {% if request.GET.age_group == "Middle School" %}selected{% endif %}>Middle School</option>
-                            <option value="High School" {% if request.GET.age_group == "High School" %}selected{% endif %}>High School</option>
-                        </select>
-                        <select name="school_year" class="custom-select">
-                            <option value="">School Year</option>
-                            <option value="1st Year" {% if request.GET.school_year == "1st Year" %}selected{% endif %}>1st Year</option>
-                            <option value="2nd Year" {% if request.GET.school_year == "2nd Year" %}selected{% endif %}>2nd Year</option>
-                            <option value="3rd Year" {% if request.GET.school_year == "3rd Year" %}selected{% endif %}>3rd Year</option>
+                        <div class="grid grid-cols-2 gap-3">
+                            <select name="age_group" class="custom-select text-sm">
+                                <option value="">Age Group</option>
+                                <option value="Middle School" {% if request.GET.age_group == "Middle School" %}selected{% endif %}>Middle School</option>
+                                <option value="Adult" {% if request.GET.age_group == "Adult" %}selected{% endif %}>Adult</option>
+                                <option value="Elder" {% if request.GET.age_group == "Elder" %}selected{% endif %}>Elder</option>
+                                <option value="Elementary" {% if request.GET.age_group == "Elementary" %}selected{% endif %}>Elementary</option>
+                                <option value="Exobeing" {% if request.GET.age_group == "Exobeing" %}selected{% endif %}>Exobeing</option>
+                                <option value="Child" {% if request.GET.age_group == "Child" %}selected{% endif %}>Child</option>
+                                <option value="College" {% if request.GET.age_group == "College" %}selected{% endif %}>College</option>
+                                <option value="High School" {% if request.GET.age_group == "High School" %}selected{% endif %}>High School</option>
+                            </select>
+                            <select name="school_year" class="custom-select text-sm">
+                                <option value="">School Year</option>
+                                <option value="1st Year" {% if request.GET.school_year == "1st Year" %}selected{% endif %}>1st Year</option>
+                                <option value="2nd Year" {% if request.GET.school_year == "2nd Year" %}selected{% endif %}>2nd Year</option>
+                                <option value="3rd Year" {% if request.GET.school_year == "3rd Year" %}selected{% endif %}>3rd Year</option>
+                            </select>
+                        </div>
+                        <select name="game" class="custom-select">
+                            <option value="">Game</option>
+                            <option value="Inazuma Eleven" {% if request.GET.game == "Inazuma Eleven" %}selected{% endif %}>Inazuma Eleven</option>
+                            <option value="Inazuma Eleven 2: Firestorm / Blizzard" {% if request.GET.game == "Inazuma Eleven 2: Firestorm / Blizzard" %}selected{% endif %}>Inazuma Eleven 2: Firestorm / Blizzard</option>
+                            <option value="Inazuma Eleven 3: Lightning Bolt / Bomb Blast / Team Ogre Attacks!" {% if request.GET.game == "Inazuma Eleven 3: Lightning Bolt / Bomb Blast / Team Ogre Attacks!" %}selected{% endif %}>Inazuma Eleven 3: Lightning Bolt / Bomb Blast / Team Ogre Attacks!</option>
+                            <option value="Inazuma Eleven GO: Light / Shadow" {% if request.GET.game == "Inazuma Eleven GO: Light / Shadow" %}selected{% endif %}>Inazuma Eleven GO: Light / Shadow</option>
+                            <option value="Inazuma Eleven GO Chrono Stones: Wildfire / Thunderflash" {% if request.GET.game == "Inazuma Eleven GO Chrono Stones: Wildfire / Thunderflash" %}selected{% endif %}>Inazuma Eleven GO Chrono Stones: Wildfire / Thunderflash</option>
+                            <option value="Inazuma Eleven GO Galaxy: Big Bang / Supernova" {% if request.GET.game == "Inazuma Eleven GO Galaxy: Big Bang / Supernova" %}selected{% endif %}>Inazuma Eleven GO Galaxy: Big Bang / Supernova</option>
+                            <option value="Inazuma Eleven Ares" {% if request.GET.game == "Inazuma Eleven Ares" %}selected{% endif %}>Inazuma Eleven Ares</option>
+                            <option value="Inazuma Eleven Orion" {% if request.GET.game == "Inazuma Eleven Orion" %}selected{% endif %}>Inazuma Eleven Orion</option>
+                            <option value="Inazuma Eleven: Victory Road" {% if request.GET.game == "Inazuma Eleven: Victory Road" %}selected{% endif %}>Inazuma Eleven: Victory Road</option>
                         </select>
                     </div>
 
