@@ -38,7 +38,7 @@ def home(request):
 
 
 # ---------------------------------------------------------------------------
-# Players Navas
+# Players
 # ---------------------------------------------------------------------------
 
 def players_list(request):
@@ -53,6 +53,7 @@ def players_list(request):
     age_group   = request.GET.get('age_group', '')
     school_year = request.GET.get('school_year', '')
     min_total   = request.GET.get('min_total', '0')
+    game        = request.GET.get('game', '')
 
     if search:
         players = players.filter(
@@ -63,8 +64,9 @@ def players_list(request):
     if archetype:   players = players.filter(archetype=archetype)
     if gender:      players = players.filter(gender=gender)
     if role:        players = players.filter(role=role)
-    if age_group:   players = players.filter(age_Group=age_group)
-    if school_year: players = players.filter(school_Year=school_year)
+    if age_group:   players = players.filter(age_group=age_group)
+    if school_year: players = players.filter(school_year=school_year)
+    if game:        players = players.filter(game=game)
     if min_total.isdigit() and int(min_total) > 0:
         players = players.filter(total__gte=int(min_total))
 
@@ -79,7 +81,7 @@ def player_detail(request, player_id):
         player = Players.objects.select_related('team').get(id=player_id)
     except Players.DoesNotExist:
         return render(request, 'myapp/404.html', status=404)
-
+    
     stats = [
         ('Power',        player.power),
         ('Control',      player.control),
@@ -91,7 +93,6 @@ def player_detail(request, player_id):
     ]
 
     return render(request, 'myapp/player_detail.html', {'p': player, 'stats': stats})
-
 
 # ---------------------------------------------------------------------------
 # Teams
@@ -125,7 +126,7 @@ def team_detail(request, team_name):
 
 
 # ---------------------------------------------------------------------------
-# Game Players edu
+# Game
 # ---------------------------------------------------------------------------
 
 def get_random_players(request):
@@ -193,7 +194,7 @@ def game_view(request):
 
 
 # ---------------------------------------------------------------------------
-# Drafts Players Gerard
+# Drafts
 # ---------------------------------------------------------------------------
 
 @login_required
@@ -247,7 +248,7 @@ def my_drafts(request):
             if draft.player_order
             else list(draft.players.all())
         )
-
+        
         draft.js_data = json.dumps([{
 
             "ID":           p.id,
@@ -266,9 +267,7 @@ def my_drafts(request):
             "Agility":      p.agility,
             "Intelligence": p.intelligence,
             "Pressure":     p.pressure,
-
             }
-            
             for p in ordered_list
         ])
 
