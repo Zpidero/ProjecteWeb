@@ -53,7 +53,6 @@ def players_list(request):
     age_group   = request.GET.get('age_group', '')
     school_year = request.GET.get('school_year', '')
     min_total   = request.GET.get('min_total', '0')
-    game        = request.GET.get('game', '')
 
     if search:
         players = players.filter(
@@ -64,9 +63,8 @@ def players_list(request):
     if archetype:   players = players.filter(archetype=archetype)
     if gender:      players = players.filter(gender=gender)
     if role:        players = players.filter(role=role)
-    if age_group:   players = players.filter(age_group=age_group)
-    if school_year: players = players.filter(school_year=school_year)
-    if game:        players = players.filter(game=game)
+    if age_group:   players = players.filter(age_Group=age_group)
+    if school_year: players = players.filter(school_Year=school_year)
     if min_total.isdigit() and int(min_total) > 0:
         players = players.filter(total__gte=int(min_total))
 
@@ -81,7 +79,18 @@ def player_detail(request, player_id):
         player = Players.objects.select_related('team').get(id=player_id)
     except Players.DoesNotExist:
         return render(request, 'myapp/404.html', status=404)
-    return render(request, 'myapp/player_detail.html', {'p': player})
+
+    stats = [
+        ('Power',        player.power),
+        ('Control',      player.control),
+        ('Technique',    player.technique),
+        ('Pressure',     player.pressure),
+        ('Physical',     player.physical),
+        ('Agility',      player.agility),
+        ('Intelligence', player.intelligence),
+    ]
+
+    return render(request, 'myapp/player_detail.html', {'p': player, 'stats': stats})
 
 
 # ---------------------------------------------------------------------------
