@@ -8,7 +8,7 @@ ARCHETYPE_TRANSLATIONS = {
     'Contraataque': 'Counter-attack',
     'Justicia':    'Justice',
     'Juego Sucio': 'Rough Play',
-    'Tension':     'Tension',
+    'Tensión':     'Tension',
     'Brecha':      'Breach',
 }
 

@@ -38,7 +38,7 @@ def home(request):
 
 
 # ---------------------------------------------------------------------------
-# Players
+# Players Navas
 # ---------------------------------------------------------------------------
 
 def players_list(request):
@@ -125,7 +125,7 @@ def team_detail(request, team_name):
 
 
 # ---------------------------------------------------------------------------
-# Game
+# Game Players edu
 # ---------------------------------------------------------------------------
 
 def get_random_players(request):
@@ -193,7 +193,7 @@ def game_view(request):
 
 
 # ---------------------------------------------------------------------------
-# Drafts
+# Drafts Players Gerard
 # ---------------------------------------------------------------------------
 
 @login_required
@@ -248,20 +248,27 @@ def my_drafts(request):
             else list(draft.players.all())
         )
 
-        draft.js_data = json.dumps([
-            {
-                'Name':       p.name,
-                'Nickname':   p.nickname,
-                'Position':   p.position,
-                'Total':      p.total,
-                'Image':      p.image,
-                'Element':    p.element,
-                'Team':       p.team.name,
-                'Team_image': p.team.image if p.team else '',
-                'Power':      p.power,
-                'Physical':   p.physical,
-                'Pressure':   p.pressure,
+        draft.js_data = json.dumps([{
+
+            "ID":           p.id,
+            "Name":         p.name,
+            "Nickname":     p.nickname,
+            "Position":     p.position,
+            "Image":        p.image,
+            "Element":      p.element,
+            "Team":         p.team.name if p.team else "",
+            "Team_image":   p.team.image if p.team else "",
+            "Total":        p.total,
+            "Power":        p.power,
+            "Control":      p.control,
+            "Technique":    p.technique,
+            "Physical":     p.physical,
+            "Agility":      p.agility,
+            "Intelligence": p.intelligence,
+            "Pressure":     p.pressure,
+
             }
+            
             for p in ordered_list
         ])
 
