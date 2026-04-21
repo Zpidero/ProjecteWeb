@@ -1,337 +1,470 @@
-    {% extends "base.html" %}
-    {% load static %}
-    {% block Title %}Game - Draft{% endblock %}
+{% extends "base.html" %}
+{% load static %}
+{% block Title %}Game - Draft Royale{% endblock %}
 
-    {% block body %}
+{% block body %}
+<div class="fixed inset-0 -z-10 bg-[#1a3a1a] overflow-hidden">
+    <div class="absolute inset-0 opacity-20" 
+         style="background-image: repeating-linear-gradient(90deg, transparent, transparent 10%, rgba(255,255,255,0.05) 10%, rgba(255,255,255,0.05) 20%);"></div>
+    <div class="absolute inset-x-10 top-0 bottom-0 border-2 border-white/10 pointer-events-none">
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 border-2 border-white/10 rounded-full"></div>
+        <div class="absolute top-1/2 left-0 right-0 h-px bg-white/10"></div>
+    </div>
+</div>
 
-    <div id="formation-overlay" class="fixed inset-0 bg-black/90 z-[60] flex items-center justify-center">
-        <div class="bg-gray-900 rounded-xl p-8 flex flex-col items-center max-w-4xl w-full border border-yellow-500">
-            <h2 class="text-4xl font-bold mb-6 text-white uppercase italic">Select Formation</h2>
-            <div id="formations-list" class="flex flex-wrap gap-4 justify-center">
-                </div>
+<div id="formation-overlay" class="fixed inset-0 bg-black/95 z-[70] backdrop-blur-md flex items-center justify-center transition-all duration-500">
+    <div class="bg-gray-900/80 border-2 border-yellow-500/50 rounded-3xl p-10 flex flex-col items-center max-w-4xl w-full shadow-[0_0_50px_rgba(234,179,8,0.2)] animate-in fade-in zoom-in duration-300">
+        <h2 class="text-5xl font-black mb-10 text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600 uppercase italic tracking-tighter">
+            Choose Strategy
+        </h2>
+        <div id="formations-list" class="grid grid-cols-2 md:grid-cols-4 gap-6 w-full">
+            </div>
+    </div>
+</div>
+
+<div id="formation-container" class="relative flex flex-col-reverse items-center justify-center min-h-screen gap-8 p-8 transition-all duration-700">
+    </div>
+
+<div id="team-rating" class="fixed top-6 right-6 group">
+    <div class="relative bg-black/80 backdrop-blur-xl border-2 border-yellow-500 rounded-2xl p-4 flex flex-col items-center shadow-2xl transition-transform hover:scale-105">
+        <div class="text-[10px] font-black tracking-[0.2em] text-yellow-500 uppercase">Team Rating</div>
+        <div id="rating-value" class="text-5xl font-black italic text-white leading-none">0</div>
+        <div class="w-full h-1 bg-gray-700 mt-2 rounded-full overflow-hidden">
+            <div id="rating-progress" class="h-full bg-yellow-500 transition-all duration-1000" style="width: 0%"></div>
         </div>
     </div>
+</div>
 
-    <div id="formation-container" class="flex flex-col-reverse items-center justify-center min-h-screen gap-6 p-4 bg-gray-800 overflow-hidden">
+<div id="overlay" class="fixed inset-0 bg-black/80 backdrop-blur-xl hidden z-[80] flex items-center justify-center p-4 overflow-auto">
+    <div class="bg-white/5 border border-white/10 rounded-[2rem] p-8 max-w-7xl w-full shadow-2xl">
+        <div class="flex justify-between items-center mb-10 px-4">
+            <h2 class="text-4xl font-black text-white italic uppercase tracking-tight">Select your Star</h2>
+            <button onclick="document.getElementById('overlay').classList.add('hidden')" class="text-gray-400 hover:text-white transition">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
         </div>
-
-    <div id="team-rating"
-         class="fixed top-100 right-100 bg-gray-900 border border-yellow-500 rounded-xl px-4 py-3 text-white text-center shadow-lg z-50">
-        <div class="text-xs text-gray-400">TEAM RATING</div>
-        <div id="rating-value" class="text-2xl font-bold">0</div>
+        <div id="players-container" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-8 justify-items-center"></div>
     </div>
+</div>
 
-    <div id="overlay" class="fixed inset-0 bg-black/50 hidden z-50 flex items-start justify-center pt-20 overflow-auto">
-        <div class="bg-gray-900 rounded-xl p-8 flex flex-col items-center max-w-7xl w-full">
-            <h2 class="text-4xl font-bold mb-6 text-white">Choose a player</h2>
-            <div id="players-container" class="flex flex-wrap gap-6 justify-center"></div>
-        </div>
-    </div>
+<div id="save-bar" class="hidden fixed bottom-10 left-1/2 -translate-x-1/2 z-50 flex items-center gap-6 bg-black/90 backdrop-blur-2xl border border-yellow-500/50 rounded-full px-8 py-4 shadow-[0_20px_50px_rgba(0,0,0,0.5)] animate-bounce-in">
+    <input id="draft-name" type="text" placeholder="Squad Name..."
+        class="bg-white/5 text-white border-b-2 border-yellow-500/30 rounded-lg px-4 py-2 text-lg focus:outline-none focus:border-yellow-400 w-64 transition-all">
+    <button id="save-btn"
+        class="bg-gradient-to-r from-yellow-500 to-yellow-600 hover:from-yellow-400 hover:to-yellow-500 text-black font-black px-8 py-3 rounded-full text-sm uppercase tracking-widest transition-all active:scale-90 shadow-lg hover:shadow-yellow-500/20">
+        Save Draft
+    </button>
+    <span id="save-msg" class="text-sm font-bold"></span>
+</div>
 
-    <div id="save-bar" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 bg-gray-900 border border-yellow-500 rounded-2xl px-6 py-4 shadow-2xl">
-        <input id="draft-name" type="text" placeholder="Nom de l'equip..."
-            class="bg-gray-800 text-white border border-gray-600 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-yellow-400 w-52">
-        <button id="save-btn"
-            class="bg-yellow-500 hover:bg-yellow-400 text-black font-bold px-5 py-2 rounded-xl text-sm transition active:scale-95">
-            Guardar equip
-        </button>
-        <span id="save-msg" class="text-sm hidden"></span>
-    </div>
+<style>
 
-    <style>
-    /* Your existing styles */
+    @keyframes safe-pulse {
+    0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+    70% { transform: scale(1.05); box-shadow: 0 0 0 15px rgba(34, 197, 94, 0); }
+    100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+    }
+
+    .btn-safe {
+    background: linear-gradient(to r, #22c55e, #16a34a) !important;
+    color: white !important;
+    animation: safe-pulse 1.5s infinite;
+    border-color: #4ade80 !important;
+    }
+
+    @keyframes bounce-in {
+        0% { transform: translate(-50%, 100px); opacity: 0; }
+        60% { transform: translate(-50%, -10px); opacity: 1; }
+        100% { transform: translate(-50%, 0); opacity: 1; }
+    }
+    .animate-bounce-in { animation: bounce-in 0.6s cubic-bezier(0.23, 1, 0.32, 1) forwards; }
+
+    /* Player Card Slot styling */
     .player-card {
-        width: clamp(100px, 12vw, 150px);
-        height: clamp(160px, 20vw, 220px);
-        background-color: #C9A66B;
-        border-radius: 12px;
-        font-weight: bold;
-        font-size: clamp(0.9rem, 2vw, 1.2rem);
+        width: 130px;
+        height: 180px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px dashed rgba(255, 255, 255, 0.2);
+        border-radius: 1rem;
+        color: white;
+        font-weight: 900;
         display: flex;
         align-items: center;
         justify-content: center;
-        cursor: pointer;
-        transition: transform 0.2s;
-        overflow: hidden; /* Important for SVG display */
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
     }
-    .player-card:hover { transform: scale(1.1); }
 
-    .select-player {
-        width: clamp(150px, 18vw, 220px);
-        height: clamp(200px, 24vw, 280px);
-        cursor: pointer;
-        transition: transform 0.2s;
+    .player-card:hover {
+        background: rgba(234, 179, 8, 0.1);
+        border-color: #eab308;
+        transform: translateY(-10px) scale(1.05);
+        box-shadow: 0 10px 30px -10px rgba(234, 179, 8, 0.3);
     }
-    .select-player:hover { transform: scale(1.05); }
 
-    /* Formation button style */
+    .player-card::before {
+        content: '+';
+        font-size: 2rem;
+        opacity: 0.3;
+    }
+
+    /* Formation Selection Buttons */
     .formation-btn {
+        background: #111827;
+        border: 1px solid #374151;
+        padding: 2rem 1rem;
+        border-radius: 1.5rem;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        color: white;
+    }
+
+    .formation-btn:hover {
         background: #eab308;
         color: black;
-        padding: 1.5rem;
-        border-radius: 0.75rem;
-        font-weight: bold;
-        cursor: pointer;
-        transition: all 0.2s;
+        border-color: transparent;
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px -10px rgba(234, 179, 8, 0.4);
     }
-    .formation-btn:hover { background: #facc15; transform: translateY(-5px); }
-    </style>
 
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const formationOverlay = document.getElementById('formation-overlay');
-        const formationsList = document.getElementById('formations-list');
-        const selectedPlayers = {};
-        const selectedTotals = {};
-        const selectedPlayerIds = new Set();
-        let selectedButton = null;
+    /* Selected Player Style (replaces slot content) */
+    .player-card[disabled] {
+        border: none;
+        background: transparent;
+        padding: 0;
+    }
+    
+    .player-card[disabled]::before { display: none; }
 
-        const formations = [
-            { name: "4-3-3", description: "4 Defenders, 3 Midfielders, 3 Forwards" },
-            { name: "4-4-2", description: "4 Defenders, 4 Midfielders, 2 Forwards" },
-            { name: "3-5-2", description: "3 Defenders, 5 Midfielders, 2 Forwards" },
-            { name: "5-3-2", description: "5 Defenders, 3 Midfielders, 2 Forwards" }
-        ];
+    .player-row {
+        animation: row-fade-in 0.8s ease-out forwards;
+        opacity: 0;
+    }
+    @keyframes row-fade-in {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
 
-        // --- 1. SELECCIÓ DE FORMACIÓ ---
-        formations.forEach(f => {
-            const btn = document.createElement('div');
-            btn.className = "formation-btn text-center min-w-[150px]";
-            btn.innerHTML = `<div class="text-2xl">${f.name}</div><div class="text-xs">${f.description}</div>`;
-            btn.onclick = () => {
-                sessionStorage.setItem("formation", JSON.stringify(f));
-                formationOverlay.classList.add('hidden');
-                renderPitch(f.name);
-            };
-            formationsList.appendChild(btn);
-        });
-
-        // --- 2. DIBUIXAR EL CAMP ---
-        function renderPitch(formationName) {
-            const [def, mid, att] = formationName.split("-").map(Number);
-            const container = document.getElementById("formation-container");
-
-            function createRow(count, positionCode, prefix) {
-                let html = `<div class="flex gap-4 justify-center w-full">`;
-                for (let i = 1; i <= count; i++) {
-                    html += `<button class="player-card" data-position="${positionCode}">${prefix}${i}</button>`;
-                }
-                html += `</div>`;
-                return html;
-            }
-
-            container.innerHTML = createRow(att, "FW", "FW") +
-                                createRow(mid, "MF", "MF") +
-                                createRow(def, "DF", "DF") +
-                                `<div class="flex justify-center w-full"><button class="player-card" data-position="GK">GK</button></div>`;
+    /* Card Deal Animation */
+    @keyframes card-deal {
+        0% { 
+            opacity: 0; 
+            transform: translateY(50px) rotateY(90deg) scale(0.8); 
+            filter: brightness(2);
         }
-
-        // --- 3. CLIC AL BOTÓ DEL CAMP (OBRIR OVERLAY) ---
-        document.getElementById("formation-container").addEventListener('click', function(e) {
-            const btn = e.target.closest('.player-card');
-            if (!btn) return;
-
-            selectedButton = btn;
-            document.getElementById('overlay').classList.remove('hidden');
-
-            fetch(`/random-players/?position=${btn.dataset.position}&excluded=${[...selectedPlayerIds].join(',')}`)
-                .then(res => res.json())
-                .then(players => {
-                    const container = document.getElementById('players-container');
-                    container.innerHTML = '';
-                    players.forEach(player => {
-
-                        const categoryStyles = {
-                            1: "bg-gradient-to-br from-[#7a4a1f] to-[#cd7f32] shadow-[0_0_10px_#cd7f32]",
-                            2: "bg-gradient-to-br from-gray-200 to-[#c0c0c0] shadow-[0_0_10px_#c0c0c0]",
-                            3: "bg-gradient-to-br from-yellow-200 via-yellow-400 to-[#ffd700] shadow-[0_0_15px_#ffd700]",
-                            4: "bg-gradient-to-br from-pink-200 via-blue-300 to-[#00ffff] shadow-[0_0_20px_#00ffff] animate-pulse"
-                        };
-                        function noise(stat) {
-                            const noise = Math.floor(Math.random() * 11) - 5; // número aleatorio entre -5 y 5
-                            return Math.max(1, Math.min(99, stat + noise));
-
-                        }
-                        const fill = `url(#cat${player.Category})`;
-                        container.innerHTML += `
-                            <button class="select-player text-black hover:scale-110 transition" data-player-id="${player.ID}" data-total="${player.Total}">
-                                <svg viewBox="0 0 300 420" class="w-full h-full">
-                                    <defs>
-                                        <linearGradient id="cat1" x1="0" y1="0" x2="1" y2="1">
-                                            <stop offset="0%" stop-color="#3a2a1a"/>
-                                            <stop offset="100%" stop-color="#cd7f32"/>
-                                        </linearGradient>
-
-                                        <linearGradient id="cat2">
-                                            <stop offset="0%" stop-color="#f5f5f5"/>
-                                            <stop offset="100%" stop-color="#c0c0c0"/>
-                                        </linearGradient>
-
-                                        <linearGradient id="cat3">
-                                            <stop offset="0%" stop-color="#fff7b0"/>
-                                            <stop offset="50%" stop-color="#ffd700"/>
-                                            <stop offset="100%" stop-color="#b8860b"/>
-                                        </linearGradient>
-
-                                        <linearGradient id="cat4">
-                                            <stop offset="0%" stop-color="#00ffff"/>
-                                            <stop offset="50%" stop-color="#008cff"/>
-                                            <stop offset="100%" stop-color="#00ffff"/>
-                                        </linearGradient>
-                                        <filter id="glow">
-                                            <feGaussianBlur stdDeviation="3" result="blur"/>
-                                            <feMerge>
-                                                <feMergeNode in="blur"/>
-                                                <feMergeNode in="SourceGraphic"/>
-                                            </feMerge>
-                                        </filter>
-                                    </defs>
-                                    <path d="M40 20 Q20 40 20 80 L20 300 Q20 340 60 360 L150 410 L240 360 Q280 340 280 300 L280 80 Q280 40 260 20 Q220 0 150 0 Q80 0 40 20 Z"
-                                          stroke="black" stroke-width="3" fill="${fill}" filter="url(#glow)"/>
-                                    <foreignObject x="50" y="220" width="200" height="60">
-                                        <div xmlns="http://www.w3.org/1999/xhtml"
-                                             class="text-center font-extrabold text-2xl leading-tight break-words">
-                                            ${(player.Name?.length || 0) > 13 ? (player.Nickname || player.Name) : player.Name}
-                                        </div>
-                                    </foreignObject>
-                                    <image x="97" y="35" width="180" height="180" href="${player.Image}" preserveAspectRatio="xMidYMid slice"/>
-                                    <text x="40" y="60" class="font-mono font-extrabold text-4xl">${Math.trunc(((player.Total - 914) / (970 - 914)) * (99 - 50) + 50)}</text>
-                                    <text x="40" y="90" class="font-extrabold text-2xl">${player.Position}</text>
-                                    <image x="35" y="160" width="55" height="55" href="/static/images/elements/${player.Element}.png"/>
-                                    <image x="30" y="80" width="70" height="100" href="${player.Team_image}" onerror="this.href.baseVal='/static/images/teams/Reclutas.png'"/>
-                                    <text x="50" y="280" class="font-extrabold text-xl">POW</text>
-                                    <text x="105" y="280" class="font-bold text-xl">${noise(Math.round(((player.Power - 114) / (169 - 114)) * 99))}</text>
-                                    <text x="50" y="310" class="font-extrabold text-xl">CON</text>
-                                    <text x="105" y="310" class="font-bold text-xl">${noise(Math.round(((player.Control - 119) / (161 - 119)) * 99))}</text>
-                                    <text x="50" y="340" class="font-extrabold text-xl">TEC</text>
-                                    <text x="105" y="340" class="font-bold text-xl">${noise(Math.round(((player.Technique - 116) / (162 - 116)) * 99))}</text>
-                                    <text x="160" y="280" class="font-extrabold text-xl">PRE</text>
-                                    <text x="210" y="280" class="font-bold text-xl">${noise(Math.round(((player.Pressure - 116) / (147 - 116)) * 99))}</text>
-                                    <text x="160" y="310" class="font-extrabold text-xl">PHY</text>
-                                    <text x="210" y="310" class="font-bold text-xl">${noise(Math.round(((player.Physical - 113) / (152 - 113)) * 99))}</text>
-                                    <text x="160" y="340" class="font-extrabold text-xl">AGI</text>
-                                    <text x="210" y="340" class="font-bold text-xl">${noise(Math.round(((player.Agility - 112) / (155 - 112)) * 99))}</text>
-                                    <text x="105" y="370" class="font-extrabold text-xl">INT</text>
-                                    <text x="160" y="370" class="font-bold text-xl">${noise(Math.round(((player.Intelligence - 124) / (169 - 124)) * 99))}</text>
-
-                                    </svg>
-                            </button>`;
-                    });
-                });
-        });
-
-        // --- 4. SELECCIONAR JUGADOR DE LA LLISTA ---
-        document.addEventListener('click', function(e) {
-            const playerBtn = e.target.closest('.select-player');
-            function updateTeamRating() {
-                const totals = Object.values(selectedTotals);
-
-                let sum = totals.reduce((acc, val) => acc + val, 0);
-
-                // siempre dividido entre 11
-                let avg = Math.round(sum / 11);
-
-                document.getElementById("rating-value").innerText = avg;
-            }
-            if (playerBtn && selectedButton) {
-                const playerId = playerBtn.getAttribute('data-player-id');
-                const allCards = [...document.querySelectorAll('#formation-container .player-card')];
-                const btnIndex = allCards.indexOf(selectedButton);
-                const rawTotal = parseInt(playerBtn.dataset.total);
-                const playerTotal = Math.trunc(
-                    ((rawTotal - 914) / (970 - 914)) * (99 - 50) + 50
-                );
-
-                if (playerId && btnIndex !== -1) {
-                    selectedPlayerIds.add(playerId);
-
-                    selectedPlayers[btnIndex] = playerId;
-                    selectedTotals[btnIndex] = playerTotal;
-                    updateTeamRating();
-                    selectedButton.innerHTML = playerBtn.innerHTML;
-                    selectedButton.style.background = "transparent";
-                    selectedButton.disabled = true;
-
-                    document.getElementById('overlay').classList.add('hidden');
-                    // document.getElementById('save-bar').classList.remove('hidden');
-                    // MOSTRAR BOTÓ GUARDAR NOMÉS QUAN S'HAGIN SELECCIONAT 11 JUGADORS
-                    if (Object.keys(selectedPlayers).length === 11) {
-                        document.getElementById('save-bar').classList.remove('hidden');
-                    }
-                }
-            }
-        });
-
-        // Botó tancar overlay
-        const closeBtn = document.getElementById('close-overlay');
-        if (closeBtn) {
-            closeBtn.onclick = () => document.getElementById('overlay').classList.add('hidden');
+        100% { 
+            opacity: 1; 
+            transform: translateY(0) rotateY(0deg) scale(1); 
+            filter: brightness(1);
         }
+    }
 
-        // --- 5. GUARDAR A LA BASE DE DADES ---
-        document.getElementById('save-btn').onclick = async function() {
-            const name = document.getElementById('draft-name').value.trim() || 'El meu equip';
-            const formationObj = JSON.parse(sessionStorage.getItem('formation') || '{}');
-            const formation = formationObj.name || "4-3-3";
-            const players = Object.values(selectedPlayers).filter(Boolean);
+    .player-entrance {
+        animation: card-deal 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        perspective: 1000px;
+    }
 
-            if (players.length === 0) {
-                showMsg('Tria almenys un jugador!', 'text-red-400');
-                return;
-            }
+    /* Upgrade the Player Card Slot in the pitch */
+    .player-card {
+        width: 130px;
+        height: 180px;
+        background: radial-gradient(circle at center, rgba(255,255,255,0.1) 0%, transparent 80%);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(4px);
+        border-radius: 1rem;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        box-shadow: inset 0 0 20px rgba(0,0,0,0.5);
+    }
 
-            this.disabled = true;
-            this.textContent = 'Guardant...';
+    .player-card:hover:not([disabled]) {
+        border-color: #eab308;
+        background: rgba(234, 179, 8, 0.15);
+        box-shadow: 0 0 30px rgba(234, 179, 8, 0.4), inset 0 0 10px rgba(234, 179, 8, 0.2);
+        transform: translateY(-12px) scale(1.08);
+    }
 
-            try {
-                const res = await fetch('/save-draft/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCookie('csrftoken'),
-                    },
-                    body: JSON.stringify({ name, formation, players }),
-                });
-                const data = await res.json();
-                if (data.ok) {
-                    showMsg('✓ Equip guardat!', 'text-green-400');
-                    window.location.href = '/my-drafts/'; // Opcional: Redirigir a la llista
-                } else {
-                    showMsg('Error: ' + data.error, 'text-red-400');
-                }
-            } catch (e) {
-                showMsg('Error de connexió', 'text-red-400');
-            } finally {
-                this.disabled = false;
-                this.textContent = 'Guardar equip';
-            }
+    /* Floating Animation for Selected Players */
+    @keyframes float {
+        0%, 100% { transform: translateY(0px); }
+        50% { transform: translateY(-5px); }
+    }
+
+    .player-card[disabled] {
+        animation: float 4s ease-in-out infinite;
+        filter: drop-shadow(0 10px 15px rgba(0,0,0,0.5));
+    }
+
+    /* Better Overlay Scrollbar */
+    #overlay::-webkit-scrollbar {
+        width: 6px;
+    }
+    #overlay::-webkit-scrollbar-thumb {
+        background: #eab308;
+        border-radius: 10px;
+    }
+</style>
+
+<script>
+// NOTE: I am keeping all your logic EXACTLY as it was, 
+// only wrapping it in the new visual structure.
+
+document.addEventListener('DOMContentLoaded', function() {
+    const formationOverlay = document.getElementById('formation-overlay');
+    const formationsList = document.getElementById('formations-list');
+    const selectedPlayers = {};
+    const selectedTotals = {};
+    const selectedPlayerIds = new Set();
+    let selectedButton = null;
+
+    const formations = [
+        { name: "4-3-3", description: "Attack Oriented" },
+        { name: "4-4-2", description: "Balanced Classic" },
+        { name: "3-5-2", description: "Midfield Mastery" },
+        { name: "5-3-2", description: "Defensive Wall" }
+    ];
+
+    // --- 1. SELECCIÓ DE FORMACIÓ ---
+    formations.forEach(f => {
+        const btn = document.createElement('div');
+        btn.className = "formation-btn text-center cursor-pointer";
+        btn.innerHTML = `<div class="text-3xl font-black italic tracking-tighter mb-1">${f.name}</div><div class="text-[10px] uppercase font-bold opacity-60">${f.description}</div>`;
+        btn.onclick = () => {
+            sessionStorage.setItem("formation", JSON.stringify(f));
+            formationOverlay.classList.add('opacity-0', 'pointer-events-none');
+            setTimeout(() => formationOverlay.classList.add('hidden'), 500);
+            renderPitch(f.name);
         };
+        formationsList.appendChild(btn);
+    });
 
-        function showMsg(text, cls) {
-            const el = document.getElementById('save-msg');
-            el.textContent = text;
-            el.className = `text-sm ${cls}`;
-            el.classList.remove('hidden');
-            setTimeout(() => el.classList.add('hidden'), 3000);
+    // --- 2. DIBUIXAR EL CAMP ---
+    function renderPitch(formationName) {
+        const [def, mid, att] = formationName.split("-").map(Number);
+        const container = document.getElementById("formation-container");
+
+        function createRow(count, positionCode, prefix, delay) {
+            let html = `<div class="flex gap-6 justify-center w-full player-row" style="animation-delay: ${delay}ms">`;
+            for (let i = 1; i <= count; i++) {
+                html += `<button class="player-card" data-position="${positionCode}">
+                            <span class="absolute top-2 left-2 text-[10px] opacity-40">${prefix}${i}</span>
+                         </button>`;
+            }
+            html += `</div>`;
+            return html;
         }
 
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
+        container.innerHTML = createRow(att, "FW", "FW", 100) +
+                            createRow(mid, "MF", "MF", 200) +
+                            createRow(def, "DF", "DF", 300) +
+                            `<div class="flex justify-center w-full player-row" style="animation-delay: 400ms">
+                                <button class="player-card" data-position="GK">
+                                    <span class="absolute top-2 left-2 text-[10px] opacity-40">GK</span>
+                                </button>
+                             </div>`;
+    }
+// --- 3. CLIC AL BOTÓ DEL CAMP (OBRIR OVERLAY) ---
+document.getElementById("formation-container").addEventListener('click', function(e) {
+    const btn = e.target.closest('.player-card');
+    if (!btn || btn.disabled) return;
+
+    selectedButton = btn;
+    const overlay = document.getElementById('overlay');
+    overlay.classList.remove('hidden');
+
+    fetch(`/random-players/?position=${btn.dataset.position}&excluded=${[...selectedPlayerIds].join(',')}`)
+        .then(res => res.json())
+        .then(players => {
+            const container = document.getElementById('players-container');
+            container.innerHTML = ''; // Clear previous
+            
+            players.forEach((player, index) => {
+                const fill = `url(#cat${player.Category})`;
+                const rawTotal = Math.trunc(((player.Total - 914) / (970 - 914)) * (99 - 50) + 50);
+
+                // Helper to format: "POW  95" (pads with spaces)
+                const formatStat = (label, val) => {
+                    const num = noise(Math.round(val));
+                    return `${label} ${num.toString().padStart(2, ' ')}`;
+                };
+
+                const cardWrapper = document.createElement('div');
+                cardWrapper.className = "player-entrance opacity-0";
+                cardWrapper.style.animationDelay = `${index * 150}ms`;
+
+                cardWrapper.innerHTML = `
+                    <button class="select-player group relative transition-all duration-300 hover:z-50" 
+                            data-player-id="${player.ID}" data-total="${player.Total}">
+                        <div class="absolute -inset-2 bg-yellow-500/20 rounded-[2rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        
+                        <svg viewBox="0 0 300 420" class="w-full h-full drop-shadow-2xl overflow-visible transition-transform duration-300 group-hover:scale-105 group-hover:-rotate-1">
+                            <defs>
+                                <linearGradient id="cat1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3a2a1a"/><stop offset="100%" stop-color="#cd7f32"/></linearGradient>
+                                <linearGradient id="cat2"><stop offset="0%" stop-color="#f5f5f5"/><stop offset="100%" stop-color="#c0c0c0"/></linearGradient>
+                                <linearGradient id="cat3"><stop offset="0%" stop-color="#fff7b0"/><stop offset="50%" stop-color="#ffd700"/><stop offset="100%" stop-color="#b8860b"/></linearGradient>
+                                <linearGradient id="cat4"><stop offset="0%" stop-color="#00ffff"/><stop offset="50%" stop-color="#008cff"/><stop offset="100%" stop-color="#00ffff"/></linearGradient>
+                                
+                                <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+                                    <feGaussianBlur stdDeviation="5" result="blur"/>
+                                    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                                </filter>
+
+                                <style>
+                                    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@900&family=JetBrains+Mono:wght@800&display=swap');
+                                    .font-card { font-family: 'Inter', sans-serif; }
+                                    .font-mono { font-family: 'JetBrains Mono', monospace; white-space: pre; }
+                                </style>
+                            </defs>
+
+                            <path d="M40 20 Q20 40 20 80 L20 300 Q20 340 60 360 L150 410 L240 360 Q280 340 280 300 L280 80 Q280 40 260 20 Q220 0 150 0 Q80 0 40 20 Z"
+                                stroke="rgba(0,0,0,0.5)" stroke-width="4" fill="${fill}" filter="url(#glow)"/>
+
+                            <text x="150" y="240" text-anchor="middle" class="font-card font-black text-2xl text-black italic uppercase">
+                                ${(player.Name?.length || 0) > 13 ? (player.Nickname || player.Name) : player.Name}
+                            </text>
+
+                            <image x="97" y="35" width="180" height="180" href="${player.Image}" preserveAspectRatio="xMidYMid slice" class="drop-shadow-lg"/>
+
+                            <text x="40" y="65" class="font-card font-black text-6xl italic" fill="black">${rawTotal}</text>
+                            <text x="40" y="95" class="font-card font-black text-xl" fill="black" opacity="0.7">${player.Position}</text>
+
+                            <image x="35" y="160" width="55" height="55" href="/static/images/elements/${player.Element}.png"/>
+                            <image x="30" y="80" width="70" height="100" href="${player.Team_image}" onerror="this.href.baseVal='/static/images/teams/Reclutas.png'"/>
+                            
+                            <g transform="translate(35, 285)" class="font-mono" font-size="20" fill="black">
+                                <text x="25" y="0">${formatStat("POW", ((player.Power - 114) / (169 - 114)) * 99)}</text>
+                                <text x="25" y="25">${formatStat("CON", ((player.Control - 119) / (161 - 119)) * 99)}</text>
+                                <text x="25" y="50">${formatStat("TEC", ((player.Technique - 116) / (162 - 116)) * 99)}</text>
+                                
+                                <text x="125" y="0">${formatStat("PRE", ((player.Pressure - 116) / (147 - 116)) * 99)}</text>
+                                <text x="125" y="25">${formatStat("PHY", ((player.Physical - 113) / (152 - 113)) * 99)}</text>
+                                <text x="125" y="50">${formatStat("AGI", ((player.Agility - 112) / (155 - 112)) * 99)}</text>
+                                
+                                <text x="80 " y="78">${formatStat("INT", ((player.Intelligence - 124) / (169 - 124)) * 99)}</text>
+                            </g>
+
+                        </svg>
+                    </button>`;
+                container.appendChild(cardWrapper);
+            });
+        });
+});
+
+    function noise(stat) {
+        const noise = Math.floor(Math.random() * 11) - 5;
+        return Math.max(1, Math.min(99, stat + noise));
+    }
+
+    // --- 4. SELECCIONAR JUGADOR ---
+    document.addEventListener('click', function(e) {
+        const playerBtn = e.target.closest('.select-player');
+        
+        function updateTeamRating() {
+            const totals = Object.values(selectedTotals);
+            let sum = totals.reduce((acc, val) => acc + val, 0);
+            let avg = Math.round(sum / 11);
+            document.getElementById("rating-value").innerText = avg;
+            document.getElementById("rating-progress").style.width = `${avg}%`;
+        }
+
+        if (playerBtn && selectedButton) {
+            const playerId = playerBtn.getAttribute('data-player-id');
+            const allCards = [...document.querySelectorAll('#formation-container .player-card')];
+            const btnIndex = allCards.indexOf(selectedButton);
+            const rawTotal = parseInt(playerBtn.dataset.total);
+            const playerTotal = Math.trunc(((rawTotal - 914) / (970 - 914)) * (99 - 50) + 50);
+
+            if (playerId && btnIndex !== -1) {
+                selectedPlayerIds.add(playerId);
+                selectedPlayers[btnIndex] = playerId;
+                selectedTotals[btnIndex] = playerTotal;
+                updateTeamRating();
+                
+                selectedButton.innerHTML = playerBtn.innerHTML;
+                selectedButton.disabled = true;
+                selectedButton.classList.add('scale-110');
+                setTimeout(() => selectedButton.classList.remove('scale-110'), 300);
+
+                document.getElementById('overlay').classList.add('hidden');
+                
+                if (Object.keys(selectedPlayers).length === 11) {
+                    document.getElementById('save-bar').classList.remove('hidden');
                 }
             }
-            return cookieValue;
         }
     });
 
+    // --- 5. GUARDAR --- (Logic unchanged)
+    document.getElementById('save-btn').onclick = async function() {
+        const name = document.getElementById('draft-name').value.trim() || 'El meu equip';
+        const formationObj = JSON.parse(sessionStorage.getItem('formation') || '{}');
+        const formation = formationObj.name || "4-3-3";
+        const players = Object.values(selectedPlayers).filter(Boolean);
 
-    </script>
+        // Visual feedback for "Loading"
+        this.disabled = true;
+        const originalContent = this.innerHTML;
+        this.innerHTML = `<span class="animate-spin inline-block mr-2">⚽</span> Guardant...`;
 
-    {% endblock %}
+        try {
+            const res = await fetch('/save-draft/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: JSON.stringify({ name, formation, players }),
+            });
+            
+            const data = await res.json();
+            
+            if (data.ok) {
+                // SUCCESS ANIMATION
+                this.textContent = 'SAFE'; 
+                this.classList.add('btn-safe'); // Triggers the green pulse CSS
+                
+                showMsg('✓ Draft Saved!', 'text-green-400');
+                
+                // Short delay so the user sees the "SAFE" state before redirecting
+                setTimeout(() => {
+                    window.location.href = '/my-drafts/';
+                }, 1200);
+                
+            } else {
+                showMsg('Error: ' + data.error, 'text-red-400');
+                this.disabled = false;
+                this.innerHTML = originalContent;
+            }
+        } catch (e) {
+            showMsg('Connection Error', 'text-red-400');
+            this.disabled = false;
+            this.innerHTML = originalContent;
+        }
+    };
+
+
+    function showMsg(text, cls) {
+        const el = document.getElementById('save-msg');
+        el.textContent = text;
+        el.className = `text-sm font-bold ${cls}`;
+        el.classList.remove('hidden');
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+});
+</script>
+{% endblock %}

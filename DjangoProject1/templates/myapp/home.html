@@ -3,36 +3,49 @@
 {% block Title %}Home - Inazuma FutDraft{% endblock %}
 
 {% block body %}
-<div class="min-h-screen bg-gray-50">
+<div class="min-h-screen bg-gray-50 overflow-x-hidden">
 
-    <section class="relative h-[850px] flex items-center justify-center text-white overflow-hidden">
+        <section class="relative h-[900px] flex items-center justify-center text-white overflow-hidden">
         <div class="absolute inset-0 z-0">
             <img src="https://media.vandal.net/i/1280x720/10-2023/17/20231017163114_3.jpg"
                  alt="Inazuma Background"
-                 class="w-full h-full object-cover scale-105 animate-pulse-slow">
-            <div class="absolute inset-0 bg-gradient-to-r from-[#002b36]/90 to-transparent"></div>
+                 class="w-full h-full object-cover scale-105 animate-slow-zoom">
+            <div class="absolute inset-0 bg-gradient-to-r from-[#002b36]/95 via-[#002b36]/80 to-transparent"></div>
             <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-gray-50"></div>
         </div>
 
         <div class="relative z-10 text-left px-6 max-w-7xl w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div class="animate-fade-in-up">
-                <div class="inline-block bg-yellow-400 text-[#002b36] font-black px-4 py-1 rounded-md uppercase tracking-widest text-sm mb-6 shadow-lg">
-                    Victory Road Ready
+            
+            <div>
+                <div class="inline-block bg-yellow-400 text-[#002b36] font-black px-4 py-1 rounded-md uppercase tracking-widest text-sm mb-6 shadow-lg animate-bounce-subtle">
+                    Victory Road Version
                 </div>
+                
+                <!-- NEW TITLE ANIMATION -->
                 <h1 class="text-6xl md:text-8xl font-black mb-6 tracking-tighter leading-none uppercase italic">
-                    BUILD YOUR <br>
-                    <span class="text-yellow-400 drop-shadow-[0_5px_15px_rgba(250,204,21,0.4)]">ULTIMATE</span> <br>
-                    SQUAD
+                    <span class="title-line">
+                        <span class="title-word">BUILD</span>
+                        <span class="title-word">YOUR</span>
+                    </span>
+                    <span class="title-line">
+                        <span class="title-word highlight">ULTIMATE</span>
+                    </span>
+                    <span class="title-line">
+                        <span class="title-word">SQUAD</span>
+                    </span>
                 </h1>
-                <p class="text-xl md:text-2xl mb-10 text-white/80 font-medium max-w-xl drop-shadow">
+
+                <p class="text-xl md:text-2xl mb-10 text-white/80 font-medium max-w-xl drop-shadow animate-fade-in" style="animation-delay: 0.8s">
                     Experience the first professional Draft Simulator for Inazuma Eleven.
                     Choose your formation, pick your stars, and dominate the field.
                 </p>
-                <div class="flex flex-wrap gap-4">
+
+                <div class="flex flex-wrap gap-4 animate-fade-in" style="animation-delay: 1s">
                     <a href="{% url 'game' %}"
-                       class="bg-yellow-400 hover:bg-yellow-300 text-[#002b36] text-2xl font-black py-5 px-12 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-xl flex items-center gap-3 group">
-                        START DRAFT
-                        <svg class="w-6 h-6 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 5l7 7-7 7M5 5l7 7-7 7"/></svg>
+                       class="relative overflow-hidden bg-yellow-400 hover:bg-yellow-300 text-[#002b36] text-2xl font-black py-5 px-12 rounded-2xl transition-all duration-300 transform hover:scale-105 shadow-xl flex items-center gap-3 group">
+                        <span class="relative z-10">START DRAFT</span>
+                        <svg class="w-6 h-6 group-hover:translate-x-2 transition-transform relative z-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M13 5l7 7-7 7M5 5l7 7-7 7"/></svg>
+                        <div class="absolute top-0 -inset-full h-full w-1/2 z-5 block transform -skew-x-12 bg-gradient-to-r from-transparent via-white/40 to-transparent group-hover:animate-shimmer"></div>
                     </a>
                     <a href="{% url 'players_list' %}"
                        class="bg-white/10 hover:bg-white/20 backdrop-blur-md text-white text-2xl font-black py-5 px-12 rounded-2xl transition-all border border-white/30">
@@ -40,25 +53,94 @@
                     </a>
                 </div>
             </div>
+
+            <div class="hidden lg:block relative h-[600px]">
+                <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-yellow-400/20 rounded-full blur-[100px] animate-pulse"></div>
+                
+                {% if top_fw %}
+                <div class="absolute top-0 right-12 animate-float">
+                    <div class="w-72 drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] transition-all duration-500 hover:scale-110 hover:-rotate-3 cursor-pointer">
+                        <svg viewBox="0 0 300 420" class="w-full h-full">
+                            <defs>
+                                <linearGradient id="gradGold" x1="0" y1="0" x2="1" y2="1">
+                                    <stop offset="0%" stop-color="#fff7b0"/><stop offset="50%" stop-color="#ffd700"/><stop offset="100%" stop-color="#b8860b"/>
+                                </linearGradient>
+                            </defs>
+                            <path d="M40 20 Q20 40 20 80 L20 300 Q20 340 60 360 L150 410 L240 360 Q280 340 280 300 L280 80 Q280 40 260 20 Q220 0 150 0 Q80 0 40 20 Z" 
+                                fill="url(#gradGold)" stroke="#ffd700" stroke-width="2"/>
+                            
+                            <image x="50" y="30" width="230" height="230" href="{{ top_fw.image }}" preserveAspectRatio="xMidYMid slice" />
+                            
+                            <text x="45" y="75" font-family="Arial" font-weight="900" font-style="italic" font-size="60" fill="black">
+                                {# Calculem la mitjana visual com al joc #}
+                                99
+                            </text>
+                            <text x="45" y="105" font-family="Arial" font-weight="900" font-size="20" fill="black" opacity="0.6">{{ top_fw.position }}</text>
+                            
+                            <foreignObject x="40" y="270" width="220" height="50">
+                                <div xmlns="http://www.w3.org/1999/xhtml" class="text-center font-black text-2xl text-black uppercase italic">
+                                    {{ top_fw.name|default:top_fw.name }}
+                                </div>
+                            </foreignObject>
+                            
+                            {% if top_fw.team %}
+                            <image x="111" y="310" width="80" height="80" href="{{ top_fw.team.image }}" />
+                            {% endif %}
+                        </svg>
+                    </div>
+                </div>
+                {% endif %}
+
+                {% if top_gk %}
+                <div class="absolute bottom-12 left-4 animate-float-delayed">
+                    <div class="w-72 drop-shadow-[0_20px_50px_rgba(0,0,0,0.5)] transition-all duration-500 hover:scale-110 hover:rotate-3 cursor-pointer">
+                        <svg viewBox="0 0 300 420" class="w-full h-full">
+                            <defs>
+                                <linearGradient id="gradCyan" x1="0" y1="0" x2="1" y2="1">
+                                    <stop offset="0%" stop-color="#00ffff"/><stop offset="100%" stop-color="#008cff"/>
+                                </linearGradient>
+                            </defs>
+                            <path d="M40 20 Q20 40 20 80 L20 300 Q20 340 60 360 L150 410 L240 360 Q280 340 280 300 L280 80 Q280 40 260 20 Q220 0 150 0 Q80 0 40 20 Z" 
+                                fill="url(#gradCyan)" stroke="#00ffff" stroke-width="2"/>
+                            
+                            <image x="40" y="30" width="240" height="240" href="{{ top_gk.image }}" preserveAspectRatio="xMidYMid slice" />
+                            
+                            <text x="45" y="75" font-family="Arial" font-weight="900" font-style="italic" font-size="60" fill="black">97</text>
+                            <text x="45" y="105" font-family="Arial" font-weight="900" font-size="20" fill="black" opacity="0.6">{{ top_gk.position }}</text>
+
+                            <foreignObject x="40" y="270" width="220" height="50">
+                                <div xmlns="http://www.w3.org/1999/xhtml" class="text-center font-black text-2xl text-black uppercase italic">
+                                    {{ top_gk.name|default:top_gk.name }}
+                                </div>
+                            </foreignObject>
+
+                            {% if top_gk.team %}
+                            <image x="111" y="310" width="80" height="80" href="{{ top_gk.team.image }}" />
+                            {% endif %}
+                        </svg>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
         </div>
     </section>
 
     <div class="max-w-6xl mx-auto -mt-16 relative z-20 px-6">
-        <div class="bg-white rounded-[2.5rem] shadow-2xl p-8 grid grid-cols-2 md:grid-cols-4 gap-8 border border-gray-100">
-            <div class="text-center border-r border-gray-100 last:border-0">
-                <p class="text-4xl font-black text-[#004e64]">4,500+</p>
+        <div class="bg-white rounded-[2.5rem] shadow-2xl p-8 grid grid-cols-2 md:grid-cols-4 gap-8 border border-gray-100 animate-fade-in-up">
+            <div class="text-center border-r border-gray-100 last:border-0 group cursor-default">
+                <p class="text-4xl font-black text-[#004e64] group-hover:scale-110 transition-transform">4,500+</p>
                 <p class="text-gray-400 font-bold uppercase text-xs tracking-widest">Players</p>
             </div>
-            <div class="text-center border-r border-gray-100 last:border-0">
-                <p class="text-4xl font-black text-[#004e64]">48</p>
+            <div class="text-center border-r border-gray-100 last:border-0 group cursor-default">
+                <p class="text-4xl font-black text-[#004e64] group-hover:scale-110 transition-transform">48</p>
                 <p class="text-gray-400 font-bold uppercase text-xs tracking-widest">Teams</p>
             </div>
-            <div class="text-center border-r border-gray-100 last:border-0">
-                <p class="text-4xl font-black text-[#004e64]">4</p>
+            <div class="text-center border-r border-gray-100 last:border-0 group cursor-default">
+                <p class="text-4xl font-black text-[#004e64] group-hover:scale-110 transition-transform">4</p>
                 <p class="text-gray-400 font-bold uppercase text-xs tracking-widest">Elements</p>
             </div>
-            <div class="text-center border-r border-gray-100 last:border-0">
-                <p class="text-4xl font-black text-yellow-500">∞</p>
+            <div class="text-center border-r border-gray-100 last:border-0 group cursor-default">
+                <p class="text-4xl font-black text-yellow-500 animate-pulse">∞</p>
                 <p class="text-gray-400 font-bold uppercase text-xs tracking-widest">Strategies</p>
             </div>
         </div>
@@ -73,10 +155,10 @@
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <div class="relative group">
-                    <div class="bg-white rounded-[3rem] p-10 shadow-sm border border-gray-100 hover:shadow-2xl transition-all h-full">
+                    <div class="bg-white rounded-[3rem] p-10 shadow-sm border border-gray-100 group-hover:-translate-y-4 group-hover:shadow-2xl transition-all duration-500 h-full">
                         <span class="text-8xl font-black text-gray-50 absolute top-4 right-8 group-hover:text-yellow-100 transition-colors">01</span>
                         <div class="relative z-10">
-                            <div class="w-16 h-16 bg-[#004e64] text-white rounded-2xl flex items-center justify-center mb-8 shadow-lg transform group-hover:rotate-12 transition-transform">
+                            <div class="w-16 h-16 bg-[#004e64] text-white rounded-2xl flex items-center justify-center mb-8 shadow-lg group-hover:rotate-[360deg] transition-transform duration-700">
                                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
                             </div>
                             <h3 class="text-2xl font-black text-[#002b36] uppercase mb-4 tracking-tight">Pick Formation</h3>
@@ -86,10 +168,10 @@
                 </div>
 
                 <div class="relative group">
-                    <div class="bg-white rounded-[3rem] p-10 shadow-sm border border-gray-100 hover:shadow-2xl transition-all h-full">
+                    <div class="bg-white rounded-[3rem] p-10 shadow-sm border border-gray-100 group-hover:-translate-y-4 group-hover:shadow-2xl transition-all duration-500 h-full">
                         <span class="text-8xl font-black text-gray-50 absolute top-4 right-8 group-hover:text-yellow-100 transition-colors">02</span>
                         <div class="relative z-10">
-                            <div class="w-16 h-16 bg-[#004e64] text-white rounded-2xl flex items-center justify-center mb-8 shadow-lg transform group-hover:rotate-12 transition-transform">
+                            <div class="w-16 h-16 bg-[#004e64] text-white rounded-2xl flex items-center justify-center mb-8 shadow-lg group-hover:rotate-[360deg] transition-transform duration-700">
                                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/></svg>
                             </div>
                             <h3 class="text-2xl font-black text-[#002b36] uppercase mb-4 tracking-tight">Draft Stars</h3>
@@ -99,10 +181,10 @@
                 </div>
 
                 <div class="relative group">
-                    <div class="bg-white rounded-[3rem] p-10 shadow-sm border border-gray-100 hover:shadow-2xl transition-all h-full">
+                    <div class="bg-white rounded-[3rem] p-10 shadow-sm border border-gray-100 group-hover:-translate-y-4 group-hover:shadow-2xl transition-all duration-500 h-full">
                         <span class="text-8xl font-black text-gray-50 absolute top-4 right-8 group-hover:text-yellow-100 transition-colors">03</span>
                         <div class="relative z-10">
-                            <div class="w-16 h-16 bg-[#004e64] text-white rounded-2xl flex items-center justify-center mb-8 shadow-lg transform group-hover:rotate-12 transition-transform">
+                            <div class="w-16 h-16 bg-[#004e64] text-white rounded-2xl flex items-center justify-center mb-8 shadow-lg group-hover:rotate-[360deg] transition-transform duration-700">
                                 <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
                             </div>
                             <h3 class="text-2xl font-black text-[#002b36] uppercase mb-4 tracking-tight">Final Team</h3>
@@ -127,18 +209,157 @@
         </div>
     </section>
 
+
 </div>
 
 <style>
+    /* Premium Reveal Animations */
+    @keyframes slideUp {
+        0% { transform: translateY(110%); }
+        100% { transform: translateY(0); }
+    }
+
+    @keyframes slowZoom {
+        0%, 100% { transform: scale(1.05); }
+        50% { transform: scale(1.15); }
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(12deg); }
+        50% { transform: translateY(-25px) rotate(8deg); }
+    }
+
+    @keyframes floatDelayed {
+        0%, 100% { transform: translateY(0px) rotate(-12deg); }
+        50% { transform: translateY(-25px) rotate(-15deg); }
+    }
+
+    @keyframes shimmer {
+        100% { left: 150%; }
+    }
+
+    /* Animation Classes */
+    .animate-slide-up { animation: slideUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    .animate-slow-zoom { animation: slowZoom 20s infinite ease-in-out; }
+    .animate-float { animation: float 6s ease-in-out infinite; }
+    .animate-float-delayed { animation: floatDelayed 7s ease-in-out infinite; }
+    .animate-shimmer { animation: shimmer 0.8s forwards; }
+    .animate-reveal-left { animation: revealLeft 1.2s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    
+    @keyframes revealLeft {
+        from { opacity: 0; transform: translateX(-50px); }
+        to { opacity: 1; transform: translateX(0); }
+    }
+
     @keyframes fadeInUp {
-        from { opacity: 0; transform: translateY(30px); }
+        from { opacity: 0; transform: translateY(40px); }
         to { opacity: 1; transform: translateY(0); }
     }
+
     .animate-fade-in-up { animation: fadeInUp 1s ease-out forwards; }
-    .animate-pulse-slow { animation: pulse 10s infinite; }
-    @keyframes pulse {
-        0%, 100% { transform: scale(1.05); }
-        50% { transform: scale(1); }
+    .animate-fade-in { animation: fadeIn 1.5s ease-out forwards; opacity: 0; }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
     }
-</style>
+
+    @keyframes bounceSubtle {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
+    }
+    .animate-bounce-subtle { animation: bounceSubtle 2s infinite ease-in-out; }
+
+    /* NEW TITLE ANIMATION */
+    .title-line {
+        display: block;
+        overflow: hidden;
+    }
+
+    .title-word {
+        display: inline-block;
+        transform: translateY(120%) scale(0.8);
+        opacity: 0;
+        animation: titleReveal 0.9s cubic-bezier(0.16,1,0.3,1) forwards;
+    }
+
+    .title-word:nth-child(1) { animation-delay: 0.2s; }
+    .title-word:nth-child(2) { animation-delay: 0.4s; }
+    .title-line:nth-child(2) .title-word { animation-delay: 0.6s; }
+    .title-line:nth-child(3) .title-word { animation-delay: 0.8s; }
+
+    .highlight {
+        color: #facc15;
+        text-shadow: 0 10px 30px rgba(250,204,21,0.5);
+        animation: titleReveal 0.9s cubic-bezier(0.16,1,0.3,1) forwards, glowPulse 2s ease-in-out infinite 1.5s;
+    }
+
+    @keyframes titleReveal {
+        to {
+            transform: translateY(0) scale(1);
+            opacity: 1;
+        }
+    }
+
+    @keyframes glowPulse {
+        0%,100% { text-shadow: 0 10px 30px rgba(250,204,21,0.4); }
+        50% { text-shadow: 0 20px 50px rgba(250,204,21,0.8); }
+    }
+
+    /* EXISTING ANIMATIONS */
+    @keyframes slowZoom {
+        0%, 100% { transform: scale(1.05); }
+        50% { transform: scale(1.15); }
+    }
+
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(12deg); }
+        50% { transform: translateY(-25px) rotate(8deg); }
+    }
+
+    @keyframes floatDelayed {
+        0%, 100% { transform: translateY(0px) rotate(-12deg); }
+        50% { transform: translateY(-25px) rotate(-15deg); }
+    }
+
+    @keyframes shimmer {
+        100% { left: 150%; }
+    }
+
+    .animate-slow-zoom { animation: slowZoom 20s infinite ease-in-out; }
+    .animate-float { animation: float 6s ease-in-out infinite; }
+    .animate-float-delayed { animation: floatDelayed 7s ease-in-out infinite; }
+    .animate-shimmer { animation: shimmer 0.8s forwards; }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .animate-fade-in { animation: fadeIn 1.5s ease-out forwards; opacity: 0; }
+
+    @keyframes bounceSubtle {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-5px); }
+    }
+
+    .animate-bounce-subtle { animation: bounceSubtle 2s infinite ease-in-out; }
+    
+    @keyframes float {
+        0%, 100% { transform: translateY(0px) rotate(8deg); }
+        50% { transform: translateY(-30px) rotate(12deg); }
+    }
+
+    @keyframes floatDelayed {
+        0%, 100% { transform: translateY(0px) rotate(-8deg); }
+        50% { transform: translateY(-30px) rotate(-12deg); }
+    }
+
+    /* Això farà que les imatges dels jugadors dins del SVG no es vegin planes */
+    image {
+        filter: drop-shadow(5px 10px 10px rgba(0,0,0,0.4));
+    }
+    </style>
+
+
 {% endblock %}

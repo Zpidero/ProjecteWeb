@@ -304,3 +304,13 @@ def login_view(request):
     else:
         form = AuthenticationForm()
     return render(request, "myapp/login.html", {"login_form": form})
+
+def home(request):
+
+    top_fw = Players.objects.filter(name="Axel Blaze").select_related('team').order_by('-total').first()
+    top_gk = Players.objects.filter(position='GK').select_related('team').order_by('-total').first()
+
+    return render(request, "myapp/home.html", {
+        'top_fw': top_fw,
+        'top_gk': top_gk
+    })
