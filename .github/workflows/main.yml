@@ -27,7 +27,7 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-          # Tell the cache to look inside the subfolder for the lockfile
+          # Tell the cache to look inside the sadfghjkjhgfdubfolder for the lockfile
           cache-dependency-glob: "DjangoProject1/uv.lock"
 
       - name: Set up Python ${{ matrix.python-version }}
