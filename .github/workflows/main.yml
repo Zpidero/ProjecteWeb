@@ -2,15 +2,19 @@ name: Django CI
 
 on:
   push:
-    branches: [ "test" ] # Updated from $default-branch for clarity
+    branches: [ "test" ]
   pull_request:
     branches: [ "test" ]
+
+env:
+  # Es buena práctica poner un valor por defecto para tests
+  # por si olvidas configurar el Secret en GitHub
+  SECRET_KEY: ${{ secrets.SECRET_KEY || 'django-insecure-ci-test-key' }}
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
-    # This tells every 'run' step to execute inside your subfolder
     defaults:
       run:
         working-directory: ./DjangoProject1
@@ -18,7 +22,7 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: ["3.11"] # Match the version in your logs
+        python-version: ["3.11"]
 
     steps:
       - uses: actions/checkout@v4
@@ -27,8 +31,9 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-          # Tell the cache to look inside the sadfghjkjhgfdubfolder for the lockfile
-          cache-dependency-glob: "DjangoProject1/uv.lock"
+          # CORRECCIÓN: Como ya definimos 'working-directory' arriba,
+          # uv busca el archivo relativo a esa carpeta.
+          cache-dependency-glob: "uv.lock"
 
       - name: Set up Python ${{ matrix.python-version }}
         run: uv python install ${{ matrix.python-version }}
@@ -37,4 +42,7 @@ jobs:
         run: uv sync --all-extras --dev
 
       - name: Run Tests
+        # Pasamos la variable de entorno explícitamente aquí también para asegurar
         run: uv run python manage.py test
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY || 'django-insecure-ci-test-key' }}
