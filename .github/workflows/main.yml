@@ -1,46 +1,36 @@
-name: Django CI (uv)
+name: Django CI
 
 on:
   push:
-    branches: ["test"]
+    branches: [ "test" ]
   pull_request:
-    branches: ["test"]
+    branches: [ "test" ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
-
     strategy:
       max-parallel: 4
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12"]
-
-    env:
-      DJANGO_SETTINGS_MODULE: your_project.settings
-      PYTHONUNBUFFERED: 1
+        python-version: ["3.9", "3.10", "3.11"]
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Install uv
-        run: |
-          curl -Ls https://astral.sh/uv/install.sh | sh
-          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+          # Caches based on the lockfile instead of requirements.txt
+          cache-dependency-glob: "uv.lock"
 
       - name: Set up Python ${{ matrix.python-version }}
-        run: |
-          uv python install ${{ matrix.python-version }}
-          uv venv
+        run: uv python install ${{ matrix.python-version }}
 
-      - name: Install dependencies
-        run: |
-          uv pip install -r requirements.txt
+      - name: Install Dependencies
+        # 'uv sync' installs the project and all dependencies defined in pyproject.toml
+        run: uv sync --all-extras --dev
 
-      - name: Run migrations
-        run: |
-          uv run python manage.py migrate --noinput
-
-      - name: Run tests
-        run: |
-          uv run python manage.py test
+      - name: Run Tests
+        # 'uv run' executes the command within the synced virtual environment
+        run: uv run python manage.py test
