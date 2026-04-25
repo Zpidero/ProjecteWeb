@@ -2,17 +2,23 @@ name: Django CI
 
 on:
   push:
-    branches: [ "test" ]
+    branches: [ main ] # Updated from $default-branch for clarity
   pull_request:
-    branches: [ "test" ]
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
+    # This tells every 'run' step to execute inside your subfolder
+    defaults:
+      run:
+        working-directory: ./DjangoProject1
+
     strategy:
       max-parallel: 4
       matrix:
-        python-version: ["3.9", "3.10", "3.11"]
+        python-version: ["3.11"] # Match the version in your logs
 
     steps:
       - uses: actions/checkout@v4
@@ -21,16 +27,14 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-          # Caches based on the lockfile instead of requirements.txt
-          cache-dependency-glob: "uv.lock"
+          # Tell the cache to look inside the subfolder for the lockfile
+          cache-dependency-glob: "DjangoProject1/uv.lock"
 
       - name: Set up Python ${{ matrix.python-version }}
         run: uv python install ${{ matrix.python-version }}
 
       - name: Install Dependencies
-        # 'uv sync' installs the project and all dependencies defined in pyproject.toml
         run: uv sync --all-extras --dev
 
       - name: Run Tests
-        # 'uv run' executes the command witwfdfhin the synced virtual environment
         run: uv run python manage.py test
