@@ -31,7 +31,7 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-          # CORRECCIÓN: Como ya definimos 'working-directory' arriba,
+          # CORRECCIÓN: Cqwetrewomo ya definimos 'working-directory' arriba,
           # uv busca el archivo relativo a esaiuyyoupio carpeta.
           cache-dependency-glob: "uv.lock"
 
