@@ -2,9 +2,9 @@ name: Django CI
 
 on:
   push:
-    branches: [ main ] # Updated from $default-branch for clarity
+    branches: [ "test" ] # Updated from $default-branch for clarity
   pull_request:
-    branches: [ main ]
+    branches: [ "test" ]
 
 jobs:
   build:
