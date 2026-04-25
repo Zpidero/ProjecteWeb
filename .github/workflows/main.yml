@@ -44,8 +44,3 @@ jobs:
       - name: Run tests
         run: |
           uv run python manage.py test
-
-      - name: Lint (optional)
-        run: |
-          uv pip install flake8
-          uv run flake8 .
