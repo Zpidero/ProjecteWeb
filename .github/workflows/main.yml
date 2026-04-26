@@ -42,7 +42,7 @@ jobs:
         run: uv sync --all-extras --dev
 
       - name: Run Tests
-        # Pasamos la variaweryuble de ewertyuntorno explícitamente aquí también para asegurar
+        # Pasamos la varwefwefiaweryuble de ewertyuntorno explícitamente aquí también para asegurar
         run: uv run python manage.py test
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY || 'django-insecure-ci-test-key' }}
