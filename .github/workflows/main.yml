@@ -7,8 +7,6 @@ on:
     branches: [ "test" ]
 
 env:
-  # Es buena práctica poner un valor por defecto para tests
-  # por si olvidas configurar el Secret en GitHub
   SECRET_KEY: ${{ secrets.SECRET_KEY || 'django-insecure-ci-test-key' }}
 
 jobs:
@@ -31,9 +29,8 @@ jobs:
         uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-          # CORRECCIÓN: Cqwetrewomo ya definimos 'working-directory' arriba,
-          # uv busca el archivo relativo a esaiuyyoupio carpeta.
-          cache-dependency-glob: "uv.lock"
+          # uv.lock is inside DjangoProject1, which matches the working-directory
+          cache-dependency-glob: "DjangoProject1/uv.lock"
 
       - name: Set up Python ${{ matrix.python-version }}
         run: uv python install ${{ matrix.python-version }}
@@ -41,8 +38,11 @@ jobs:
       - name: Install Dependencies
         run: uv sync --all-extras --dev
 
+      - name: Build Docker image
+        # Dockerfile is located inside DjangoProject1/
+        run: docker build -t django-app .
+
       - name: Run Tests
-        # Pasamos la vaaaaaarwefwefiaweryuble de ewertyuntorno explícitamente aquí también para asegurar
         run: uv run python manage.py test
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY || 'django-insecure-ci-test-key' }}
