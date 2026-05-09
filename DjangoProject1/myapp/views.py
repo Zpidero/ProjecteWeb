@@ -148,10 +148,12 @@ def get_random_players(request):
     for cat in categories:
         min_avg, max_avg = ranges[cat]
         candidates = Players.objects.filter(
-            position=position,
             total__gte=min_avg,
             total__lte=max_avg,
-        ).select_related('team')
+        )
+        if position:
+            candidates = candidates.filter(position=position)
+        candidates = candidates.select_related('team')
         count = candidates.count()
         if count >= 5:
             interval_n = cat
