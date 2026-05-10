@@ -53,6 +53,17 @@
         <span id="save-msg" class="text-sm hidden"></span>
     </div>
 
+    {% if edit_mode %}
+    <script type="application/json" id="edit-draft-data">
+        {
+            "id": {{ draft.id }},
+            "name": "{{ draft.name }}",
+            "formation": "{{ draft.lineup.name }}",
+            "player_ids": {{ player_order_json|safe }}
+        }
+    </script>
+    {% endif %}
+
     <style>
     .player-card {
         width: clamp(100px, 12vw, 150px);
@@ -119,6 +130,10 @@
         let selectedButton = null;
         let swapSource = null;
 
+        const editData = document.getElementById('edit-draft-data')
+            ? JSON.parse(document.getElementById('edit-draft-data').textContent)
+            : null;
+        console.log('editData al cargar:', editData);
         // Normaliza un stat a rango 1–99 con ruido
         const normalize = (val, min, max) => Math.max(1, Math.min(99, Math.round(((val - min) / (max - min)) * 99) + Math.floor(Math.random() * 11) - 5));
         const normalizeTotal = raw => Math.trunc(((raw - 914) / (970 - 914)) * 49 + 50);
@@ -277,6 +292,62 @@
         }
         renderBench();
 
+        function preloadPlayers(players, orderedIds) {
+            const byId = {};
+            players.forEach(p => byId[String(p.ID)] = p);
+
+            const allCards   = [...document.querySelectorAll('#formation-container .player-card')];
+            const benchCards = [...document.querySelectorAll('#bench-container .bench-card')];
+
+            // orderedIds preserves the correct field+bench order; iterate in that order
+            orderedIds.map(id => String(id)).forEach((id, i) => {
+                const p = byId[id];
+                if (!p) return;
+                const isField = i < allCards.length;
+                const card = isField ? allCards[i] : benchCards[i - allCards.length];
+                if (!card) return;
+
+                selectedPlayerIds.add(String(p.ID));
+                if (p.Total >= 961) p.Category = 4;
+                else if (p.Total >= 946) p.Category = 3;
+                else if (p.Total >= 931) p.Category = 2;
+                else p.Category = 1;
+                card.innerHTML = buildPlayerSVG(p);
+                card.style.background = 'transparent';
+                card.setAttribute('data-filled', 'true');
+                card.setAttribute('data-player-id', p.ID);
+
+                if (isField) {
+                    selectedPlayers[i] = p.ID;
+                    selectedTotals[i]  = normalizeTotal(p.Total);
+                    selectedPlayersData[p.ID] = { id: p.ID, element: p.Element, team: p.Team };
+                } else {
+                    const bi = i - allCards.length;
+                    selectedTotals[`bench_${bi}`] = normalizeTotal(p.Total);
+                }
+            });
+
+            recalculateTeamChemistry();
+            updateTeamRating();
+            $('save-bar').classList.remove('hidden');
+        }
+
+        if (editData) {
+            console.log('EDIT MODE:', editData);
+            formationOverlay.style.display = 'none';
+            $('stats-box').classList.remove('hidden');
+            sessionStorage.setItem('formation', JSON.stringify({ name: editData.formation }));
+            renderPitch(editData.formation);
+            $('draft-name').value = editData.name;
+
+            const ids = editData.player_ids || [];
+            if (ids.length) {
+                fetch(`/players/data/?ids=${ids.join(',')}`)
+                    .then(r => r.json())
+                    .then(players => preloadPlayers(players, ids));
+            }
+        }
+
         // --- Swap ---
         function handleSwapClick(e) {
             const card = e.target.closest('.player-card, .bench-card');
@@ -322,6 +393,12 @@
                 const tmpP = selectedPlayers[keyA];
                 selectedPlayers[keyA] = selectedPlayers[keyB];
                 selectedPlayers[keyB] = tmpP;
+            } else if (typeof keyA === 'number') {
+                // Titular va al banquillo: su hueco en el campo ahora tiene el suplente (idB)
+                selectedPlayers[keyA] = idB;
+            } else if (typeof keyB === 'number') {
+                // Suplente sube al campo: su nuevo hueco tiene su ID (idA)
+                selectedPlayers[keyB] = idA;
             }
 
             if (aWasField && !bWasField) {
@@ -437,6 +514,7 @@
             selectedButton.innerHTML = playerBtn.innerHTML;
             selectedButton.style.background = "transparent";
             selectedButton.setAttribute('data-filled', 'true');
+            selectedButton.setAttribute('data-player-id', playerId);
             selectedButton.style.cursor = 'pointer';
             $('overlay').classList.add('hidden');
 
@@ -451,7 +529,11 @@
         $('save-btn').onclick = async function () {
             const name = $('draft-name').value.trim() || 'El meu equip';
             const formation = (JSON.parse(sessionStorage.getItem('formation') || '{}')).name || "4-3-3";
-            const players = Object.values(selectedPlayers).filter(Boolean);
+            const fieldPlayers = Object.values(selectedPlayers).filter(Boolean);
+            const benchPlayers = [...document.querySelectorAll('#bench-container .bench-card[data-filled]')]
+                .map(card => card.dataset.playerId)
+                .filter(Boolean);
+            const players = [...fieldPlayers, ...benchPlayers];
 
             if (!players.length) return showMsg('Tria almenys un jugador!', 'text-red-400');
 
@@ -462,7 +544,7 @@
                 const res = await fetch('/save-draft/', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
-                    body: JSON.stringify({ name, formation, players }),
+                    body: JSON.stringify({ name, formation, players, draft_id: editData ? editData.id : null }),
                 });
                 const data = await res.json();
                 if (data.ok) {
