@@ -14,5 +14,7 @@ urlpatterns = [
     path("save-draft/", views.save_draft, name="save_draft"),
     path("my-drafts/", views.my_drafts, name="my_drafts"),
     path('profile/', views.profile_view, name='profile'),
+    path('logout/', views.logout_view, name='logout'),
+    path('perfil/eliminar/', views.delete_account, name='delete_account')
 ]
 

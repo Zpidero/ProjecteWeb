@@ -2,7 +2,7 @@ from django.http import JsonResponse
 from django.db.models import Q, Count
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
-from django.contrib.auth import login
+from django.contrib.auth import login, logout
 from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -365,3 +365,20 @@ def profile_view(request):
         'p_form': p_form,
         'pass_form': pass_form
     })
+
+@login_required
+def delete_account(request):
+    if request.method == 'POST':
+        user = request.user
+        logout(request)  # Tanquem la sessió abans d'esborrar
+        user.delete()    # Esborrem l'usuari de la base de dades
+        messages.success(request, "El teu compte ha estat eliminat correctament. Esperem tornar-te a veure!")
+        return redirect('home')  # Redirigeix a la pàgina principal
+    
+    return redirect('profile') # Si algú intenta entrar per GET, el tornem al perfil
+
+
+def logout_view(request):
+    logout(request)
+    messages.info(request, "Has tancat la sessió. Fins aviat, capità!")
+    return redirect('login')  # O a la 'home'
