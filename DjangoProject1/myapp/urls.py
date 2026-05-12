@@ -13,5 +13,6 @@ urlpatterns = [
     path("login/", views.login_view, name="login"),
     path("save-draft/", views.save_draft, name="save_draft"),
     path("my-drafts/", views.my_drafts, name="my_drafts"),
+    path('profile/', views.profile_view, name='profile'),
 ]
 

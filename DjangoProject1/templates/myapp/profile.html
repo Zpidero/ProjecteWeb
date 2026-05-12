@@ -1,0 +1,242 @@
+{% extends 'base.html' %}
+
+{% block Title %}El Meu Perfil - Inazuma FutDraft{% endblock %}
+
+{% block body %}
+<main class="min-h-screen bg-[#001b22] pt-28 pb-12 text-white">
+    
+    <!-- Missatges -->
+    {% if messages %}
+    <div class="max-w-7xl mx-auto px-4 mb-4">
+        {% for message in messages %}
+        <div class="bg-{{ message.tags }}-500/20 border border-{{ message.tags }}-500 text-{{ message.tags }}-200 px-4 py-3 rounded-xl mb-2">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- FORMULARI DE PERFIL (Dades personals i imatge) -->
+    <form method="POST" enctype="multipart/form-data" id="profile-form">
+        {% csrf_token %}
+        <input type="hidden" name="update_profile" value="1">
+
+        <!-- HERO SECTION (Imatge i Avatar) -->
+        <section class="max-w-7xl mx-auto px-4">
+            <div class="relative w-full h-[280px] overflow-hidden rounded-3xl group shadow-2xl">
+                <div class="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
+                     style='background-image:url("https://images.unsplash.com/photo-1574375927938-d5a98e8ffe85?q=80&w=2069&auto=format&fit=crop")'>
+                </div>
+                <div class="absolute inset-0 bg-gradient-to-t from-[#001b22] via-[#001b22]/40 to-transparent"></div>
+
+                <div class="relative h-full flex items-end pb-8 px-8">
+                    <div class="flex flex-col md:flex-row items-end gap-6 w-full">
+                        
+                        <!-- AVATAR AMB PREVIEW -->
+                        <div class="relative group/avatar">
+                            <img class="w-32 h-32 md:w-40 md:h-40 rounded-3xl border-4 border-[#002b36] object-cover shadow-2xl bg-[#002b36]"
+                                src="{% if user.profile.image %}{{ user.profile.image.url }}{% else %}https://randomuser.me/api/portraits/men/32.jpg{% endif %}"
+                                id="profile-preview"/>
+                            <!-- El label per pujar foto -->
+                            <label for="id_image" id="avatar-label"
+                                   class="absolute inset-0 flex items-center justify-center bg-black/60 rounded-3xl opacity-0 group-hover/avatar:opacity-100 transition-all cursor-pointer">
+                                <svg class="w-10 h-10 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                                </svg>
+                            </label>
+                            <div class="hidden">{{ p_form.image }}</div>
+                        </div>
+
+                        <div class="mb-2">
+                            <h2 class="text-4xl font-black text-white tracking-tight">
+                                {{ user.first_name|default:"Jugador" }} {{ user.last_name|default:"" }}
+                            </h2>
+                            <p class="text-yellow-400 font-bold flex items-center gap-2 mt-1">
+                                <span class="size-2 bg-green-500 rounded-full animate-pulse"></span> @{{ user.username }}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CONFIGURACIÓ DE COMPTE -->
+        <section class="max-w-7xl mx-auto px-4 mt-8">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <!-- COLUMNA ESQUERRA: DADES PERSONALS -->
+                <div class="lg:col-span-2 space-y-6">
+                    <div class="bg-[#002b36] rounded-3xl border border-white/10 shadow-xl overflow-hidden">
+                        <div class="px-8 py-6 border-b border-white/5 flex justify-between items-center bg-white/5">
+                            <h3 class="text-xl font-bold italic uppercase tracking-tighter text-yellow-400">Informació del Compte</h3>
+                            <button type="button" id="edit-profile-btn" onclick="toggleEditProfile()"
+                                    class="bg-white/10 hover:bg-white/20 text-white px-5 py-2 rounded-xl font-bold transition-all flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                                Editar
+                            </button>
+                        </div>
+
+                        <div class="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Username (Sempre deshabilitat) -->
+                            <div class="space-y-2">
+                                <label class="text-xs uppercase tracking-widest text-white/40 font-bold ml-1">Usuari</label>
+                                <input disabled type="text" class="w-full bg-[#001b22] border border-white/10 p-4 rounded-2xl text-white/60 cursor-not-allowed" value="{{ user.username }}">
+                            </div>
+
+                            <!-- Email -->
+                            <div class="space-y-2">
+                                <label class="text-xs uppercase tracking-widest text-white/40 font-bold ml-1">Correu Electrònic</label>
+                                <input disabled type="email" name="email" id="id_email" class="profile-field w-full bg-[#001b22] border border-white/10 p-4 rounded-2xl focus:border-yellow-400 transition-all outline-none text-white" value="{{ user.email }}">
+                            </div>
+
+                            <!-- Nom -->
+                            <div class="space-y-2">
+                                <label class="text-xs uppercase tracking-widest text-white/40 font-bold ml-1">Nom</label>
+                                <input disabled type="text" name="first_name" id="id_first_name" class="profile-field w-full bg-[#001b22] border border-white/10 p-4 rounded-2xl focus:border-yellow-400 transition-all outline-none text-white" value="{{ user.first_name }}">
+                            </div>
+
+                            <!-- Cognoms -->
+                            <div class="space-y-2">
+                                <label class="text-xs uppercase tracking-widest text-white/40 font-bold ml-1">Cognoms</label>
+                                <input disabled type="text" name="last_name" id="id_last_name" class="profile-field w-full bg-[#001b22] border border-white/10 p-4 rounded-2xl focus:border-yellow-400 transition-all outline-none text-white" value="{{ user.last_name }}">
+                            </div>
+
+                            <!-- BOTONS D'ACCIÓ (Amagats fins editar) -->
+                            <div id="profile-actions" class="hidden md:col-span-2 flex justify-end gap-4 mt-4 animate-fadeIn">
+                                <button type="button" onclick="toggleEditProfile()" class="px-6 py-2 text-white/60 hover:text-white transition">Cancel·lar</button>
+                                <button type="submit" class="bg-yellow-500 hover:bg-yellow-400 text-[#002b36] px-8 py-3 rounded-2xl font-black shadow-lg transition-all">
+                                    GUARDAR CANVIS
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- COLUMNA DRETA: SEGURETAT -->
+                <div class="space-y-6">
+                    <!-- Només els estadístiques, sense el formulari de contrasenya aquí -->
+                </div>
+
+            </div>
+        </section>
+    </form>
+
+    <!-- FORMULARI SEPARAT PER CONTRASENYA -->
+    <form method="POST" class="max-w-7xl mx-auto px-4 mt-8">
+        {% csrf_token %}
+        <input type="hidden" name="change_password" value="1">
+        
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-start-3 space-y-6">
+                <div class="bg-[#002b36] rounded-3xl border border-white/10 shadow-xl p-8">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="p-2 bg-yellow-400/10 rounded-lg">
+                            <svg class="w-6 h-6 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+                        </div>
+                        <h3 class="text-lg font-bold">Canviar Contrasenya</h3>
+                    </div>
+                    
+                    <div class="space-y-4">
+                        {{ pass_form.as_p }}
+                        
+                        <button type="submit" class="w-full bg-white/5 hover:bg-yellow-400 hover:text-[#002b36] border border-white/10 py-3 rounded-xl font-bold transition-all mt-2 uppercase text-xs tracking-widest">
+                            Actualitzar Contrasenya
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </form>
+</main>
+
+<script>
+let isEditing = false;
+
+
+
+// Funció per activar/desactivar l'edició
+function toggleEditProfile() {
+    isEditing = !isEditing;
+    
+    const fields = document.querySelectorAll('.profile-field');
+    const actions = document.getElementById('profile-actions');
+    const editBtn = document.getElementById('edit-profile-btn');
+
+    fields.forEach(field => {
+        field.disabled = !isEditing;
+        if (isEditing) {
+            field.classList.add('border-yellow-400/50', 'bg-black/20');
+            field.classList.remove('bg-[#001b22]');
+        } else {
+            field.classList.remove('border-yellow-400/50', 'bg-black/20');
+            field.classList.add('bg-[#001b22]');
+            // Restaura els valors originals si cancel·la
+            field.value = field.defaultValue;
+        }
+    });
+
+    if (isEditing) {
+        actions.classList.remove('hidden');
+        editBtn.textContent = 'Editar';
+    } else {
+        actions.classList.add('hidden');
+    }
+}
+
+// Previsualització de la imatge
+document.getElementById('id_image').addEventListener('change', function(event) {
+    const reader = new FileReader();
+    reader.onload = function() {
+        document.getElementById('profile-preview').src = reader.result;
+    };
+    if(event.target.files[0]) {
+        reader.readAsDataURL(event.target.files[0]);
+    }
+});
+</script>
+
+<style>
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-fadeIn { animation: fadeIn 0.3s ease-out forwards; }
+    
+    /* Estils per als camps del formulari de Django password */
+    #id_old_password, #id_new_password1, #id_new_password2 {
+        width: 100%;
+        background-color: #001b22;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 0.75rem;
+        border-radius: 0.75rem;
+        color: white;
+        outline: none;
+        transition: all 0.3s;
+        font-size: 0.875rem;
+    }
+    
+    #id_old_password:focus, #id_new_password1:focus, #id_new_password2:focus {
+        border-color: #fbbf24;
+    }
+    
+    form p label {
+        display: block;
+        font-size: 0.625rem;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: rgba(255, 255, 255, 0.4);
+        font-weight: bold;
+        margin-bottom: 0.25rem;
+    }
+    
+    form p {
+        margin-bottom: 1rem;
+    }
+    
+    .errorlist {
+        color: #ef4444;
+        font-size: 0.75rem;
+        margin-top: 0.25rem;
+        list-style: none;
+        padding: 0;
+    }
+</style>
+{% endblock %}

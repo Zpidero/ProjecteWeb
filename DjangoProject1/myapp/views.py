@@ -7,12 +7,14 @@ from django.contrib.auth.forms import AuthenticationForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
-from .forms import UserRegisterForm
+
 from .models import Profile, Lineup, Futdraft, Players, Teams
 import random
 import json
 import traceback
-
+from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth.forms import PasswordChangeForm
+from .forms import UserUpdateForm, ProfileUpdateForm, UserRegisterForm
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -306,3 +308,60 @@ def login_view(request):
     else:
         form = AuthenticationForm()
     return render(request, "myapp/login.html", {"login_form": form})
+
+#profile view
+@login_required
+def profile_view(request):
+    # Assegura't que l'usuari té un profile
+    try:
+        profile = request.user.profile
+    except Profile.DoesNotExist:
+        profile = Profile.objects.create(user=request.user)
+    
+    if request.method == 'POST':
+        # Si s'ha enviat el formulari de dades personals
+        if 'update_profile' in request.POST:
+            u_form = UserUpdateForm(request.POST, instance=request.user)
+            p_form = ProfileUpdateForm(request.POST, request.FILES, instance=profile)
+            
+            if u_form.is_valid() and p_form.is_valid():
+                u_form.save()
+                p_form.save()
+                messages.success(request, 'El teu perfil ha estat actualitzat!')
+                return redirect('profile')
+            else:
+                # Mostra errors específics
+                for field, errors in u_form.errors.items():
+                    for error in errors:
+                        messages.error(request, f'{field}: {error}')
+                for field, errors in p_form.errors.items():
+                    for error in errors:
+                        messages.error(request, f'{field}: {error}')
+        
+        # Si s'ha enviat el formulari de contrasenya
+        elif 'change_password' in request.POST:
+            pass_form = PasswordChangeForm(request.user, request.POST)
+            
+            if pass_form.is_valid():
+                user = pass_form.save()
+                update_session_auth_hash(request, user)
+                messages.success(request, 'Contrasenya canviada correctament!')
+                return redirect('profile')
+            else:
+                for error in pass_form.errors.values():
+                    messages.error(request, error)
+        
+        # Torna a crear els forms per mostrar errors
+        u_form = UserUpdateForm(instance=request.user)
+        p_form = ProfileUpdateForm(instance=profile)
+        pass_form = PasswordChangeForm(request.user)
+    else:
+        u_form = UserUpdateForm(instance=request.user)
+        p_form = ProfileUpdateForm(instance=profile)
+        pass_form = PasswordChangeForm(request.user)
+
+    return render(request, 'myapp/profile.html', {
+        'u_form': u_form,
+        'p_form': p_form,
+        'pass_form': pass_form
+    })
