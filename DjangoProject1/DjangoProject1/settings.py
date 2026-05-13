@@ -44,16 +44,16 @@ INSTALLED_APPS = [
 ]
 
 CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': 'dxgzncesf',
-    'API_KEY': '262373899638361',
-    'API_SECRET': 'VSN_RTa-dREdakL7nsgs0LBfU7U',
+    'CLOUD_NAME': config('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': config('CLOUDINARY_API_KEY'),
+    'API_SECRET': config('CLOUDINARY_API_SECRET'),
 }
 
 
 cloudinary.config(
-    cloud_name=CLOUDINARY_STORAGE['CLOUD_NAME'],
-    api_key=CLOUDINARY_STORAGE['API_KEY'],
-    api_secret=CLOUDINARY_STORAGE['API_SECRET'],
+    cloud_name=config('CLOUDINARY_CLOUD_NAME'),
+    api_key=config('CLOUDINARY_API_KEY'),
+    api_secret=config('CLOUDINARY_API_SECRET'),
 )
 
 
