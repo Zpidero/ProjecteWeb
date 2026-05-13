@@ -2,18 +2,15 @@ from django.http import JsonResponse
 from django.db.models import Q, Count
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
-from django.contrib.auth import login, logout
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import login, logout, update_session_auth_hash
+from django.contrib.auth.forms import AuthenticationForm,PasswordChangeForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
-
 from .models import Profile, Lineup, Futdraft, Players, Teams
 import random
 import json
 import traceback
-from django.contrib.auth import update_session_auth_hash
-from django.contrib.auth.forms import PasswordChangeForm
 from .forms import UserUpdateForm, ProfileUpdateForm, UserRegisterForm
 
 # ---------------------------------------------------------------------------
