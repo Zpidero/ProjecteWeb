@@ -11,7 +11,7 @@
     </div>
 </div>
 
-<div id="formation-container" class="flex flex-col-reverse items-center justify-center min-h-screen gap-6 p-4 bg-gray-800 overflow-hidden"></div>
+<div id="formation-container" class="flex flex-col-reverse items-center justify-center min-h-screen gap-6 bg-gray-800 overflow-hidden pt-28 pb-24 px-4 transition-all duration-300"></div>
 
 <div id="stats-box" class="fixed top-40 right-6 bg-gray-900 border border-yellow-500 rounded-xl px-4 py-3 text-white shadow-lg w-56 hidden">
     <div class="text-sm text-gray-400">STATS</div>
@@ -150,6 +150,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 <linearGradient id="cat2"><stop offset="0%" stop-color="#f5f5f5"/><stop offset="100%" stop-color="#c0c0c0"/></linearGradient>
                 <linearGradient id="cat3"><stop offset="0%" stop-color="#fff7b0"/><stop offset="50%" stop-color="#ffd700"/><stop offset="100%" stop-color="#b8860b"/></linearGradient>
                 <linearGradient id="cat4"><stop offset="0%" stop-color="#00ffff"/><stop offset="50%" stop-color="#008cff"/><stop offset="100%" stop-color="#00ffff"/></linearGradient>
+                <linearGradient id="cat4"><stop offset="0%" stop-color="#ff4dff"/><stop offset="50%" stop-color="#d633ff"/><stop offset="100%" stop-color="#ff4dff"/></linearGradient>
                 <filter id="glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
             </defs>
             <path d="M40 20 Q20 40 20 80 L20 300 Q20 340 60 360 L150 410 L240 360 Q280 340 280 300 L280 80 Q280 40 260 20 Q220 0 150 0 Q80 0 40 20 Z" stroke="black" stroke-width="3" fill="${fill}" filter="url(#glow)"/>
@@ -290,9 +291,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
     $('bench-handle').addEventListener('click', () => {
         const drawer = $('bench-drawer');
+        const field = $('formation-container');
         const isOpen = drawer.classList.toggle('open');
         $('bench-arrow').textContent = isOpen ? '▼' : '▲';
-        $('formation-container').style.paddingBottom = isOpen ? (drawer.offsetHeight + 16) + 'px' : '4rem';
+        if (isOpen) {
+            field.classList.add('pb-72');
+            field.classList.remove('pb-24');
+        } else {
+            field.classList.add('pb-24');
+            field.classList.remove('pb-72');
+        }
     });
 
     $('formation-container').addEventListener('click', function (e) {

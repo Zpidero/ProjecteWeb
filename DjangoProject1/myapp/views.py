@@ -136,13 +136,14 @@ def get_random_players(request):
         1: (925, 930),
         2: (931, 945),
         3: (946, 960),
-        4: (961, 999),
+        4: (961, 998),
+        5: (999, 999)
     }
 
-    categories = list(range(1, 5))
+    categories = list(range(1, 6))
     random.shuffle(categories)
 
-    qs         = []
+    qs = []
     interval_n = 1
 
     for cat in categories:
