@@ -17,5 +17,8 @@ urlpatterns = [
     path('draft/<int:draft_id>', views.draft_detail, name='draft_detail'),
     path('draft/<int:draft_id>/delete/', views.delete_draft, name='delete_draft'),
     path('draft/<int:draft_id>/edit/', views.edit_draft, name='edit_draft'),
+    path('profile/', views.profile_view, name='profile'),
+    path('logout/', views.logout_view, name='logout'),
+    path('perfil/eliminar/', views.delete_account, name='delete_account')
 ]
 

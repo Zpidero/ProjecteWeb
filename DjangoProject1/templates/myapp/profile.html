@@ -1,0 +1,219 @@
+{% extends 'base.html' %}
+
+{% block Title %}My Profile - Inazuma FutDraft{% endblock %}
+
+{% block body %}
+<main class="min-h-screen bg-[#001b22] pt-28 pb-12 text-white overflow-x-hidden">
+    
+    <!-- Missatges -->
+    {% if messages %}
+    <div class="max-w-7xl mx-auto px-4 mb-4 space-y-2">
+        {% for message in messages %}
+        <div class="animate-slideInRight bg-{{ message.tags }}-500/20 border-l-4 border-{{ message.tags }}-500 text-{{ message.tags }}-200 px-6 py-4 rounded-r-xl backdrop-blur-md shadow-lg">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- HERO SECTION (Fora dels formularis per evitar embolics) -->
+    <section class="max-w-7xl mx-auto px-4 animate-fadeIn">
+        <div class="relative w-full h-[320px] overflow-hidden rounded-[2.5rem] group shadow-2xl border border-white/5">
+            <div class="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-110"
+                 style='background-image:url("https://preview.redd.it/anyone-have-a-4k-wallpaper-version-of-the-last-screen-of-v0-xfg6u4b3ud2g1.png?width=1872&format=png&auto=webp&s=dcda47b7c53471226a9a140e9728df818e17882b")'>
+            </div>
+            <div class="absolute inset-0 bg-gradient-to-t from-[#001b22] via-[#001b22]/60 to-transparent"></div>
+
+            <div class="relative h-full flex items-end pb-10 px-10">
+                <div class="flex flex-col md:flex-row items-end gap-8 w-full">
+                    
+                    <!-- AVATAR (Dins d'un mini-form per la imatge o part del form principal) -->
+                    <div class="relative group/avatar">
+                        <div class="absolute -inset-1 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-[2rem] blur opacity-25 group-hover/avatar:opacity-75 transition duration-500"></div>
+                        <img class="relative w-36 h-36 md:w-44 md:h-44 rounded-[2rem] border-4 border-[#002b36] object-cover shadow-2xl bg-[#002b36]"
+                            src="{% if user.profile.image %}{{ user.profile.image.url }}{% else %}https://randomuser.me/api/portraits/men/32.jpg{% endif %}"
+                            id="profile-preview"/>
+                        
+                        <label for="id_image" class="absolute inset-0 flex items-center justify-center bg-black/60 rounded-[2rem] opacity-0 group-hover/avatar:opacity-100 transition-all cursor-pointer backdrop-blur-sm">
+                            <svg class="w-12 h-12 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path>
+                            </svg>
+                        </label>
+                    </div>
+
+                    <div class="mb-4 animate-fadeInUp">
+                        <h2 class="text-5xl font-black text-white tracking-tighter">
+                            {{ user.first_name|default:"Jugador" }} <span class="text-yellow-400">{{ user.last_name|default:"" }}</span>
+                        </h2>
+                        <p class="text-white/60 font-medium flex items-center gap-2 mt-2">
+                            <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+                            @{{ user.username }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- GRID PRINCIPAL -->
+    <div class="max-w-7xl mx-auto px-4 mt-10">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- COLUMNA ESQUERRA: PERFIL (FORMULARI 1) -->
+            <div class="lg:col-span-2 space-y-8 animate-fadeInLeft">
+                <form method="POST" enctype="multipart/form-data" id="profile-form">
+                    {% csrf_token %}
+                    <input type="hidden" name="update_profile" value="1">
+                    <!-- Camp d'imatge amagat que s'activa pel label de dalt -->
+                    <div class="hidden">{{ p_form.image }}</div>
+
+                    <div class="bg-[#002b36]/50 backdrop-blur-xl rounded-[2.5rem] border border-white/10 shadow-2xl overflow-hidden">
+                        <div class="px-10 py-8 border-b border-white/5 flex justify-between items-center bg-white/5">
+                            <div>
+                                <h3 class="text-2xl font-black italic uppercase tracking-tighter text-white">Settings</h3>
+                            </div>
+                            <button type="button" id="edit-profile-btn" onclick="toggleEditProfile()"
+                                    class="bg-yellow-400 hover:bg-yellow-300 text-[#001b22] px-6 py-3 rounded-2xl font-black transition-all flex items-center gap-2">
+                                <span id="btn-text">EDIT PROFILE</span>
+                            </button>
+                        </div>
+
+                        <div class="p-10 grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div class="space-y-3">
+                                <label class="text-xs uppercase tracking-[0.2em] text-yellow-400/60 font-black">Username</label>
+                                <input disabled type="text" class="w-full bg-[#001b22] border border-white/5 p-4 rounded-2xl text-white/40 cursor-not-allowed" value="{{ user.username }}">
+                            </div>
+                            <div class="space-y-3">
+                                <label class="text-xs uppercase tracking-[0.2em] text-yellow-400/60 font-black">Email</label>
+                                <input disabled type="email" name="email" id="id_email" class="profile-field w-full bg-[#001b22] border border-white/10 p-4 rounded-2xl text-white" value="{{ user.email }}">
+                            </div>
+                            <div class="space-y-3">
+                                <label class="text-xs uppercase tracking-[0.2em] text-yellow-400/60 font-black">Name</label>
+                                <input disabled type="text" name="first_name" id="id_first_name" class="profile-field w-full bg-[#001b22] border border-white/10 p-4 rounded-2xl text-white" value="{{ user.first_name }}">
+                            </div>
+                            <div class="space-y-3">
+                                <label class="text-xs uppercase tracking-[0.2em] text-yellow-400/60 font-black">Last Name</label>
+                                <input disabled type="text" name="last_name" id="id_last_name" class="profile-field w-full bg-[#001b22] border border-white/10 p-4 rounded-2xl text-white" value="{{ user.last_name }}">
+                            </div>
+
+                            <div id="profile-actions" class="hidden md:col-span-2 flex justify-end gap-4 mt-6">
+                                <button type="submit" class="bg-white text-[#001b22] px-10 py-4 rounded-2xl font-black shadow-xl hover:scale-105 transition-all uppercase tracking-tighter">
+                                    Save Changes
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                                <!-- NAVEGACIÓ -->
+                <div class="bg-[#002b36]/50 backdrop-blur-xl rounded-[2.5rem] border border-white/10 p-8 shadow-2xl">
+                    <h3 class="text-lg font-black uppercase tracking-tighter mb-6 flex items-center gap-2">
+                        <span class="w-2 h-6 bg-yellow-400 rounded-full"></span> Navigation
+                    </h3>
+                    <div class="space-y-4">
+                        <a href="/my-drafts" class="flex items-center justify-between w-full p-4 bg-white/5 hover:bg-yellow-400 hover:text-[#001b22] rounded-2xl transition-all group border border-white/5">
+                            <span class="font-bold uppercase text-sm tracking-widest">My Drafts</span>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M13 7l5 5m0 0l-5 5m5-5H6" stroke-width="2"></path></svg>
+                        </a>
+                        <a href="{% url 'logout' %}" class="flex items-center justify-between w-full p-4 bg-white/5 hover:bg-white/10 rounded-2xl transition-all border border-white/5">
+                            <span class="font-bold uppercase text-sm tracking-widest text-white/60">Logout</span>
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1" stroke-width="2"></path></svg>
+                        </a>
+                    </div>
+                </div>
+
+
+                <!-- ELIMINAR -->
+                <div class="pt-4">
+                    <a href="{% url 'delete_account' %}" onclick="return confirm('Estàs segur?')" 
+                       class="flex items-center justify-center gap-2 w-full p-4 border-2 border-red-500/20 hover:bg-red-500/10 text-red-500 rounded-2xl transition-all font-bold uppercase text-xs tracking-widest">
+                        Delete Account
+                    </a>
+                </div>
+            </div>
+
+            <!-- COLUMNA DRETA: ALTRES (FORMULARI 2 I LINKS) -->
+            <div class="space-y-8 animate-fadeInRight">
+                
+
+
+                <!-- FORMULARI 2: SEGURETAT -->
+                <div class="bg-[#002b36]/50 backdrop-blur-xl rounded-[2.5rem] border border-white/10 p-8 shadow-2xl">
+                    <h3 class="text-lg font-black uppercase tracking-tighter mb-6">Security</h3>
+                    <form method="POST">
+                        {% csrf_token %}
+                        <input type="hidden" name="change_password" value="1">
+                        <div class="space-y-4 password-form-container">
+                            {{ pass_form.as_p }}
+                            <button type="submit" class="w-full bg-white/5 hover:bg-yellow-400 hover:text-[#001b22] border border-white/10 py-4 rounded-2xl font-black transition-all mt-4 uppercase text-xs tracking-widest">
+                                Update Password
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</main>
+
+<script>
+let isEditing = false;
+function toggleEditProfile() {
+    isEditing = !isEditing;
+    const fields = document.querySelectorAll('.profile-field');
+    const actions = document.getElementById('profile-actions');
+    const editBtn = document.getElementById('edit-profile-btn');
+    const btnText = document.getElementById('btn-text');
+
+    fields.forEach(field => {
+        field.disabled = !isEditing;
+        if (isEditing) {
+            field.classList.add('ring-2', 'ring-yellow-400/50', 'bg-black/40');
+        } else {
+            field.classList.remove('ring-2', 'ring-yellow-400/50', 'bg-black/40');
+            field.value = field.defaultValue;
+        }
+    });
+
+    if (isEditing) {
+        actions.classList.remove('hidden');
+        editBtn.style.backgroundColor = '#ef4444';
+        editBtn.style.color = 'white';
+        btnText.textContent = 'CANCEL';
+    } else {
+        actions.classList.add('hidden');
+        editBtn.style.backgroundColor = '#facc15';
+        editBtn.style.color = '#001b22';
+        btnText.textContent = 'EDIT PROFILE';
+    }
+}
+
+document.getElementById('id_image').addEventListener('change', function(event) {
+    const reader = new FileReader();
+    reader.onload = function() {
+        document.getElementById('profile-preview').src = reader.result;
+    };
+    if(event.target.files[0]) reader.readAsDataURL(event.target.files[0]);
+});
+</script>
+
+<style>
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeInLeft { from { opacity: 0; transform: translateX(-20px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes fadeInRight { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: translateX(0); } }
+    @keyframes slideInRight { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+
+    .animate-fadeIn { animation: fadeIn 0.8s ease-out forwards; }
+    .animate-fadeInUp { animation: fadeInUp 0.6s ease-out forwards; }
+    .animate-fadeInLeft { animation: fadeInLeft 0.6s ease-out forwards; }
+    .animate-fadeInRight { animation: fadeInRight 0.6s ease-out forwards; }
+    .animate-slideInRight { animation: slideInRight 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+    .password-form-container label { display: block; font-size: 0.65rem; text-transform: uppercase; color: rgba(255, 255, 255, 0.4); font-weight: 800; margin-bottom: 0.5rem; }
+    .password-form-container input { width: 100%; background-color: #001b22; border: 1px solid rgba(255, 255, 255, 0.1); padding: 1rem; border-radius: 1rem; color: white; outline: none; margin-bottom: 1rem; }
+    .password-form-container input:focus { border-color: #fbbf24; }
+    .errorlist { color: #f87171; font-size: 0.75rem; list-style: none; padding: 0.5rem; border-left: 2px solid #f87171; margin-bottom: 1rem; }
+</style>
+{% endblock %}
