@@ -136,7 +136,7 @@ def get_random_players(request):
         2: (931, 945),
         3: (946, 960),
         4: (961, 998),
-        5: (999, 999)
+        5: (999, 1000)
     }
 
     categories = list(range(1, 6))
