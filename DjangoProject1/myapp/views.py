@@ -2,17 +2,16 @@ from django.http import JsonResponse
 from django.db.models import Q, Count
 from django.core.paginator import Paginator
 from django.shortcuts import render, redirect
-from django.contrib.auth import login
-from django.contrib.auth.forms import AuthenticationForm
+from django.contrib.auth import login, logout, update_session_auth_hash
+from django.contrib.auth.forms import AuthenticationForm,PasswordChangeForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
-from .forms import UserRegisterForm
 from .models import Profile, Lineup, Futdraft, Players, Teams
 import random
 import json
 import traceback
-
+from .forms import UserUpdateForm, ProfileUpdateForm, UserRegisterForm
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -306,3 +305,77 @@ def login_view(request):
     else:
         form = AuthenticationForm()
     return render(request, "myapp/login.html", {"login_form": form})
+
+#profile view
+@login_required
+def profile_view(request):
+    # Assegura't que l'usuari té un profile
+    try:
+        profile = request.user.profile
+    except Profile.DoesNotExist:
+        profile = Profile.objects.create(user=request.user)
+    
+    if request.method == 'POST':
+        # Si s'ha enviat el formulari de dades personals
+        if 'update_profile' in request.POST:
+            u_form = UserUpdateForm(request.POST, instance=request.user)
+            p_form = ProfileUpdateForm(request.POST, request.FILES, instance=profile)
+            
+            if u_form.is_valid() and p_form.is_valid():
+                u_form.save()
+                p_form.save()
+                messages.success(request, 'El teu perfil ha estat actualitzat!')
+                return redirect('profile')
+            else:
+                # Mostra errors específics
+                for field, errors in u_form.errors.items():
+                    for error in errors:
+                        messages.error(request, f'{field}: {error}')
+                for field, errors in p_form.errors.items():
+                    for error in errors:
+                        messages.error(request, f'{field}: {error}')
+        
+        # Si s'ha enviat el formulari de contrasenya
+        elif 'change_password' in request.POST:
+            pass_form = PasswordChangeForm(request.user, request.POST)
+            
+            if pass_form.is_valid():
+                user = pass_form.save()
+                update_session_auth_hash(request, user)
+                messages.success(request, 'Contrasenya canviada correctament!')
+                return redirect('profile')
+            else:
+                for error in pass_form.errors.values():
+                    messages.error(request, error)
+        
+        # Torna a crear els forms per mostrar errors
+        u_form = UserUpdateForm(instance=request.user)
+        p_form = ProfileUpdateForm(instance=profile)
+        pass_form = PasswordChangeForm(request.user)
+    else:
+        u_form = UserUpdateForm(instance=request.user)
+        p_form = ProfileUpdateForm(instance=profile)
+        pass_form = PasswordChangeForm(request.user)
+
+    return render(request, 'myapp/profile.html', {
+        'u_form': u_form,
+        'p_form': p_form,
+        'pass_form': pass_form
+    })
+
+@login_required
+def delete_account(request):
+    if request.method == 'POST':
+        user = request.user
+        logout(request)  # Tanquem la sessió abans d'esborrar
+        user.delete()    # Esborrem l'usuari de la base de dades
+        messages.success(request, "El teu compte ha estat eliminat correctament. Esperem tornar-te a veure!")
+        return redirect('home')  # Redirigeix a la pàgina principal
+    
+    return redirect('profile') # Si algú intenta entrar per GET, el tornem al perfil
+
+
+def logout_view(request):
+    logout(request)
+    messages.info(request, "Has tancat la sessió. Fins aviat, capità!")
+    return redirect('login')  # O a la 'home'
