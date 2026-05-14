@@ -1,7 +1,7 @@
 from django.http import JsonResponse
 from django.db.models import Q, Count
 from django.core.paginator import Paginator
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, logout, update_session_auth_hash
 from django.contrib.auth.forms import AuthenticationForm,PasswordChangeForm
 from django.contrib import messages
@@ -189,6 +189,34 @@ def get_random_players(request):
     return JsonResponse(random_players, safe=False)
 
 
+def get_players_by_ids(request):
+    ids = request.GET.get('ids', '').split(',')
+    ids = [int(i) for i in ids if i.isdigit()]
+    players = Players.objects.filter(id__in=ids).select_related('team')
+    
+    player_data = []
+    for p in players:
+        player_data.append({
+            "ID": p.id,
+            "Name": p.name,
+            "Nickname": p.nickname,
+            "Position": p.position,
+            "Image": p.image,
+            "Element": p.element,
+            "Team": p.team.name if p.team else "",
+            "Team_image": p.team.image if p.team else "",
+            "Total": p.total,
+            "Power": p.power,
+            "Control": p.control,
+            "Technique": p.technique,
+            "Physical": p.physical,
+            "Agility": p.agility,
+            "Intelligence": p.intelligence,
+            "Pressure": p.pressure,
+            "Category": 1 # This will be recalculated in JS
+        })
+    return JsonResponse(player_data, safe=False)
+
 @login_required(login_url='login')
 def game_view(request):
     return render(request, "myapp/game.html")
@@ -203,31 +231,39 @@ def game_view(request):
 def save_draft(request):
     try:
         data           = json.loads(request.body)
+        draft_id       = data.get('draft_id')
         name           = data.get('name', 'El meu equip')
         formation_name = data.get('formation', '4-3-3')
-        player_ids     = data.get('players', [])
+        player_ids     = [int(pid) for pid in data.get('players', []) if str(pid).isdigit()]
 
         saved_players = list(Players.objects.filter(id__in=player_ids))
 
-        parts = formation_name.split('-')
-        lineup, _ = Lineup.objects.get_or_create(
-            name=formation_name,
-            defaults={
-                'image':       'https://placeholder.com/1x1.png',
-                'forwards':    int(parts[2]),
-                'midfielders': int(parts[1]),
-                'defenders':   int(parts[0]),
-                'goalKeeper':  1,
-            }
-        )
+        if draft_id:
+            draft =get_object_or_404(Futdraft, id=draft_id, user=request.user)
+            draft.name = name
+            draft.player_order = player_ids
+            draft.save()
+            draft.players.set(saved_players)
+        else :
+            parts = formation_name.split('-')
+            lineup, _ = Lineup.objects.get_or_create(
+                name=formation_name,
+                defaults={
+                    'image':       'https://placeholder.com/1x1.png',
+                    'forwards':    int(parts[2]),
+                    'midfielders': int(parts[1]),
+                    'defenders':   int(parts[0]),
+                    'goalKeeper':  1,
+                }
+            )
 
-        draft = Futdraft.objects.create(
-            name=name,
-            user=request.user,
-            lineup=lineup,
-            player_order=player_ids,
-        )
-        draft.players.set(saved_players)
+            draft = Futdraft.objects.create(
+                name=name,
+                user=request.user,
+                lineup=lineup,
+                player_order=player_ids,
+            )
+            draft.players.set(saved_players)
 
         return JsonResponse({'ok': True, 'id': draft.id})
 
@@ -273,6 +309,60 @@ def my_drafts(request):
         ])
 
     return render(request, 'myapp/my_drafts.html', {'drafts': user_drafts})
+
+@login_required(login_url='login')
+def draft_detail(request, draft_id):
+    # Obtenemos el draft asegurando que pertenece al usuario autenticado
+    draft = get_object_or_404(Futdraft, id=draft_id, user=request.user)
+    
+    # Prefetch para optimizar la consulta de jugadores y sus equipos
+    draft = Futdraft.objects.prefetch_related('players__team', 'lineup').get(id=draft_id)
+    # Replicamos la lógica de ordenación y preparación de datos para el frontend
+    player_dict = {str(p.id): p for p in draft.players.all()}
+    ordered_list = (
+        [player_dict[str(pid)] for pid in draft.player_order if str(pid) in player_dict]
+        if draft.player_order
+        else list(draft.players.all())
+    )
+    # Inyectamos los datos en el objeto draft para que el template los lea
+    draft.js_data = json.dumps([{
+        "ID":           p.id,
+        "Name":         p.name,
+        "Nickname":     p.nickname,
+        "Position":     p.position,
+        "Image":        p.image,
+        "Element":      p.element,
+        "Team":         p.team.name if p.team else "",
+        "Team_image":   p.team.image if p.team else "",
+        "Total":        p.total,
+        "Power":        p.power,
+        "Control":      p.control,
+        "Technique":    p.technique,
+        "Physical":     p.physical,
+        "Agility":      p.agility,
+        "Intelligence": p.intelligence,
+        "Pressure":     p.pressure,
+        }
+        for p in ordered_list
+    ])
+    
+    return render(request, 'myapp/draft_detail.html', {'draft': draft})
+
+@login_required(login_url='login')
+def edit_draft(request, draft_id):
+    draft = get_object_or_404(Futdraft, id=draft_id, user=request.user)
+    return render(request, "myapp/game.html", {
+        'draft': draft,
+        'edit_mode': True,
+        'player_order_json': json.dumps(draft.player_order or []),
+    })
+
+@login_required(login_url='login')
+@require_POST
+def delete_draft(request, draft_id):
+    draft = get_object_or_404(Futdraft, id=draft_id, user=request.user)
+    draft.delete()
+    return JsonResponse({'ok': True})
 
 
 # ---------------------------------------------------------------------------
