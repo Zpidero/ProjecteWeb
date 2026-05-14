@@ -67,14 +67,14 @@ def step_players_and_lineup(context):
 
 @when("I go to my drafts page without logging in")
 def step_go_my_drafts_anonymous(context):
-    context.browser.visit(context.server_url + "/my-drafts/")
+    context.browser.visit(context.base_url + "/my-drafts/")
 
 
 @when("I log in")
 def step_login(context):
     browser = context.browser
 
-    browser.visit(context.server_url + "/login/")
+    browser.visit(context.base_url + "/login/")
     browser.fill("username", TEST_USERNAME)
     browser.fill("password", TEST_PASSWORD)
     browser.find_by_css("button[type='submit']").click()
@@ -90,7 +90,7 @@ def step_create_draft(context, draft_name):
         "players": [context.player.id],
     }
 
-    browser.visit(context.server_url + "/game/")
+    browser.visit(context.base_url + "/game/")
 
     browser.execute_script(
         """
@@ -117,7 +117,7 @@ def step_redirect_login(context):
 
 @then('I should see the draft "{draft_name}" in my drafts page')
 def step_see_draft(context, draft_name):
-    context.browser.visit(context.server_url + "/my-drafts/")
+    context.browser.visit(context.base_url + "/my-drafts/")
 
     assert draft_name in context.browser.html
 
