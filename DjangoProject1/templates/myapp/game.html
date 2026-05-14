@@ -21,9 +21,7 @@
             </h2>
         </div>
         <div class="p-5 flex flex-col gap-4">
-            <div class="flex items-center justify-between
-                        bg-white/5 rounded-2xl px-4 py-3
-                        border border-white/5">
+            <div class="flex items-center justify-between bg-white/5 rounded-2xl px-4 py-3 border border-white/5">
                 <div>
                     <div class="text-yellow-500/70 text-sm font-extrabold uppercase tracking-wider">
                         Team Rating
@@ -447,7 +445,6 @@ document.addEventListener('DOMContentLoaded', function () {
         swapSource.innerHTML = card.innerHTML;
         card.innerHTML = tmpHTML;
 
-        // Actualizar atributos en los elementos
         swapSource.setAttribute('data-player-id', idB);
         swapSource.setAttribute('data-element', dataB.element);
         swapSource.setAttribute('data-team', dataB.team);
@@ -457,12 +454,12 @@ document.addEventListener('DOMContentLoaded', function () {
         card.setAttribute('data-team', dataA.team);
         card.setAttribute('data-player-position', posA);
 
-        // Intercambiar totals
+        // Change total
         const tmp = selectedTotals[keyA];
         selectedTotals[keyA] = selectedTotals[keyB];
         selectedTotals[keyB] = tmp;
 
-        // Actualizar selectedPlayers y selectedPlayersData
+        // Update selectedPlayers and selectedPlayersData
         if (aWasField && !bWasField) {
             selectedPlayers[keyA] = idB;
             delete selectedPlayersData[idA];
@@ -476,7 +473,6 @@ document.addEventListener('DOMContentLoaded', function () {
             selectedPlayers[keyB] = idA;
         }
 
-        // Resetear rombos DESPUÉS del swap (limpiar colores arrastrados del HTML)
         updateChemistry(idA, 0);
         updateChemistry(idB, 0);
 
@@ -538,7 +534,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return c ? decodeURIComponent(c.split('=')[1]) : null;
     }
 
-    // Per amagar la barra de menú quan scrollegem
+    // To hidde the navbar when scrolling down
     const navbar = document.getElementById('main-navbar');
     function onScroll() {
         const currentY = window.scrollY;
@@ -546,10 +542,8 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!navbar) return;
 
         if (currentY > lastScrollY && currentY > 60) {
-            // scroll hacia abajo → ocultar
             navbar.style.transform = 'translateY(-120%)';
         } else {
-            // scroll hacia arriba → mostrar
             navbar.style.transform = 'translateY(0)';
         }
 
