@@ -49,7 +49,7 @@
         </div>
     </div>
 </div>
-<div id="manager" class="fixed right-6 hidden z-50" style="top: 40rem;">
+<div id="manager" class="fixed right-6 hidden z-50" style="top: 28rem;">
     <div class="w-64 rounded-3xl overflow-hidden border border-yellow-500/40 bg-gradient-to-b from-gray-900 via-gray-950 to-black shadow-2xl backdrop-blur-xl">
         <div class="px-5 py-3 border-b border-yellow-500/20 bg-yellow-500/10">
             <h2 class="text-yellow-400 font-black tracking-[0.25em] text-xs uppercase text-center">
@@ -80,8 +80,8 @@
 </div>
 
 <div id="overlay" class="fixed inset-0 bg-black/50 hidden z-50 flex items-start justify-center pt-20 overflow-auto">
-    <div class="bg-gray-900 rounded-xl p-8 flex flex-col items-center max-w-7xl w-full">
-        <h2 class="text-4xl font-bold mb-6 text-white">Choose a player</h2>
+    <div class="bg-gray-900 rounded-3xl p-8 flex flex-col items-center max-w-7xl w-full" style="border: 1px solid rgba(234,179,8,0.4); animation: modalBounce 0.5s cubic-bezier(0.34,1.56,0.64,1);">
+        <h2 class="text-4xl font-black mb-6 text-white uppercase italic tracking-widest">Choose a player</h2>
         <div id="players-container" class="flex flex-wrap gap-6 justify-center"></div>
     </div>
 </div>
@@ -190,7 +190,13 @@
     }
     #manager-container .player-card {
         width: 100%;
-        height: clamp(120px, 16vw, 160px);
+        height: clamp(220px, 16vw, 160px);
+    }
+    @keyframes modalBounce {
+        0%   { transform: translateY(50px) scale(0.92); opacity: 0; }
+        55%  { transform: translateY(-10px) scale(1.02); opacity: 1; }
+        75%  { transform: translateY(5px)  scale(0.99); }
+        100% { transform: translateY(0)    scale(1); }
     }
 </style>
 
@@ -201,6 +207,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const selectedTotals      = {};   // fieldIndex | 'bench_N' -> normalizedTotal
     const selectedPlayersData = {};   // playerId -> { id, element, team }
     const selectedPlayerIds   = new Set();
+    const selectedPlayerNames = new Set();
     let selectedButton = null;
     let swapSource     = null;
     const BENCH_SIZE = 8;
@@ -268,15 +275,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // --- Recalculate chemistry for field players ---
     function recalculateTeamChemistry() {
-        const cards = [...document.querySelectorAll('#formation-container .player-card[data-filled]')];
+        const fieldCards = [...document.querySelectorAll('#formation-container .player-card[data-filled]')];
+        const managerCard = document.querySelector('#manager-container .player-card[data-filled]');
+        const cards = managerCard
+            ? [...fieldCards, managerCard]
+            : fieldCards;
         const validPlayers = [];
         const elementCount = {};
         const teamCount = {};
         cards.forEach(card => {
-            updatePositionState(card);
-            if (isPlayerOutOfPosition(card)) {
-                updateChemistry(card.dataset.playerId, 0);
-                return;
+            const isManager = card.closest('#manager-container') !== null;
+            if (!isManager) {
+                updatePositionState(card);
+                if (isPlayerOutOfPosition(card)) {
+                    updateChemistry(card.dataset.playerId, 0);
+                    return;
+                }
             }
             const player = {
                 id: card.dataset.playerId,
@@ -402,8 +416,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // --- Open player selection overlay ---
     function openOverlay(position, isBench, role = '') {
-        const excluded = [...selectedPlayerIds].join(',');
-        let url = `/random-players/?excluded=${excluded}`;
+        const excluded = [...selectedPlayerNames].join(',');
+        let url = `/random-players/?excluded_names=${encodeURIComponent(excluded)}`;
         if (position) url += `&position=${position}`;
         if (role)     url += `&role=${role}`;
 
@@ -414,6 +428,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 $('players-container').innerHTML = players.map(p => `
                     <button class="select-player text-black hover:scale-110 transition"
                         data-player-id="${p.ID}"
+                        data-player-name="${p.Name}"
                         data-total="${p.Total}"
                         data-element="${p.Element}"
                         data-team="${p.Team}"
@@ -459,7 +474,6 @@ document.addEventListener('DOMContentLoaded', function () {
         const posA  = swapSource.dataset.playerPosition;
         const posB  = card.dataset.playerPosition;
 
-        // Resetear rombos de ambos ANTES del swap visual
         updateChemistry(idA, 0);
         updateChemistry(idB, 0);
 
@@ -521,6 +535,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!card) return;
 
             selectedPlayerIds.add(String(p.ID));
+            if (p.Name) selectedPlayerNames.add(p.Name);
             card.innerHTML = buildPlayerSVG(p);
             card.style.background = 'transparent';
             card.setAttribute('data-filled', 'true');
@@ -665,6 +680,8 @@ document.addEventListener('DOMContentLoaded', function () {
         if (!playerId) return;
 
         selectedPlayerIds.add(playerId);
+        const playerName = playerBtn.dataset.playerName;
+        if (playerName) selectedPlayerNames.add(playerName);
 
         if (isBench) {
             const benchIndex = selectedButton.dataset.benchIndex;
@@ -701,14 +718,6 @@ document.addEventListener('DOMContentLoaded', function () {
         selectedButton = null;
 
         checkSaveBar();
-    });
-
-    // Close overlay clicking outside player cards
-    $('overlay').addEventListener('click', function (e) {
-        if (e.target === this) {
-            this.classList.add('hidden');
-            selectedButton = null;
-        }
     });
 
     // Save squad

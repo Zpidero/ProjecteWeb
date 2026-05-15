@@ -32,10 +32,6 @@ def index(request):
     return render(request, "base.html")
 
 
-def home(request):
-    return render(request, "myapp/home.html")
-
-
 # ---------------------------------------------------------------------------
 # Players
 # ---------------------------------------------------------------------------
@@ -131,6 +127,8 @@ def team_detail(request, team_name):
 def get_random_players(request):
     position = request.GET.get("position", "")
     role = request.GET.get("role", "")
+    excluded_names_raw = request.GET.get('excluded_names', '')
+    names_list = [n.strip() for n in excluded_names_raw.split(',') if n.strip()] if excluded_names_raw else []
 
     ranges = {
         1: (925, 930),
@@ -149,7 +147,6 @@ def get_random_players(request):
     for cat in categories:
         min_avg, max_avg = ranges[cat]
         candidates = Players.objects.filter(
-            position=position,
             total__gte=min_avg,
             total__lte=max_avg,
         )
@@ -157,7 +154,12 @@ def get_random_players(request):
             candidates = candidates.filter(position=position)
         if role:
             candidates = candidates.filter(role=role)
+        else:
+            candidates = candidates.exclude(role='Manager')
         candidates = candidates.select_related('team')
+
+        if names_list:
+            candidates = candidates.exclude(name__in=names_list)
         count = candidates.count()
         if count >= 5:
             interval_n = cat
@@ -187,6 +189,7 @@ def get_random_players(request):
             "Intelligence": p.intelligence,
             "Pressure":     p.pressure,
             "Category":     interval_n,
+            "Role": p.role,
         }
         for p in qs
     ]
