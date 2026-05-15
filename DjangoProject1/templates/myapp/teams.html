@@ -38,7 +38,7 @@
 
                 <div class="w-40 h-40 flex items-center justify-center mb-6 relative z-10">
                     {% if team.image %}
-                        <img src="{{ team.image }}" alt="{{ team.name }}" onerror="this.src='/static/images/teams/Reclutas.png';">
+                        <img src="{{ team.image }}" alt="{{ team.name }}" onerror="this.src='/static/images/teams/Reclutas.png';" class="max-w-full max-h-full object-contain group-hover:scale-110 transition-transform duration-500">
                     {% else %}
                         <div class="text-7xl opacity-20 filter grayscale">⚽</div>
                     {% endif %}
@@ -70,27 +70,16 @@
     </div>
 </div>
 
-<!-- pagination -->
-<div class="flex justify-center gap-2 mt-10">
+<div class="flex justify-center gap-2 mt-20">
     {% if teams.has_previous %}
         <a href="?page={{ teams.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
-           class="px-4 py-2 rounded-full bg-white border border-gray-200 hover:bg-gray-50">
-            ←
-        </a>
+           class="px-6 py-3 rounded-full bg-white border border-gray-200 font-bold text-[#004e64] hover:bg-gray-50 transition-colors">←</a>
     {% endif %}
-
-    <span class="px-4 py-2 rounded-full bg-[#004e64] text-white">
-        {{ teams.number }} / {{ teams.paginator.num_pages }}
-    </span>
-
+    <span class="px-8 py-3 rounded-full bg-[#004e64] text-white font-black italic">{{ teams.number }} / {{ teams.paginator.num_pages }}</span>
     {% if teams.has_next %}
         <a href="?page={{ teams.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}"
-           class="px-4 py-2 rounded-full bg-white border border-gray-200 hover:bg-gray-50">
-            →
-        </a>
+           class="px-6 py-3 rounded-full bg-white border border-gray-200 font-bold text-[#004e64] hover:bg-gray-50 transition-colors">→</a>
     {% endif %}
 </div>
 
-
 {% endblock %}
-
