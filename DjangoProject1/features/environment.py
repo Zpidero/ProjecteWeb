@@ -5,10 +5,12 @@ def before_all(context):
     # It also provides context.base_url for the live test server.
     
     context.browser = Browser("firefox", headless=True)
+    context.base_url = "http://127.0.0.1:8000"
+
 
 def after_all(context):
     context.browser.quit()
 
 def before_scenario(context, scenario):
-    # Optional: If you want to reset the browser state between scenarios
+    context.browser.cookies.delete()
     pass
