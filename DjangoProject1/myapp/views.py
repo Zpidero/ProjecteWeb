@@ -222,7 +222,8 @@ def get_players_by_ids(request):
             "Agility": p.agility,
             "Intelligence": p.intelligence,
             "Pressure": p.pressure,
-            "Category": 1 # This will be recalculated in JS
+            "Category": 1,
+            "Role": p.role,
         })
     return JsonResponse(player_data, safe=False)
 
@@ -320,6 +321,7 @@ def my_drafts(request):
             "Agility":      p.agility,
             "Intelligence": p.intelligence,
             "Pressure":     p.pressure,
+            "Role":         p.role,
             }
             for p in ordered_list
         ])
@@ -358,6 +360,7 @@ def draft_detail(request, draft_id):
         "Agility":      p.agility,
         "Intelligence": p.intelligence,
         "Pressure":     p.pressure,
+        "Role":         p.role,
         }
         for p in ordered_list
     ])

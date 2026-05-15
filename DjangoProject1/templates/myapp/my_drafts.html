@@ -9,6 +9,7 @@
         <linearGradient id="cat2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f5f5f5"/><stop offset="100%" stop-color="#c0c0c0"/></linearGradient>
         <linearGradient id="cat3" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fff7b0"/><stop offset="50%" stop-color="#ffd700"/><stop offset="100%" stop-color="#b8860b"/></linearGradient>
         <linearGradient id="cat4" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00ffff"/><stop offset="50%" stop-color="#008cff"/><stop offset="100%" stop-color="#00ffff"/></linearGradient>
+        <linearGradient id="cat-manager" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#064e3b"/><stop offset="100%" stop-color="#10b981"/></linearGradient>
         <filter id="glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
     </defs>
 </svg>
@@ -105,7 +106,9 @@ document.addEventListener('DOMContentLoaded', function() {
             else if (player.Total >= 946) cat = 3;
             else if (player.Total >= 931) cat = 2;
 
-            const fill = `url(#cat${cat})`;
+            const fill = player.Role === 'Manager'
+                ? `url(#cat-manager)`
+                : `url(#cat${cat})`;
             const filter = cat === 4 ? 'filter="url(#glow)"' : '';
             const pulseClass = cat === 4 ? 'animate-pulse' : '';
             

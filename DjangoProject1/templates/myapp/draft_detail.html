@@ -7,6 +7,7 @@
         <linearGradient id="cat2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f5f5f5"/><stop offset="100%" stop-color="#c0c0c0"/></linearGradient>
         <linearGradient id="cat3" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fff7b0"/><stop offset="50%" stop-color="#ffd700"/><stop offset="100%" stop-color="#b8860b"/></linearGradient>
         <linearGradient id="cat4" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00ffff"/><stop offset="50%" stop-color="#008cff"/><stop offset="100%" stop-color="#00ffff"/></linearGradient>
+        <linearGradient id="cat-manager" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#064e3b"/><stop offset="100%" stop-color="#10b981"/></linearGradient>
         <filter id="glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
     </defs>
 </svg>
@@ -20,7 +21,13 @@
                 <p class="text-gray-500 font-bold uppercase tracking-widest text-sm">Create on {{ draft.date|date:"d M Y" }} • Formation: {{ draft.lineup.name }}</p>
             </div>
             <div class="flex gap-4">
-                <a href="{% url 'my_drafts' %}" class="{% include 'components/button.html' with text='VOLVER' %}"></a>
+                <a href="{% url 'my_drafts' %}" 
+                   class="bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-black uppercase italic tracking-widest px-6 py-3 rounded-xl border-2 border-blue-800 shadow-lg transition-all duration-150 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7-7 7M3 12h18"/>
+                    </svg>
+                    BACK
+                </a>
                 <!-- Aquí irán los botones de EDITAR y ELIMINAR en la fase de Update/Delete -->
                 <button onclick="confirmDelete('{{ draft.id }}')" 
                         class="bg-red-600 hover:bg-red-700 active:scale-95 text-white font-black uppercase italic tracking-widest px-6 py-3 rounded-xl border-2 border-red-800 shadow-lg transition-all duration-150 flex items-center gap-2">
@@ -48,8 +55,16 @@
         <div class="mt-8" id="bench-wrapper" style="display:none">
             <h2 class="text-2xl font-black text-[#002b36] uppercase italic tracking-tighter mb-4">Bench</h2>
             <div class="bg-[#002b36] rounded-[2rem] p-6 border border-white/10">
-                <div id="bench-section" class="flex flex-wrap gap-4 justify-center">
-                </div>
+                <div id="bench-section" class="flex flex-wrap gap-4 justify-center"></div>
+            </div>
+        </div>
+        <!-- Manager -->
+        <div class="mt-8" id="manager-wrapper" style="display:none">
+            <h2 class="text-2xl font-black text-[#002b36] uppercase italic tracking-tighter mb-4">Manager</h2>
+            <div class="bg-[#002b36] rounded-[2rem] p-6 border border-white/10">
+                <div id="manager-section" class="flex flex-wrap gap-4 justify-center"></div>
+            </div>
+        </div>
             </div>
         </div>
         <!-- Datos JSON para el renderizado JS -->
@@ -81,7 +96,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (player.Total >= 961) cat = 4;
         else if (player.Total >= 946) cat = 3;
         else if (player.Total >= 931) cat = 2;
-        const fill = `url(#cat${cat})`;
+        const fill = player.Role === 'Manager'
+            ? `url(#cat-manager)`
+            : `url(#cat${cat})`;
         const filter = cat === 4 ? 'filter="url(#glow)"' : '';
         const pulseClass = cat === 4 ? 'animate-pulse' : '';
         const rating = Math.trunc(((player.Total - 925) / (970 - 925)) * (99 - 50) + 50);
@@ -121,13 +138,22 @@ document.addEventListener('DOMContentLoaded', function() {
     container.innerHTML += renderRow(dfPlayers);
     container.innerHTML += renderRow(gkPlayers);
 
-    // Banquillo — jugadores del índice 11 en adelante
-    const benchPlayers = players.slice(11);
+    // Banquillo — jugadores del índice 11 al 18
+    const benchPlayers = players.slice(11, 19);
     const benchWrapper = document.getElementById('bench-wrapper');
     if (benchPlayers.length > 0 && benchWrapper) {
         benchWrapper.style.display = '';
         const benchSection = document.getElementById('bench-section');
         benchSection.innerHTML = benchPlayers.map(generatePlayerCard).join('');
+    }
+
+    // Manager — jugadores del índice 19 en adelante
+    const managerPlayers = players.slice(19);
+    const managerWrapper = document.getElementById('manager-wrapper');
+    if (managerPlayers.length > 0 && managerWrapper) {
+        managerWrapper.style.display = '';
+        const managerSection = document.getElementById('manager-section');
+        managerSection.innerHTML = managerPlayers.map(generatePlayerCard).join('');
     }
 });
 
