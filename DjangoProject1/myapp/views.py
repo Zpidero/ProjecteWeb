@@ -130,6 +130,7 @@ def team_detail(request, team_name):
 
 def get_random_players(request):
     position = request.GET.get("position", "")
+    role = request.GET.get("role", "")
 
     ranges = {
         1: (925, 930),
@@ -153,6 +154,8 @@ def get_random_players(request):
         )
         if position:
             candidates = candidates.filter(position=position)
+        if role:
+            candidates = candidates.filter(role=role)
         candidates = candidates.select_related('team')
         count = candidates.count()
         if count >= 5:
@@ -188,6 +191,7 @@ def get_random_players(request):
     ]
 
     return JsonResponse(random_players, safe=False)
+
 
 
 def get_players_by_ids(request):

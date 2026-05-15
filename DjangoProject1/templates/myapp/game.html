@@ -46,7 +46,19 @@
                     </span>
                 </div>
             </div>
-
+        </div>
+    </div>
+</div>
+<div id="manager" class="fixed right-6 hidden z-50" style="top: 40rem;">
+    <div class="w-64 rounded-3xl overflow-hidden border border-yellow-500/40 bg-gradient-to-b from-gray-900 via-gray-950 to-black shadow-2xl backdrop-blur-xl">
+        <div class="px-5 py-3 border-b border-yellow-500/20 bg-yellow-500/10">
+            <h2 class="text-yellow-400 font-black tracking-[0.25em] text-xs uppercase text-center">
+                Manager
+            </h2>
+        </div>
+        <div class="p-5 flex flex-col gap-4">
+            <div id="manager-container">
+            </div>
         </div>
     </div>
 </div>
@@ -54,14 +66,13 @@
 <div class="fixed left-0 top-1/2 -translate-y-1/2 z-40">
     <div class="rounded-2xl shadow-2xl bg-transparent">
         <div id="bench-drawer" class="w-[150px] max-h-[85vh]bg-gradient-to-b from-gray-900 via-gray-950 to-blackborder border-yellow-500/40 rounded-2xl overflow-hidden flex flex-col">
-            <div class="text-center py-3 border-b border-yellow-500/30 bg-yellow-500/10">
+            <div class="text-center py-3 border-b border-yellow-500/30 bg-yellow-500/10 rounded-2xl">
                 <h2 class="text-yellow-400 font-black text-sm uppercase tracking-widest">
                     Bench
                 </h2>
             </div>
             <div class="flex-1 overflow-y-auto px-2 py-3 bg-transparent">
-                <div id="bench-container"
-                     class="grid grid-cols-2 gap-2 justify-items-center">
+                <div id="bench-container" class="grid grid-cols-2 gap-2 justify-items-center">
                 </div>
             </div>
         </div>
@@ -176,6 +187,10 @@
     }
     body {
     overflow-y: auto;
+    }
+    #manager-container .player-card {
+        width: 100%;
+        height: clamp(120px, 16vw, 160px);
     }
 </style>
 
@@ -300,8 +315,9 @@ document.addEventListener('DOMContentLoaded', function () {
         else if (p.Total >= 946) p.Category = 3;
         else if (p.Total >= 931) p.Category = 2;
         else                     p.Category = 1;
-
-        const fill = `url(#cat${p.Category})`;
+        const fill = p.Role === 'Manager'
+            ? `url(#cat-manager)`
+            : `url(#cat${p.Category})`;
         const sr = (label, key, min, max, x, y) =>
             `<text x="${x}" y="${y}" class="font-extrabold text-xl">${label}</text>
              <text x="${x + 55}" y="${y}" class="font-bold text-xl">${normalize(p[key], min, max)}</text>`;
@@ -323,6 +339,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 </linearGradient>
                 <linearGradient id="cat5">
                     <stop offset="0%" stop-color="#FF00FF"/><stop offset="50%" stop-color="#FF10F0"/><stop offset="100%" stop-color="#FF00FF"/>
+                </linearGradient>
+                <linearGradient id="cat-manager">
+                    <stop offset="0%" stop-color="#064e3b"/><stop offset="100%" stop-color="#10b981"/>
                 </linearGradient>
                 <filter id="glow">
                     <feGaussianBlur stdDeviation="3" result="blur"/>
@@ -370,6 +389,9 @@ document.addEventListener('DOMContentLoaded', function () {
             `<button class="bench-card" data-bench-index="${i}">SUB${i + 1}</button>`
         ).join('');
     }
+    function renderManager(){
+        $('manager-container').innerHTML = '<button class="player-card">MNG</button>'
+    }
 
     // --- Check if squad is complete and show save bar ---
     function checkSaveBar() {
@@ -379,11 +401,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // --- Open player selection overlay ---
-    function openOverlay(position, isBench) {
+    function openOverlay(position, isBench, role = '') {
         const excluded = [...selectedPlayerIds].join(',');
-        const url = position
-            ? `/random-players/?position=${position}&excluded=${excluded}`
-            : `/random-players/?excluded=${excluded}`;
+        let url = `/random-players/?excluded=${excluded}`;
+        if (position) url += `&position=${position}`;
+        if (role)     url += `&role=${role}`;
 
         $('overlay').classList.remove('hidden');
         fetch(url)
@@ -421,6 +443,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const allCards   = [...document.querySelectorAll('#formation-container .player-card')];
         const benchCards = [...document.querySelectorAll('#bench-container .bench-card')];
+        const manager = [...document.querySelectorAll('#manager .manager-card')]
 
         const getKey = el => {
             const fi = allCards.indexOf(el);   if (fi !== -1) return fi;
@@ -504,6 +527,7 @@ document.addEventListener('DOMContentLoaded', function () {
             card.setAttribute('data-player-id', p.ID);
             card.setAttribute('data-element', p.Element);
             card.setAttribute('data-team', p.Team);
+            card.setAttribute('data-player-position', p.Position);
 
             if (isField) {
                 selectedPlayers[i] = String(p.ID);
@@ -582,7 +606,9 @@ document.addEventListener('DOMContentLoaded', function () {
             $('formation-overlay').classList.add('hidden');
             renderPitch(f.name);
             renderBench();
+            renderManager();
             $('stats-box').classList.remove('hidden');
+            $('manager').classList.remove('hidden');
         };
         $('formations-list').appendChild(btn);
     });
@@ -591,6 +617,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (editData) {
         $('formation-overlay').style.display = 'none';
         $('stats-box').classList.remove('hidden');
+        $('manager').classList.remove('hidden');
         sessionStorage.setItem('formation', JSON.stringify({ name: editData.formation }));
         renderPitch(editData.formation);
         renderBench();
@@ -634,6 +661,7 @@ document.addEventListener('DOMContentLoaded', function () {
         const playerId    = playerBtn.dataset.playerId;
         const playerTotal = normalizeTotal(parseInt(playerBtn.dataset.total));
         const isBench     = selectedButton.dataset.benchIndex !== undefined;
+        const isManager   = selectedButton.closest('#manager-container') !== null;
         if (!playerId) return;
 
         selectedPlayerIds.add(playerId);
@@ -641,6 +669,8 @@ document.addEventListener('DOMContentLoaded', function () {
         if (isBench) {
             const benchIndex = selectedButton.dataset.benchIndex;
             selectedTotals[`bench_${benchIndex}`] = playerTotal;
+        } else if (isManager) {
+            selectedTotals['manager'] = playerTotal
         } else {
             const allCards = [...document.querySelectorAll('#formation-container .player-card')];
             const btnIndex = allCards.indexOf(selectedButton);
@@ -725,6 +755,13 @@ document.addEventListener('DOMContentLoaded', function () {
             this.textContent = 'Guardar equip';
         }
     };
+    $('manager-container').addEventListener('click', function (e) {
+        const btn = e.target.closest('.player-card');
+        if (!btn) return;
+        if (btn.hasAttribute('data-filled')) { handleSwapClick(e); return; }
+        selectedButton = btn;
+        openOverlay('', false, 'Manager');
+    });
 });
 </script>
 
