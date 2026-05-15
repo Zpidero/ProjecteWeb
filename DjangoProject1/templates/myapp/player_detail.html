@@ -10,7 +10,7 @@
 
         <div class="bg-white rounded-[3rem] shadow-xl overflow-hidden flex flex-col md:flex-row">
 
-            <!-- Columna esquerra -->
+            <!-- Left column -->
             <div class="md:w-1/3 bg-[#002b36] p-10 text-center text-white">
                 <div class="bg-white/10 rounded-[2rem] p-6 mb-6">
                     <img src="{{ p.image }}" alt="{{ p.name }}" class="w-full h-auto object-contain">
@@ -36,11 +36,11 @@
                 </div>
             </div>
 
-            <!-- Columna dreta -->
+            <!-- Right column -->
             <div class="md:w-2/3 p-10">
                 <h2 class="text-2xl font-black text-[#002b36] mb-2 uppercase tracking-tight border-b pb-4">Technical Stats</h2>
 
-                <!-- Radar 7 vèrtexs -->
+                <!-- 7-vertex radar chart -->
                 <div class="flex justify-center mb-8">
                     <svg id="stats-radar" viewBox="0 0 500 460" width="100%" xmlns="http://www.w3.org/2000/svg">
                         <script type="text/javascript">
@@ -129,7 +129,7 @@
                     <p class="text-6xl font-black italic">{{ p.total }}</p>
                 </div>
 
-                <!-- Atributs extra -->
+                <!-- Extra attributes -->
                 <div class="grid grid-cols-2 gap-3">
                     <div class="group bg-gray-50 hover:bg-[#002b36] transition-colors duration-300 rounded-2xl p-5 flex flex-col gap-1 border border-gray-100">
                         <span class="text-[10px] font-black uppercase tracking-widest text-gray-400 group-hover:text-yellow-400 transition-colors">Age Group</span>

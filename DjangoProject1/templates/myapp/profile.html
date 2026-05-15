@@ -5,7 +5,7 @@
 {% block body %}
 <main class="min-h-screen bg-[#001b22] pt-28 pb-12 text-white overflow-x-hidden">
     
-    <!-- Missatges -->
+    <!-- Messages -->
     {% if messages %}
     <div class="max-w-7xl mx-auto px-4 mb-4 space-y-2">
         {% for message in messages %}
@@ -16,7 +16,7 @@
     </div>
     {% endif %}
 
-    <!-- HERO SECTION (Fora dels formularis per evitar embolics) -->
+    <!-- Hero section (outside forms to avoid conflicts) -->
     <section class="max-w-7xl mx-auto px-4 animate-fadeIn">
         <div class="relative w-full h-[320px] overflow-hidden rounded-[2.5rem] group shadow-2xl border border-white/5">
             <div class="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-110"
@@ -55,16 +55,16 @@
         </div>
     </section>
 
-    <!-- GRID PRINCIPAL -->
+    <!-- Main grid -->
     <div class="max-w-7xl mx-auto px-4 mt-10">
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
             
-            <!-- COLUMNA ESQUERRA: PERFIL (FORMULARI 1) -->
+            <!-- Left column: profile form -->
             <div class="lg:col-span-2 space-y-8 animate-fadeInLeft">
                 <form method="POST" enctype="multipart/form-data" id="profile-form">
                     {% csrf_token %}
                     <input type="hidden" name="update_profile" value="1">
-                    <!-- Camp d'imatge amagat que s'activa pel label de dalt -->
+                    <!-- Hidden image field triggered by label above -->
                     <div class="hidden">{{ p_form.image }}</div>
 
                     <div class="bg-[#002b36]/50 backdrop-blur-xl rounded-[2.5rem] border border-white/10 shadow-2xl overflow-hidden">
@@ -105,7 +105,7 @@
                     </div>
                 </form>
 
-                                <!-- NAVEGACIÓ -->
+                                <!-- Navigation -->
                 <div class="bg-[#002b36]/50 backdrop-blur-xl rounded-[2.5rem] border border-white/10 p-8 shadow-2xl">
                     <h3 class="text-lg font-black uppercase tracking-tighter mb-6 flex items-center gap-2">
                         <span class="w-2 h-6 bg-yellow-400 rounded-full"></span> Navigation
@@ -123,7 +123,7 @@
                 </div>
 
 
-                <!-- ELIMINAR -->
+                <!-- Delete account -->
                 <div class="pt-4">
                     <a href="{% url 'delete_account' %}" onclick="return confirm('Estàs segur?')" 
                        class="flex items-center justify-center gap-2 w-full p-4 border-2 border-red-500/20 hover:bg-red-500/10 text-red-500 rounded-2xl transition-all font-bold uppercase text-xs tracking-widest">
@@ -132,12 +132,12 @@
                 </div>
             </div>
 
-            <!-- COLUMNA DRETA: ALTRES (FORMULARI 2 I LINKS) -->
+            <!-- Right column: security form and links -->
             <div class="space-y-8 animate-fadeInRight">
                 
 
 
-                <!-- FORMULARI 2: SEGURETAT -->
+                <!-- Form 2: Security -->
                 <div class="bg-[#002b36]/50 backdrop-blur-xl rounded-[2.5rem] border border-white/10 p-8 shadow-2xl">
                     <h3 class="text-lg font-black uppercase tracking-tighter mb-6">Security</h3>
                     <form method="POST">

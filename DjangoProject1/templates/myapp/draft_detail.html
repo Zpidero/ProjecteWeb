@@ -14,7 +14,7 @@
 <div class="pt-32 pb-12 bg-gray-50 min-h-screen font-sans">
     <div class="max-w-7xl mx-auto px-6">
         
-        <!-- Header con botón de volver -->
+        <!-- Header with back button -->
         <div class="flex justify-between items-center mb-10">
             <div>
                 <h1 class="text-5xl font-black text-[#002b36] uppercase italic tracking-tighter">{{ draft.name }}</h1>
@@ -28,7 +28,6 @@
                     </svg>
                     BACK
                 </a>
-                <!-- Aquí irán los botones de EDITAR y ELIMINAR en la fase de Update/Delete -->
                 <button onclick="confirmDelete('{{ draft.id }}')" 
                         class="bg-red-600 hover:bg-red-700 active:scale-95 text-white font-black uppercase italic tracking-widest px-6 py-3 rounded-xl border-2 border-red-800 shadow-lg transition-all duration-150 flex items-center gap-2">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -43,7 +42,7 @@
                  
             </div>
         </div>
-        <!-- Contenedor de la Cancha (Pitch) Expandida -->
+        <!-- Expanded pitch container -->
         <div class="pitch-container flex-grow bg-[#003644] rounded-[3rem] border border-white/10 relative p-8 flex flex-col-reverse justify-around shadow-inner min-h-[800px]" 
              data-id="{{ draft.id }}" 
              data-formation="{{ draft.lineup.name }}">
@@ -51,7 +50,7 @@
             <div class="absolute inset-x-0 top-1/2 h-[1px] bg-white/5"></div>
             <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 border border-white/5 rounded-full"></div>
         </div>
-        <!-- Banquillo -->
+        <!-- Bench -->
         <div class="mt-8" id="bench-wrapper" style="display:none">
             <h2 class="text-2xl font-black text-[#002b36] uppercase italic tracking-tighter mb-4">Bench</h2>
             <div class="bg-[#002b36] rounded-[2rem] p-6 border border-white/10">
@@ -67,15 +66,14 @@
         </div>
             </div>
         </div>
-        <!-- Datos JSON para el renderizado JS -->
+        <!-- JSON data for JS rendering -->
         <script type="application/json" id="draft-data-{{ draft.id }}">
             {{ draft.js_data|safe }}
         </script>
     </div>
 </div>
 <script>
-// El código JS de renderizado es exactamente el mismo que en my_drafts.html
-// para garantizar que las cartas se vean igual.
+// JS rendering logic mirrors my_drafts.html for consistency
 document.addEventListener('DOMContentLoaded', function() {
     const container = document.querySelector('.pitch-container');
     const draftId = container.dataset.id;
@@ -138,7 +136,7 @@ document.addEventListener('DOMContentLoaded', function() {
     container.innerHTML += renderRow(dfPlayers);
     container.innerHTML += renderRow(gkPlayers);
 
-    // Banquillo — jugadores del índice 11 al 18
+    // Bench -- players at index 11-18
     const benchPlayers = players.slice(11, 19);
     const benchWrapper = document.getElementById('bench-wrapper');
     if (benchPlayers.length > 0 && benchWrapper) {
@@ -147,7 +145,7 @@ document.addEventListener('DOMContentLoaded', function() {
         benchSection.innerHTML = benchPlayers.map(generatePlayerCard).join('');
     }
 
-    // Manager — jugadores del índice 19 en adelante
+    // Manager -- players at index 19+
     const managerPlayers = players.slice(19);
     const managerWrapper = document.getElementById('manager-wrapper');
     if (managerPlayers.length > 0 && managerWrapper) {
