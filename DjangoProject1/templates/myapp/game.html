@@ -524,14 +524,26 @@ document.addEventListener('DOMContentLoaded', function () {
         const byId = {};
         players.forEach(p => byId[String(p.ID)] = p);
 
-        const allCards   = [...document.querySelectorAll('#formation-container .player-card')];
-        const benchCards = [...document.querySelectorAll('#bench-container .bench-card')];
+        const allCards      = [...document.querySelectorAll('#formation-container .player-card')];
+        const benchCards    = [...document.querySelectorAll('#bench-container .bench-card')];
+        const managerCards  = [...document.querySelectorAll('#manager-container .player-card')];
 
         orderedIds.map(id => String(id)).forEach((id, i) => {
             const p = byId[id];
             if (!p) return;
-            const isField = i < allCards.length;
-            const card = isField ? allCards[i] : benchCards[i - allCards.length];
+
+            const isField   = i < allCards.length;
+            const isBench   = !isField && i < allCards.length + benchCards.length;
+            const isManager = !isField && !isBench;
+
+            let card;
+            if (isField) {
+                card = allCards[i];
+            } else if (isBench) {
+                card = benchCards[i - allCards.length];
+            } else {
+                card = managerCards[i - allCards.length - benchCards.length];
+            }
             if (!card) return;
 
             selectedPlayerIds.add(String(p.ID));
@@ -548,9 +560,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 selectedPlayers[i] = String(p.ID);
                 selectedTotals[i]  = normalizeTotal(p.Total);
                 selectedPlayersData[p.ID] = { id: String(p.ID), element: p.Element, team: p.Team };
-            } else {
+            } else if (isBench) {
                 const bi = i - allCards.length;
                 selectedTotals[`bench_${bi}`] = normalizeTotal(p.Total);
+            } else {
+                selectedTotals['manager'] = normalizeTotal(p.Total);
             }
         });
 
@@ -636,6 +650,7 @@ document.addEventListener('DOMContentLoaded', function () {
         sessionStorage.setItem('formation', JSON.stringify({ name: editData.formation }));
         renderPitch(editData.formation);
         renderBench();
+        renderManager();
         $('draft-name').value = editData.name;
 
         const ids = editData.player_ids || [];
@@ -729,7 +744,10 @@ document.addEventListener('DOMContentLoaded', function () {
         const benchPlayers = [...document.querySelectorAll('#bench-container .bench-card[data-filled]')]
             .map(card => card.dataset.playerId)
             .filter(Boolean);
-        const players = [...fieldPlayers, ...benchPlayers];
+        const managerPlayers = [...document.querySelectorAll('#manager-container .player-card[data-filled]')]
+            .map(card => card.dataset.playerId)
+            .filter(Boolean);
+        const players = [...fieldPlayers, ...benchPlayers, ...managerPlayers];
 
         if (!players.length) return showMsg('Tria almenys un jugador!', 'text-red-400');
 
