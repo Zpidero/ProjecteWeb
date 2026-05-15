@@ -149,6 +149,7 @@ def get_random_players(request):
     for cat in categories:
         min_avg, max_avg = ranges[cat]
         candidates = Players.objects.filter(
+            position=position,
             total__gte=min_avg,
             total__lte=max_avg,
         )
@@ -198,7 +199,7 @@ def get_players_by_ids(request):
     ids = request.GET.get('ids', '').split(',')
     ids = [int(i) for i in ids if i.isdigit()]
     players = Players.objects.filter(id__in=ids).select_related('team')
-    
+
     player_data = []
     for p in players:
         player_data.append({
@@ -319,7 +320,7 @@ def my_drafts(request):
 def draft_detail(request, draft_id):
     # Obtenemos el draft asegurando que pertenece al usuario autenticado
     draft = get_object_or_404(Futdraft, id=draft_id, user=request.user)
-    
+
     # Prefetch para optimizar la consulta de jugadores y sus equipos
     draft = Futdraft.objects.prefetch_related('players__team', 'lineup').get(id=draft_id)
     # Replicamos la lógica de ordenación y preparación de datos para el frontend
@@ -350,7 +351,7 @@ def draft_detail(request, draft_id):
         }
         for p in ordered_list
     ])
-    
+
     return render(request, 'myapp/draft_detail.html', {'draft': draft})
 
 @login_required(login_url='login')
@@ -409,13 +410,13 @@ def profile_view(request):
         profile = request.user.profile
     except Profile.DoesNotExist:
         profile = Profile.objects.create(user=request.user)
-    
+
     if request.method == 'POST':
         # Si s'ha enviat el formulari de dades personals
         if 'update_profile' in request.POST:
             u_form = UserUpdateForm(request.POST, instance=request.user)
             p_form = ProfileUpdateForm(request.POST, request.FILES, instance=profile)
-            
+
             if u_form.is_valid() and p_form.is_valid():
                 u_form.save()
                 p_form.save()
@@ -429,11 +430,11 @@ def profile_view(request):
                 for field, errors in p_form.errors.items():
                     for error in errors:
                         messages.error(request, f'{field}: {error}')
-        
+
         # Si s'ha enviat el formulari de contrasenya
         elif 'change_password' in request.POST:
             pass_form = PasswordChangeForm(request.user, request.POST)
-            
+
             if pass_form.is_valid():
                 user = pass_form.save()
                 update_session_auth_hash(request, user)
@@ -442,7 +443,7 @@ def profile_view(request):
             else:
                 for error in pass_form.errors.values():
                     messages.error(request, error)
-        
+
         # Torna a crear els forms per mostrar errors
         u_form = UserUpdateForm(instance=request.user)
         p_form = ProfileUpdateForm(instance=profile)
@@ -466,7 +467,7 @@ def delete_account(request):
         user.delete()    # Esborrem l'usuari de la base de dades
         messages.success(request, "El teu compte ha estat eliminat correctament. Esperem tornar-te a veure!")
         return redirect('home')  # Redirigeix a la pàgina principal
-    
+
     return redirect('profile') # Si algú intenta entrar per GET, el tornem al perfil
 
 
@@ -474,3 +475,14 @@ def logout_view(request):
     logout(request)
     messages.info(request, "Has tancat la sessió. Fins aviat, capità!")
     return redirect('login')  # O a la 'home'
+
+
+def home(request):
+
+    top_fw = Players.objects.filter(name="Axel Blaze").select_related('team').order_by('-total').first()
+    top_gk = Players.objects.filter(position='GK').select_related('team').order_by('-total').first()
+
+    return render(request, "myapp/home.html", {
+        'top_fw': top_fw,
+        'top_gk': top_gk
+    })
