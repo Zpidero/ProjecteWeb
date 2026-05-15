@@ -4,10 +4,14 @@ version = "0.1.0"
 description = "Add your description here"
 requires-python = ">=3.14"
 dependencies = [
+    "behave>=1.3.3",
+    "behave-django>=1.9.0",
     "cloudinary>=1.44.2",
     "django>=6.0.3",
     "django-cloudinary-storage>=0.3.0",
     "pillow>=12.2.0",
     "python-decouple>=3.8",
+    "selenium>=4.43.0",
+    "splinter>=0.21.0",
     "uvicorn>=0.41.0",
 ]

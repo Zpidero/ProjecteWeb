@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'myapp',
     'cloudinary_storage',
     'cloudinary',
+    'behave_django',
 ]
 
 CLOUDINARY_STORAGE = {

@@ -238,7 +238,14 @@ def save_draft(request):
     try:
         data           = json.loads(request.body)
         draft_id       = data.get('draft_id')
-        name           = data.get('name', 'El meu equip')
+        name           = data.get('name', 'El meu equip').strip()
+
+        if not name:
+            return JsonResponse({
+                'ok': False,
+                'error': 'El nom del draft no pot estar buit.'
+            }, status=400)
+
         formation_name = data.get('formation', '4-3-3')
         player_ids     = [int(pid) for pid in data.get('players', []) if str(pid).isdigit()]
 
