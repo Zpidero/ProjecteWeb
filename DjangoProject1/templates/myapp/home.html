@@ -72,7 +72,7 @@
                             <image x="50" y="30" width="230" height="230" href="{{ top_fw.image }}" preserveAspectRatio="xMidYMid slice" />
                             
                             <text x="45" y="75" font-family="Arial" font-weight="900" font-style="italic" font-size="60" fill="black">
-                                {# Calculem la mitjana visual com al joc #}
+                                {# Calculate visual average like in game #}
                                 99
                             </text>
                             <text x="45" y="105" font-family="Arial" font-weight="900" font-size="20" fill="black" opacity="0.6">{{ top_fw.position }}</text>
@@ -355,7 +355,7 @@
         50% { transform: translateY(-30px) rotate(-12deg); }
     }
 
-    /* Això farà que les imatges dels jugadors dins del SVG no es vegin planes */
+    /* SVG player image drop-shadow filter */
     image {
         filter: drop-shadow(5px 10px 10px rgba(0,0,0,0.4));
     }

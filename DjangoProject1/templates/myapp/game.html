@@ -491,7 +491,6 @@ document.addEventListener('DOMContentLoaded', function () {
         card.setAttribute('data-team', dataA.team);
         card.setAttribute('data-player-position', posA);
 
-        // Change total
         const tmp = selectedTotals[keyA];
         selectedTotals[keyA] = selectedTotals[keyB];
         selectedTotals[keyB] = tmp;
@@ -587,7 +586,7 @@ document.addEventListener('DOMContentLoaded', function () {
         return c ? decodeURIComponent(c.split('=')[1]) : null;
     }
 
-    // To hidde the navbar when scrolling down
+    // Hide navbar on scroll down
     const navbar = document.getElementById('main-navbar');
     function onScroll() {
         const currentY = window.scrollY;

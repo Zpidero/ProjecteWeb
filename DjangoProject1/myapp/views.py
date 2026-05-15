@@ -330,19 +330,19 @@ def my_drafts(request):
 
 @login_required(login_url='login')
 def draft_detail(request, draft_id):
-    # Obtenemos el draft asegurando que pertenece al usuario autenticado
+    # Fetch draft ensuring ownership
     draft = get_object_or_404(Futdraft, id=draft_id, user=request.user)
 
-    # Prefetch para optimizar la consulta de jugadores y sus equipos
+    # Prefetch players and teams for optimization
     draft = Futdraft.objects.prefetch_related('players__team', 'lineup').get(id=draft_id)
-    # Replicamos la lógica de ordenación y preparación de datos para el frontend
+    # Replicate sorting and data prep logic for frontend
     player_dict = {str(p.id): p for p in draft.players.all()}
     ordered_list = (
         [player_dict[str(pid)] for pid in draft.player_order if str(pid) in player_dict]
         if draft.player_order
         else list(draft.players.all())
     )
-    # Inyectamos los datos en el objeto draft para que el template los lea
+    # Inject data into draft object for template access
     draft.js_data = json.dumps([{
         "ID":           p.id,
         "Name":         p.name,
@@ -415,17 +415,16 @@ def login_view(request):
         form = AuthenticationForm()
     return render(request, "myapp/login.html", {"login_form": form})
 
-#profile view
 @login_required
 def profile_view(request):
-    # Assegura't que l'usuari té un profile
+    # Ensure user has a profile
     try:
         profile = request.user.profile
     except Profile.DoesNotExist:
         profile = Profile.objects.create(user=request.user)
 
     if request.method == 'POST':
-        # Si s'ha enviat el formulari de dades personals
+        # If personal data form was submitted
         if 'update_profile' in request.POST:
             u_form = UserUpdateForm(request.POST, instance=request.user)
             p_form = ProfileUpdateForm(request.POST, request.FILES, instance=profile)
@@ -436,7 +435,7 @@ def profile_view(request):
                 messages.success(request, 'El teu perfil ha estat actualitzat!')
                 return redirect('profile')
             else:
-                # Mostra errors específics
+                # Show specific errors
                 for field, errors in u_form.errors.items():
                     for error in errors:
                         messages.error(request, f'{field}: {error}')
@@ -444,7 +443,7 @@ def profile_view(request):
                     for error in errors:
                         messages.error(request, f'{field}: {error}')
 
-        # Si s'ha enviat el formulari de contrasenya
+        # If password form was submitted
         elif 'change_password' in request.POST:
             pass_form = PasswordChangeForm(request.user, request.POST)
 
@@ -457,7 +456,7 @@ def profile_view(request):
                 for error in pass_form.errors.values():
                     messages.error(request, error)
 
-        # Torna a crear els forms per mostrar errors
+        # Recreate forms to display errors
         u_form = UserUpdateForm(instance=request.user)
         p_form = ProfileUpdateForm(instance=profile)
         pass_form = PasswordChangeForm(request.user)
@@ -476,18 +475,18 @@ def profile_view(request):
 def delete_account(request):
     if request.method == 'POST':
         user = request.user
-        logout(request)  # Tanquem la sessió abans d'esborrar
-        user.delete()    # Esborrem l'usuari de la base de dades
+        logout(request)  # Logout before deleting account
+        user.delete()
         messages.success(request, "El teu compte ha estat eliminat correctament. Esperem tornar-te a veure!")
-        return redirect('home')  # Redirigeix a la pàgina principal
+        return redirect('home')
 
-    return redirect('profile') # Si algú intenta entrar per GET, el tornem al perfil
+    return redirect('profile') # Redirect to profile on GET access
 
 
 def logout_view(request):
     logout(request)
     messages.info(request, "Has tancat la sessió. Fins aviat, capità!")
-    return redirect('login')  # O a la 'home'
+    return redirect('login')
 
 
 def home(request):
