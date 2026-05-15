@@ -11,33 +11,77 @@
     </div>
 </div>
 
-<div id="formation-container" class="flex flex-col-reverse items-center justify-center min-h-screen gap-6 p-4 bg-gray-800 overflow-hidden"></div>
+<div id="formation-container" class="flex flex-col-reverse items-center justify-center min-h-screen gap-6 p-4 bg-gray-800"></div>
 
-<div id="stats-box" class="fixed top-40 right-6 bg-gray-900 border border-yellow-500 rounded-xl px-4 py-3 text-white shadow-lg w-56 hidden">
-    <div class="text-sm text-gray-400">STATS</div>
-    <div class="mt-2 text-xs space-y-1">
-        <div>Average: <span id="stat-average">0</span></div>
-        <div>Chemistry: <span id="stat-chemistry">0</span></div>
+<div id="stats-box" class="fixed top-32 right-6 hidden z-50">
+    <div class="w-64 rounded-3xl overflow-hidden border border-yellow-500/40 bg-gradient-to-b from-gray-900 via-gray-950 to-black shadow-2xl backdrop-blur-xl">
+        <div class="px-5 py-3 border-b border-yellow-500/20 bg-yellow-500/10">
+            <h2 class="text-yellow-400 font-black tracking-[0.25em] text-xs uppercase text-center">
+                Team Stats
+            </h2>
+        </div>
+        <div class="p-5 flex flex-col gap-4">
+            <div class="flex items-center justify-between bg-white/5 rounded-2xl px-4 py-3 border border-white/5">
+                <div>
+                    <div class="text-yellow-500/70 text-sm font-extrabold uppercase tracking-wider">
+                        Team Rating
+                    </div>
+                </div>
+                <div class="w-14 h-14 rounded-2xl bg-yellow-500 text-black flex items-center justify-center font-black text-2xl shadow-lg">
+                    <span id="stat-average">0</span>
+                </div>
+            </div>
+            <div class="flex items-center justify-between bg-white/5 rounded-2xl px-4 py-3 border border-white/5">
+                <div>
+                    <div class="text-green-300/70 text-l font-extrabold uppercase tracking-wider">
+                        Chemistry
+                    </div>
+                </div>
+                <div class="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-green-300 to-green-500 text-black flex flex-col items-center justify-center font-black shadow-lg border border-white/20">
+                    <span id="stat-chemistry" class="text-2xl leading-none">
+                        0
+                    </span>
+                    <span class="text-[10px] font-bold opacity-70 leading-none mt-0.5">
+                        /33
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="manager" class="fixed right-6 hidden z-50" style="top: 28rem;">
+    <div class="w-64 rounded-3xl overflow-hidden border border-yellow-500/40 bg-gradient-to-b from-gray-900 via-gray-950 to-black shadow-2xl backdrop-blur-xl">
+        <div class="px-5 py-3 border-b border-yellow-500/20 bg-yellow-500/10">
+            <h2 class="text-yellow-400 font-black tracking-[0.25em] text-xs uppercase text-center">
+                Manager
+            </h2>
+        </div>
+        <div class="p-5 flex flex-col gap-4">
+            <div id="manager-container">
+            </div>
+        </div>
     </div>
 </div>
 
-<div id="bench-drawer" class="fixed bottom-0 left-0 right-0 z-40 transition-transform duration-300 translate-y-[calc(100%-3rem)]">
-    <div id="bench-handle" class="bg-yellow-500 text-black font-bold text-center py-2 cursor-pointer rounded-t-2xl flex items-center justify-center gap-2 select-none">
-        <span id="bench-arrow">▲</span> BANQUILLO
+<div class="fixed left-0 top-1/2 -translate-y-1/2 z-40">
+    <div class="rounded-2xl shadow-2xl bg-transparent">
+        <div id="bench-drawer" class="w-[150px] max-h-[85vh]bg-gradient-to-b from-gray-900 via-gray-950 to-blackborder border-yellow-500/40 rounded-2xl overflow-hidden flex flex-col">
+            <div class="text-center py-3 border-b border-yellow-500/30 bg-yellow-500/10 rounded-2xl">
+                <h2 class="text-yellow-400 font-black text-sm uppercase tracking-widest">
+                    Bench
+                </h2>
+            </div>
+            <div class="flex-1 overflow-y-auto px-2 py-3 bg-transparent">
+                <div id="bench-container" class="grid grid-cols-2 gap-2 justify-items-center">
+                </div>
+            </div>
+        </div>
     </div>
-    <div class="bg-gray-900 border-t-2 border-yellow-500 px-6 py-4">
-        <div id="bench-container" class="flex gap-4 justify-center flex-wrap"></div>
-    </div>
-</div>
-
-<div id="team-rating" class="fixed top-4 right-6 bg-gray-900 border border-yellow-500 rounded-xl px-4 py-3 text-white text-center shadow-lg z-50">
-    <div class="text-xs text-gray-400">TEAM RATING</div>
-    <div id="rating-value" class="text-2xl font-bold">0</div>
 </div>
 
 <div id="overlay" class="fixed inset-0 bg-black/50 hidden z-50 flex items-start justify-center pt-20 overflow-auto">
-    <div class="bg-gray-900 rounded-xl p-8 flex flex-col items-center max-w-7xl w-full">
-        <h2 class="text-4xl font-bold mb-6 text-white">Choose a player</h2>
+    <div class="bg-gray-900 rounded-3xl p-8 flex flex-col items-center max-w-7xl w-full" style="border: 1px solid rgba(234,179,8,0.4); animation: modalBounce 0.5s cubic-bezier(0.34,1.56,0.64,1);">
+        <h2 class="text-4xl font-black mb-6 text-white uppercase italic tracking-widest">Choose a player</h2>
         <div id="players-container" class="flex flex-wrap gap-6 justify-center"></div>
     </div>
 </div>
@@ -54,7 +98,7 @@
 {% if edit_mode %}
 <script type="application/json" id="edit-draft-data">
     {
-        "id": {{ draft.id }},
+        "id": {{draft.id}},
         "name": "{{ draft.name }}",
         "formation": "{{ draft.lineup.name }}",
         "player_ids": {{ player_order_json|safe }}
@@ -64,8 +108,8 @@
 
 <style>
     .player-card {
-        width: clamp(100px, 12vw, 150px);
-        height: clamp(160px, 20vw, 220px);
+        width: clamp(120px, 18vw, 130px);
+        height: clamp(200px, 20vw, 180px);
         background-color: #C9A66B;
         border-radius: 12px;
         font-weight: bold;
@@ -80,7 +124,7 @@
     .player-card:hover { transform: scale(1.1); }
     .bench-card {
         width: clamp(80px, 10vw, 120px);
-        height: clamp(120px, 16vw, 180px);
+        height: clamp(120px, 18vw, 180px);
         background-color: #C9A66B;
         border-radius: 12px;
         font-weight: bold;
@@ -111,21 +155,67 @@
     }
     .formation-btn:hover { background: #facc15; transform: translateY(-5px); }
     #bench-drawer.open { transform: translateY(0); }
+
+    .player-card.invalid-position {
+        position: relative;
+        box-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
+    }
+
+    .player-card.invalid-position::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: rgba(255, 0, 0, 0.35);
+        border: 3px solid #ff0000;
+        border-radius: 12px;
+        pointer-events: none;
+    }
+    #bench-drawer {
+        display: flex;
+        flex-direction: column;
+        background: #111827;
+        border: 2px solid #eab308;
+        padding: 12px;
+        height: 90vh;
+        width: 300px;
+        border-radius: 20px
+    }
+
+    #stats-box,
+    #team-rating {
+        transition: opacity 0.2s ease;
+    }
+    body {
+    overflow-y: auto;
+    }
+    #manager-container .player-card {
+        width: 100%;
+        height: clamp(220px, 16vw, 160px);
+    }
+    @keyframes modalBounce {
+        0%   { transform: translateY(50px) scale(0.92); opacity: 0; }
+        55%  { transform: translateY(-10px) scale(1.02); opacity: 1; }
+        75%  { transform: translateY(5px)  scale(0.99); }
+        100% { transform: translateY(0)    scale(1); }
+    }
 </style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const $ = id => document.getElementById(id);
-
-    // --- State ---
     const selectedPlayers     = {};   // fieldIndex -> playerId
     const selectedTotals      = {};   // fieldIndex | 'bench_N' -> normalizedTotal
     const selectedPlayersData = {};   // playerId -> { id, element, team }
     const selectedPlayerIds   = new Set();
+    const selectedPlayerNames = new Set();
     let selectedButton = null;
     let swapSource     = null;
-
-    const BENCH_SIZE = 7;
+    const BENCH_SIZE = 8;
+    let lastScrollY = window.scrollY;
+    let ticking = false;
+    const bench = document.getElementById('bench-drawer');
+    const stats = document.getElementById('stats-box');
+    const rating = document.getElementById('team-rating');
 
     // --- Edit mode data ---
     const editData = document.getElementById('edit-draft-data')
@@ -168,22 +258,53 @@ document.addEventListener('DOMContentLoaded', function () {
         document.querySelectorAll(`.chem-diamond[data-player="${id}"]`)
             .forEach((d, i) => d.setAttribute('fill', i < chem ? '#00ff87' : '#ffffff'));
 
+    function isPlayerOutOfPosition(card) {
+        const fieldPosition = card.dataset.position;
+        const playerPosition = card.dataset.playerPosition;
+
+        return fieldPosition !== playerPosition;
+    }
+
+    function updatePositionState(card) {
+        if (isPlayerOutOfPosition(card)) {
+            card.classList.add('invalid-position');
+        } else {
+            card.classList.remove('invalid-position');
+        }
+    }
+
     // --- Recalculate chemistry for field players ---
     function recalculateTeamChemistry() {
-        const players = Object.values(selectedPlayersData);
-        const elementCount = {}, teamCount = {};
-        players.forEach(o => {
-            elementCount[o.element] = (elementCount[o.element] || 0) + 1;
-            teamCount[o.team]       = (teamCount[o.team]       || 0) + 1;
+        const fieldCards = [...document.querySelectorAll('#formation-container .player-card[data-filled]')];
+        const managerCard = document.querySelector('#manager-container .player-card[data-filled]');
+        const cards = managerCard
+            ? [...fieldCards, managerCard]
+            : fieldCards;
+        const validPlayers = [];
+        const elementCount = {};
+        const teamCount = {};
+        cards.forEach(card => {
+            const isManager = card.closest('#manager-container') !== null;
+            if (!isManager) {
+                updatePositionState(card);
+                if (isPlayerOutOfPosition(card)) {
+                    updateChemistry(card.dataset.playerId, 0);
+                    return;
+                }
+            }
+            const player = {
+                id: card.dataset.playerId,
+                element: card.dataset.element,
+                team: card.dataset.team,
+            };
+            validPlayers.push(player);
+            elementCount[player.element] = (elementCount[player.element] || 0) + 1;
+            teamCount[player.team] = (teamCount[player.team] || 0) + 1;
         });
-
         let total = 0;
-        players.forEach(p => {
-            const chem = Math.min(
-                Math.floor((elementCount[p.element] - 1) / 2) + teamCount[p.team] - 1,
-                3
-            );
-            updateChemistry(p.id, chem);
+        validPlayers.forEach(player => {
+            const chem = Math.min(Math.floor((elementCount[player.element] - 1) / 2) + teamCount[player.team] - 1, 3);
+            updateChemistry(player.id, chem);
             total += chem;
         });
         $('stat-chemistry').innerText = total;
@@ -195,7 +316,6 @@ document.addEventListener('DOMContentLoaded', function () {
             .filter(([k]) => !k.toString().startsWith('bench_'))
             .map(([, v]) => v);
         const avg = vals.length ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length) : 0;
-        $('rating-value').innerText = avg;
         $('stat-average').innerText = avg;
     }
 
@@ -204,12 +324,14 @@ document.addEventListener('DOMContentLoaded', function () {
         const total = normalizeTotal(p.Total);
         const name  = (p.Name?.length || 0) > 13 ? (p.Nickname || p.Name) : p.Name;
 
-        if (p.Total >= 961)      p.Category = 4;
+        if (p.Total >= 999)      p.Category = 5;
+        else if (p.Total >= 961) p.Category = 4;
         else if (p.Total >= 946) p.Category = 3;
         else if (p.Total >= 931) p.Category = 2;
         else                     p.Category = 1;
-
-        const fill = `url(#cat${p.Category})`;
+        const fill = p.Role === 'Manager'
+            ? `url(#cat-manager)`
+            : `url(#cat${p.Category})`;
         const sr = (label, key, min, max, x, y) =>
             `<text x="${x}" y="${y}" class="font-extrabold text-xl">${label}</text>
              <text x="${x + 55}" y="${y}" class="font-bold text-xl">${normalize(p[key], min, max)}</text>`;
@@ -228,6 +350,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 </linearGradient>
                 <linearGradient id="cat4">
                     <stop offset="0%" stop-color="#00ffff"/><stop offset="50%" stop-color="#008cff"/><stop offset="100%" stop-color="#00ffff"/>
+                </linearGradient>
+                <linearGradient id="cat5">
+                    <stop offset="0%" stop-color="#FF00FF"/><stop offset="50%" stop-color="#FF10F0"/><stop offset="100%" stop-color="#FF00FF"/>
+                </linearGradient>
+                <linearGradient id="cat-manager">
+                    <stop offset="0%" stop-color="#064e3b"/><stop offset="100%" stop-color="#10b981"/>
                 </linearGradient>
                 <filter id="glow">
                     <feGaussianBlur stdDeviation="3" result="blur"/>
@@ -275,6 +403,9 @@ document.addEventListener('DOMContentLoaded', function () {
             `<button class="bench-card" data-bench-index="${i}">SUB${i + 1}</button>`
         ).join('');
     }
+    function renderManager(){
+        $('manager-container').innerHTML = '<button class="player-card">MNG</button>'
+    }
 
     // --- Check if squad is complete and show save bar ---
     function checkSaveBar() {
@@ -284,11 +415,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     // --- Open player selection overlay ---
-    function openOverlay(position, isBench) {
-        const excluded = [...selectedPlayerIds].join(',');
-        const url = position
-            ? `/random-players/?position=${position}&excluded=${excluded}`
-            : `/random-players/?excluded=${excluded}`;
+    function openOverlay(position, isBench, role = '') {
+        const excluded = [...selectedPlayerNames].join(',');
+        let url = `/random-players/?excluded_names=${encodeURIComponent(excluded)}`;
+        if (position) url += `&position=${position}`;
+        if (role)     url += `&role=${role}`;
 
         $('overlay').classList.remove('hidden');
         fetch(url)
@@ -297,9 +428,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 $('players-container').innerHTML = players.map(p => `
                     <button class="select-player text-black hover:scale-110 transition"
                         data-player-id="${p.ID}"
+                        data-player-name="${p.Name}"
                         data-total="${p.Total}"
                         data-element="${p.Element}"
                         data-team="${p.Team}"
+                        data-position="${p.Position}"
                         ${isBench ? 'data-bench="true"' : ''}>
                         ${buildPlayerSVG(p)}
                     </button>`
@@ -325,6 +458,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
         const allCards   = [...document.querySelectorAll('#formation-container .player-card')];
         const benchCards = [...document.querySelectorAll('#bench-container .bench-card')];
+        const manager = [...document.querySelectorAll('#manager .manager-card')]
 
         const getKey = el => {
             const fi = allCards.indexOf(el);   if (fi !== -1) return fi;
@@ -335,11 +469,11 @@ document.addEventListener('DOMContentLoaded', function () {
         const keyA = getKey(swapSource), keyB = getKey(card);
         const idA  = swapSource.dataset.playerId, idB = card.dataset.playerId;
         const aWasField = allCards.includes(swapSource), bWasField = allCards.includes(card);
+        const dataA = { id: idA, element: swapSource.dataset.element, team: swapSource.dataset.team };
+        const dataB = { id: idB, element: card.dataset.element,       team: card.dataset.team };
+        const posA  = swapSource.dataset.playerPosition;
+        const posB  = card.dataset.playerPosition;
 
-        const dataA = selectedPlayersData[idA] ? { ...selectedPlayersData[idA] } : null;
-        const dataB = selectedPlayersData[idB] ? { ...selectedPlayersData[idB] } : null;
-
-        // Reset chemistry diamonds before swap
         updateChemistry(idA, 0);
         updateChemistry(idB, 0);
 
@@ -348,38 +482,36 @@ document.addEventListener('DOMContentLoaded', function () {
         swapSource.innerHTML = card.innerHTML;
         card.innerHTML = tmpHTML;
 
-        // Swap data attributes
         swapSource.setAttribute('data-player-id', idB);
+        swapSource.setAttribute('data-element', dataB.element);
+        swapSource.setAttribute('data-team', dataB.team);
+        swapSource.setAttribute('data-player-position', posB);
         card.setAttribute('data-player-id', idA);
-        if (dataB) { swapSource.setAttribute('data-element', dataB.element); swapSource.setAttribute('data-team', dataB.team); }
-        if (dataA) { card.setAttribute('data-element', dataA.element);       card.setAttribute('data-team', dataA.team); }
+        card.setAttribute('data-element', dataA.element);
+        card.setAttribute('data-team', dataA.team);
+        card.setAttribute('data-player-position', posA);
 
-        // Swap totals
+        // Change total
         const tmp = selectedTotals[keyA];
         selectedTotals[keyA] = selectedTotals[keyB];
         selectedTotals[keyB] = tmp;
 
-        // Swap field player registry
-        if (typeof keyA === 'number' && typeof keyB === 'number') {
-            const tmpP = selectedPlayers[keyA];
-            selectedPlayers[keyA] = selectedPlayers[keyB];
-            selectedPlayers[keyB] = tmpP;
-        } else if (typeof keyA === 'number') {
-            // Field -> bench: field slot now holds the bench player
+        // Update selectedPlayers and selectedPlayersData
+        if (aWasField && !bWasField) {
             selectedPlayers[keyA] = idB;
-        } else if (typeof keyB === 'number') {
-            // Bench -> field: field slot now holds the bench player
+            delete selectedPlayersData[idA];
+            selectedPlayersData[idB] = dataB;
+        } else if (!aWasField && bWasField) {
+            selectedPlayers[keyB] = idA;
+            delete selectedPlayersData[idB];
+            selectedPlayersData[idA] = dataA;
+        } else if (typeof keyA === 'number' && typeof keyB === 'number') {
+            selectedPlayers[keyA] = idB;
             selectedPlayers[keyB] = idA;
         }
 
-        // Update selectedPlayersData (only field players tracked)
-        if (aWasField && !bWasField) {
-            delete selectedPlayersData[idA];
-            if (dataB) selectedPlayersData[idB] = dataB;
-        } else if (!aWasField && bWasField) {
-            delete selectedPlayersData[idB];
-            if (dataA) selectedPlayersData[idA] = dataA;
-        }
+        updateChemistry(idA, 0);
+        updateChemistry(idB, 0);
 
         recalculateTeamChemistry();
         updateTeamRating();
@@ -403,12 +535,14 @@ document.addEventListener('DOMContentLoaded', function () {
             if (!card) return;
 
             selectedPlayerIds.add(String(p.ID));
+            if (p.Name) selectedPlayerNames.add(p.Name);
             card.innerHTML = buildPlayerSVG(p);
             card.style.background = 'transparent';
             card.setAttribute('data-filled', 'true');
             card.setAttribute('data-player-id', p.ID);
             card.setAttribute('data-element', p.Element);
             card.setAttribute('data-team', p.Team);
+            card.setAttribute('data-player-position', p.Position);
 
             if (isField) {
                 selectedPlayers[i] = String(p.ID);
@@ -439,6 +573,40 @@ document.addEventListener('DOMContentLoaded', function () {
         return c ? decodeURIComponent(c.split('=')[1]) : null;
     }
 
+    // To hidde the navbar when scrolling down
+    const navbar = document.getElementById('main-navbar');
+    function onScroll() {
+        const currentY = window.scrollY;
+
+        if (!navbar) return;
+
+        if (currentY > lastScrollY && currentY > 60) {
+            navbar.style.transform = 'translateY(-120%)';
+        } else {
+            navbar.style.transform = 'translateY(0)';
+        }
+
+        lastScrollY = currentY;
+    }
+
+    window.addEventListener('wheel', (e) => {
+        if (!ticking) {
+            window.requestAnimationFrame(() => {
+                const direction = e.deltaY;
+
+                if (direction > 0) {
+                    navbar.style.transform = 'translateY(-120%)';
+                } else {
+                    navbar.style.transform = 'translateY(0)';
+                }
+
+                ticking = false;
+            });
+
+            ticking = true;
+        }
+    }, { passive: true });
+
     // =========================================================
     // INIT
     // =========================================================
@@ -453,7 +621,9 @@ document.addEventListener('DOMContentLoaded', function () {
             $('formation-overlay').classList.add('hidden');
             renderPitch(f.name);
             renderBench();
+            renderManager();
             $('stats-box').classList.remove('hidden');
+            $('manager').classList.remove('hidden');
         };
         $('formations-list').appendChild(btn);
     });
@@ -462,6 +632,7 @@ document.addEventListener('DOMContentLoaded', function () {
     if (editData) {
         $('formation-overlay').style.display = 'none';
         $('stats-box').classList.remove('hidden');
+        $('manager').classList.remove('hidden');
         sessionStorage.setItem('formation', JSON.stringify({ name: editData.formation }));
         renderPitch(editData.formation);
         renderBench();
@@ -478,16 +649,6 @@ document.addEventListener('DOMContentLoaded', function () {
     // =========================================================
     // EVENT LISTENERS
     // =========================================================
-
-    // Bench toggle
-    $('bench-handle').addEventListener('click', () => {
-        const drawer = $('bench-drawer');
-        const isOpen = drawer.classList.toggle('open');
-        $('bench-arrow').textContent = isOpen ? '▼' : '▲';
-        $('formation-container').style.paddingBottom = isOpen
-            ? (drawer.offsetHeight + 16) + 'px'
-            : '4rem';
-    });
 
     // Field card click
     $('formation-container').addEventListener('click', function (e) {
@@ -515,13 +676,18 @@ document.addEventListener('DOMContentLoaded', function () {
         const playerId    = playerBtn.dataset.playerId;
         const playerTotal = normalizeTotal(parseInt(playerBtn.dataset.total));
         const isBench     = selectedButton.dataset.benchIndex !== undefined;
+        const isManager   = selectedButton.closest('#manager-container') !== null;
         if (!playerId) return;
 
         selectedPlayerIds.add(playerId);
+        const playerName = playerBtn.dataset.playerName;
+        if (playerName) selectedPlayerNames.add(playerName);
 
         if (isBench) {
             const benchIndex = selectedButton.dataset.benchIndex;
             selectedTotals[`bench_${benchIndex}`] = playerTotal;
+        } else if (isManager) {
+            selectedTotals['manager'] = playerTotal
         } else {
             const allCards = [...document.querySelectorAll('#formation-container .player-card')];
             const btnIndex = allCards.indexOf(selectedButton);
@@ -534,7 +700,6 @@ document.addEventListener('DOMContentLoaded', function () {
                 element: playerBtn.dataset.element,
                 team: playerBtn.dataset.team,
             };
-            recalculateTeamChemistry();
         }
 
         updateTeamRating();
@@ -545,20 +710,14 @@ document.addEventListener('DOMContentLoaded', function () {
         selectedButton.setAttribute('data-player-id', playerId);
         selectedButton.setAttribute('data-element', playerBtn.dataset.element);
         selectedButton.setAttribute('data-team', playerBtn.dataset.team);
+        selectedButton.setAttribute('data-player-position', playerBtn.dataset.position);
         selectedButton.style.cursor = 'pointer';
+        recalculateTeamChemistry();
 
         $('overlay').classList.add('hidden');
         selectedButton = null;
 
         checkSaveBar();
-    });
-
-    // Close overlay clicking outside player cards
-    $('overlay').addEventListener('click', function (e) {
-        if (e.target === this) {
-            this.classList.add('hidden');
-            selectedButton = null;
-        }
     });
 
     // Save squad
@@ -605,6 +764,13 @@ document.addEventListener('DOMContentLoaded', function () {
             this.textContent = 'Guardar equip';
         }
     };
+    $('manager-container').addEventListener('click', function (e) {
+        const btn = e.target.closest('.player-card');
+        if (!btn) return;
+        if (btn.hasAttribute('data-filled')) { handleSwapClick(e); return; }
+        selectedButton = btn;
+        openOverlay('', false, 'Manager');
+    });
 });
 </script>
 
