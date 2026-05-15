@@ -14,17 +14,17 @@
 
     <div class="fixed top-0 w-full z-50 px-4 pt-6">
         <nav class="max-w-7xl mx-auto bg-[#002b36]/90 backdrop-blur-xl rounded-2xl px-8 py-4 flex justify-between items-center shadow-[0_20px_50px_rgba(0,0,0,0.3)] border border-white/10 relative overflow-hidden group">
-            
+
             <div class="absolute -top-10 -left-10 w-40 h-40 bg-yellow-500/10 blur-[50px] rounded-full group-hover:bg-yellow-500/20 transition-colors duration-700"></div>
 
                 <a href="{% url 'home' %}" class="flex items-center gap-3 group/logo relative z-10">
                     <div class="relative">
                         <div class="absolute inset-0 bg-yellow-400 blur-xl opacity-0 group-hover/logo:opacity-30 transition-opacity duration-500"></div>
-                        
+
                         <img src="/static/images/Logo_Inazuma_Eleven.webp/"
-                            alt="Inazuma Eleven" 
+                            alt="Inazuma Eleven"
                             class="h-7 w-auto object-contain relative transform group-hover/logo:-rotate-2 group-hover/logo:scale-110 transition-all duration-300 drop-shadow-[0_2px_10px_rgba(255,255,255,0.2)]"
-                            onerror="this.style.display='none'"> 
+                            onerror="this.style.display='none'">
                     </div>
 
                     <span class="text-white font-black tracking-tighter text-2xl italic uppercase group-hover/logo:text-yellow-400 transition-colors">
@@ -34,7 +34,7 @@
 
             <div class="hidden md:flex items-center space-x-1 relative z-10">
                 {% with nav_class="px-4 py-2 rounded-xl text-sm font-black uppercase italic tracking-widest transition-all duration-300 relative group/link" %}
-                
+
                 <a href="{% url 'home' %}" class="{{ nav_class }} {% if request.resolver_match.url_name == 'home' %}text-yellow-400{% else %}text-white/70 hover:text-white{% endif %}">
                     Home
                     <span class="absolute bottom-1 left-4 right-4 h-0.5 bg-yellow-400 scale-x-0 group-hover/link:scale-x-100 {% if request.resolver_match.url_name == 'home' %}scale-x-100{% endif %} transition-transform duration-300"></span>
@@ -63,15 +63,47 @@
                 {% endwith %}
             </div>
 
-            <div class="flex items-center gap-4 relative z-10">
-                <div class="w-10 h-10 bg-white/5 border border-white/10 rounded-full flex items-center justify-center text-yellow-400 hover:bg-yellow-400 hover:text-[#002b36] cursor-pointer transition-all duration-500 group/user shadow-inner">
-                    <svg class="w-5 h-5 group-hover/user:scale-110 transition-transform" fill="currentColor" viewBox="0 0 20 20">
-                        <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
-                    </svg>
-                </div>
-                <div class="md:hidden text-white cursor-pointer">
-                    <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/></svg>
-                </div>
+            <div class="relative inline-block text-left" id="profile-dropdown-container">
+                {% if user.is_authenticated %}
+                    <!-- BOTO PER A USUARIS LOGUEJATS -->
+                    <button onclick="toggleDropdown()" class="flex items-center focus:outline-none group">
+                        <div class="size-10 rounded-full border-2 border-yellow-400 overflow-hidden shadow-lg group-hover:scale-105 transition-transform bg-[#001b22]">
+                            {% if user.profile.image %}
+                                <img src="{{ user.profile.image.url }}" alt="Perfil" class="w-full h-full object-cover">
+                            {% else %}
+                                <div class="w-full h-full flex items-center justify-center text-[#002b36] bg-yellow-400">
+                                    <svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                                        <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
+                                    </svg>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </button>
+
+                    <!-- DESPLEGABLE -->
+                    <div id="profile-menu" class="hidden absolute right-0 mt-3 w-48 origin-top-right bg-[#002b36] border border-white/10 rounded-2xl shadow-2xl py-2 z-[60] animate-fadeInUp">
+                        <div class="px-4 py-2 border-b border-white/5 mb-1">
+                            <p class="text-white font-bold truncate">{{ user.username }}</p>
+                        </div>
+
+                        <a href="{% url 'profile' %}" class="flex items-center gap-3 px-4 py-3 text-sm text-white/80 hover:text-yellow-400 hover:bg-white/5 transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                            Settings
+                        </a>
+
+                        <a href="{% url 'logout' %}" class="flex items-center gap-3 px-4 py-3 text-sm text-red-400 hover:bg-red-500/10 transition-colors">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+                            Log Out
+                        </a>
+                    </div>
+                {% else %}
+                    <!-- ENLLAÇ DIRECTE A LOGIN SI NO ESTÀS AUTENTICAT -->
+                    <a href="{% url 'login' %}" class="block bg-yellow-400 p-2.5 rounded-full text-[#002b36] hover:bg-yellow-300 transition shadow-lg hover:scale-110 active:scale-95">
+                        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                            <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
+                        </svg>
+                    </a>
+                {% endif %}
             </div>
         </nav>
     </div>
@@ -79,5 +111,30 @@
     {% block body %}
     {% endblock %}
 
+    <!-- Script per controlar el desplegable -->
+    <script>
+        function toggleDropdown() {
+            const menu = document.getElementById('profile-menu');
+            menu.classList.toggle('hidden');
+        }
+
+        // Tancar el menú si es clica fora
+        window.onclick = function(event) {
+            if (!event.target.closest('#profile-dropdown-container')) {
+                const menu = document.getElementById('profile-menu');
+                if (menu && !menu.classList.contains('hidden')) {
+                    menu.classList.add('hidden');
+                }
+            }
+        }
+    </script>
+
+    <style>
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fadeInUp { animation: fadeInUp 0.2s ease-out forwards; }
+    </style>
 </body>
 </html>
