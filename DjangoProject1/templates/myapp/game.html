@@ -1,48 +1,115 @@
-    {% extends "base.html" %}
-    {% load static %}
-    {% block Title %}Game - Draft{% endblock %}
+{% extends "base.html" %}
+{% load static %}
+{% block Title %}Game - Draft{% endblock %}
 
-    {% block body %}
+{% block body %}
 
-    <div id="formation-overlay" class="fixed inset-0 bg-black/90 z-[60] flex items-center justify-center">
-        <div class="bg-gray-900 rounded-xl p-8 flex flex-col items-center max-w-4xl w-full border border-yellow-500">
-            <h2 class="text-4xl font-bold mb-6 text-white uppercase italic">Select Formation</h2>
-            <div id="formations-list" class="flex flex-wrap gap-4 justify-center">
+<div id="formation-overlay" class="fixed inset-0 bg-black/90 z-[60] flex items-center justify-center">
+    <div class="bg-gray-900 rounded-xl p-8 flex flex-col items-center max-w-4xl w-full border border-yellow-500">
+        <h2 class="text-4xl font-bold mb-6 text-white uppercase italic">Select Formation</h2>
+        <div id="formations-list" class="flex flex-wrap gap-4 justify-center"></div>
+    </div>
+</div>
+
+<div id="formation-container" class="flex flex-col-reverse items-center justify-center min-h-screen gap-6 p-4 bg-gray-800"></div>
+
+<div id="stats-box" class="fixed top-32 right-6 hidden z-50">
+    <div class="w-64 rounded-3xl overflow-hidden border border-yellow-500/40 bg-gradient-to-b from-gray-900 via-gray-950 to-black shadow-2xl backdrop-blur-xl">
+        <div class="px-5 py-3 border-b border-yellow-500/20 bg-yellow-500/10">
+            <h2 class="text-yellow-400 font-black tracking-[0.25em] text-xs uppercase text-center">
+                Team Stats
+            </h2>
+        </div>
+        <div class="p-5 flex flex-col gap-4">
+            <div class="flex items-center justify-between bg-white/5 rounded-2xl px-4 py-3 border border-white/5">
+                <div>
+                    <div class="text-yellow-500/70 text-sm font-extrabold uppercase tracking-wider">
+                        Team Rating
+                    </div>
                 </div>
+                <div class="w-14 h-14 rounded-2xl bg-yellow-500 text-black flex items-center justify-center font-black text-2xl shadow-lg">
+                    <span id="stat-average">0</span>
+                </div>
+            </div>
+            <div class="flex items-center justify-between bg-white/5 rounded-2xl px-4 py-3 border border-white/5">
+                <div>
+                    <div class="text-green-300/70 text-l font-extrabold uppercase tracking-wider">
+                        Chemistry
+                    </div>
+                </div>
+                <div class="relative w-16 h-16 rounded-2xl bg-gradient-to-br from-green-300 to-green-500 text-black flex flex-col items-center justify-center font-black shadow-lg border border-white/20">
+                    <span id="stat-chemistry" class="text-2xl leading-none">
+                        0
+                    </span>
+                    <span class="text-[10px] font-bold opacity-70 leading-none mt-0.5">
+                        /33
+                    </span>
+                </div>
+            </div>
         </div>
     </div>
-
-    <div id="formation-container" class="flex flex-col-reverse items-center justify-center min-h-screen gap-6 p-4 bg-gray-800 overflow-hidden">
+</div>
+<div id="manager" class="fixed right-6 hidden z-50" style="top: 28rem;">
+    <div class="w-64 rounded-3xl overflow-hidden border border-yellow-500/40 bg-gradient-to-b from-gray-900 via-gray-950 to-black shadow-2xl backdrop-blur-xl">
+        <div class="px-5 py-3 border-b border-yellow-500/20 bg-yellow-500/10">
+            <h2 class="text-yellow-400 font-black tracking-[0.25em] text-xs uppercase text-center">
+                Manager
+            </h2>
         </div>
-
-    <div id="team-rating"
-         class="fixed top-100 right-100 bg-gray-900 border border-yellow-500 rounded-xl px-4 py-3 text-white text-center shadow-lg z-50">
-        <div class="text-xs text-gray-400">TEAM RATING</div>
-        <div id="rating-value" class="text-2xl font-bold">0</div>
-    </div>
-
-    <div id="overlay" class="fixed inset-0 bg-black/50 hidden z-50 flex items-start justify-center pt-20 overflow-auto">
-        <div class="bg-gray-900 rounded-xl p-8 flex flex-col items-center max-w-7xl w-full">
-            <h2 class="text-4xl font-bold mb-6 text-white">Choose a player</h2>
-            <div id="players-container" class="flex flex-wrap gap-6 justify-center"></div>
+        <div class="p-5 flex flex-col gap-4">
+            <div id="manager-container">
+            </div>
         </div>
     </div>
+</div>
 
-    <div id="save-bar" class="hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50 flex items-center gap-4 bg-gray-900 border border-yellow-500 rounded-2xl px-6 py-4 shadow-2xl">
-        <input id="draft-name" type="text" placeholder="Nom de l'equip..."
-            class="bg-gray-800 text-white border border-gray-600 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-yellow-400 w-52">
-        <button id="save-btn"
-            class="bg-yellow-500 hover:bg-yellow-400 text-black font-bold px-5 py-2 rounded-xl text-sm transition active:scale-95">
-            Guardar equip
-        </button>
-        <span id="save-msg" class="text-sm hidden"></span>
+<div class="fixed left-0 top-1/2 -translate-y-1/2 z-40">
+    <div class="rounded-2xl shadow-2xl bg-transparent">
+        <div id="bench-drawer" class="w-[150px] max-h-[85vh]bg-gradient-to-b from-gray-900 via-gray-950 to-blackborder border-yellow-500/40 rounded-2xl overflow-hidden flex flex-col">
+            <div class="text-center py-3 border-b border-yellow-500/30 bg-yellow-500/10 rounded-2xl">
+                <h2 class="text-yellow-400 font-black text-sm uppercase tracking-widest">
+                    Bench
+                </h2>
+            </div>
+            <div class="flex-1 overflow-y-auto px-2 py-3 bg-transparent">
+                <div id="bench-container" class="grid grid-cols-2 gap-2 justify-items-center">
+                </div>
+            </div>
+        </div>
     </div>
+</div>
 
-    <style>
-    /* Your existing styles */
+<div id="overlay" class="fixed inset-0 bg-black/50 hidden z-50 flex items-start justify-center pt-20 overflow-auto">
+    <div class="bg-gray-900 rounded-3xl p-8 flex flex-col items-center max-w-7xl w-full" style="border: 1px solid rgba(234,179,8,0.4); animation: modalBounce 0.5s cubic-bezier(0.34,1.56,0.64,1);">
+        <h2 class="text-4xl font-black mb-6 text-white uppercase italic tracking-widest">Choose a player</h2>
+        <div id="players-container" class="flex flex-wrap gap-6 justify-center"></div>
+    </div>
+</div>
+
+<div id="save-bar" class="hidden fixed bottom-16 right-6 z-50 flex flex-col items-end gap-3 bg-gray-900 border border-yellow-500 rounded-2xl px-6 py-4 shadow-2xl">
+    <input id="draft-name" type="text" placeholder="Nom de l'equip..."
+        class="bg-gray-800 text-white border border-gray-600 rounded-xl px-4 py-2 text-sm focus:outline-none focus:border-yellow-400 w-52">
+    <button id="save-btn" class="bg-yellow-500 hover:bg-yellow-400 text-black font-bold px-5 py-2 rounded-xl text-sm transition active:scale-95 w-full">
+        Guardar equip
+    </button>
+    <span id="save-msg" class="text-sm hidden"></span>
+</div>
+
+{% if edit_mode %}
+<script type="application/json" id="edit-draft-data">
+    {
+        "id": {{draft.id}},
+        "name": "{{ draft.name }}",
+        "formation": "{{ draft.lineup.name }}",
+        "player_ids": {{ player_order_json|safe }}
+    }
+</script>
+{% endif %}
+
+<style>
     .player-card {
-        width: clamp(100px, 12vw, 150px);
-        height: clamp(160px, 20vw, 220px);
+        width: clamp(120px, 18vw, 130px);
+        height: clamp(200px, 20vw, 180px);
         background-color: #C9A66B;
         border-radius: 12px;
         font-weight: bold;
@@ -52,10 +119,24 @@
         justify-content: center;
         cursor: pointer;
         transition: transform 0.2s;
-        overflow: hidden; /* Important for SVG display */
+        overflow: hidden;
     }
     .player-card:hover { transform: scale(1.1); }
-
+    .bench-card {
+        width: clamp(80px, 10vw, 120px);
+        height: clamp(120px, 18vw, 180px);
+        background-color: #C9A66B;
+        border-radius: 12px;
+        font-weight: bold;
+        font-size: clamp(0.8rem, 1.5vw, 1rem);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: transform 0.2s;
+        overflow: hidden;
+    }
+    .bench-card:hover { transform: scale(1.05); }
     .select-player {
         width: clamp(150px, 18vw, 220px);
         height: clamp(200px, 24vw, 280px);
@@ -63,8 +144,6 @@
         transition: transform 0.2s;
     }
     .select-player:hover { transform: scale(1.05); }
-
-    /* Formation button style */
     .formation-btn {
         background: #eab308;
         color: black;
@@ -75,263 +154,641 @@
         transition: all 0.2s;
     }
     .formation-btn:hover { background: #facc15; transform: translateY(-5px); }
-    </style>
+    #bench-drawer.open { transform: translateY(0); }
 
-    <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const formationOverlay = document.getElementById('formation-overlay');
-        const formationsList = document.getElementById('formations-list');
-        const selectedPlayers = {};
-        const selectedTotals = {};
-        const selectedPlayerIds = new Set();
-        let selectedButton = null;
+    .player-card.invalid-position {
+        position: relative;
+        box-shadow: 0 0 20px rgba(255, 0, 0, 0.8);
+    }
 
-        const formations = [
-            { name: "4-3-3", description: "4 Defenders, 3 Midfielders, 3 Forwards" },
-            { name: "4-4-2", description: "4 Defenders, 4 Midfielders, 2 Forwards" },
-            { name: "3-5-2", description: "3 Defenders, 5 Midfielders, 2 Forwards" },
-            { name: "5-3-2", description: "5 Defenders, 3 Midfielders, 2 Forwards" }
-        ];
+    .player-card.invalid-position::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: rgba(255, 0, 0, 0.35);
+        border: 3px solid #ff0000;
+        border-radius: 12px;
+        pointer-events: none;
+    }
+    #bench-drawer {
+        display: flex;
+        flex-direction: column;
+        background: #111827;
+        border: 2px solid #eab308;
+        padding: 12px;
+        height: 90vh;
+        width: 300px;
+        border-radius: 20px
+    }
 
-        // --- 1. SELECCIÓ DE FORMACIÓ ---
-        formations.forEach(f => {
-            const btn = document.createElement('div');
-            btn.className = "formation-btn text-center min-w-[150px]";
-            btn.innerHTML = `<div class="text-2xl">${f.name}</div><div class="text-xs">${f.description}</div>`;
-            btn.onclick = () => {
-                sessionStorage.setItem("formation", JSON.stringify(f));
-                formationOverlay.classList.add('hidden');
-                renderPitch(f.name);
+    #stats-box,
+    #team-rating {
+        transition: opacity 0.2s ease;
+    }
+    body {
+    overflow-y: auto;
+    }
+    #manager-container .player-card {
+        width: 100%;
+        height: clamp(220px, 16vw, 160px);
+    }
+    @keyframes modalBounce {
+        0%   { transform: translateY(50px) scale(0.92); opacity: 0; }
+        55%  { transform: translateY(-10px) scale(1.02); opacity: 1; }
+        75%  { transform: translateY(5px)  scale(0.99); }
+        100% { transform: translateY(0)    scale(1); }
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const $ = id => document.getElementById(id);
+    const selectedPlayers     = {};   // fieldIndex -> playerId
+    const selectedTotals      = {};   // fieldIndex | 'bench_N' -> normalizedTotal
+    const selectedPlayersData = {};   // playerId -> { id, element, team }
+    const selectedPlayerIds   = new Set();
+    const selectedPlayerNames = new Set();
+    let selectedButton = null;
+    let swapSource     = null;
+    const BENCH_SIZE = 8;
+    let lastScrollY = window.scrollY;
+    let ticking = false;
+    const bench = document.getElementById('bench-drawer');
+    const stats = document.getElementById('stats-box');
+    const rating = document.getElementById('team-rating');
+
+    // --- Edit mode data ---
+    const editData = document.getElementById('edit-draft-data')
+        ? JSON.parse(document.getElementById('edit-draft-data').textContent)
+        : null;
+
+    // --- Helpers ---
+    const normalize = (val, min, max) =>
+        Math.max(1, Math.min(99, Math.round(((val - min) / (max - min)) * 99) + Math.floor(Math.random() * 11) - 5));
+
+    const normalizeTotal = raw =>
+        Math.trunc(((raw - 914) / (970 - 914)) * 49 + 50);
+
+    const STAT_RANGES = [
+        ['POW', 'Power',        114, 169],
+        ['CON', 'Control',      119, 161],
+        ['TEC', 'Technique',    116, 162],
+        ['PRE', 'Pressure',     116, 147],
+        ['PHY', 'Physical',     113, 152],
+        ['AGI', 'Agility',      112, 155],
+        ['INT', 'Intelligence', 124, 169],
+    ];
+
+    const formations = [
+        { name: "4-3-3", description: "4 Defenders, 3 Midfielders, 3 Forwards" },
+        { name: "4-4-2", description: "4 Defenders, 4 Midfielders, 2 Forwards" },
+        { name: "3-5-2", description: "3 Defenders, 5 Midfielders, 2 Forwards" },
+        { name: "5-3-2", description: "5 Defenders, 3 Midfielders, 2 Forwards" },
+    ];
+
+    // --- Chemistry diamonds ---
+    const chemistryDiamonds = id => [0, 1, 2].map(i => `
+        <rect class="chem-diamond" data-player="${id}" data-index="${i}"
+            x="${115 + i * 22}" y="390" width="14" height="14"
+            transform="rotate(45 ${122 + i * 22} 397)"
+            fill="#ffffff" stroke="black" stroke-width="1"/>`
+    ).join('');
+
+    const updateChemistry = (id, chem) =>
+        document.querySelectorAll(`.chem-diamond[data-player="${id}"]`)
+            .forEach((d, i) => d.setAttribute('fill', i < chem ? '#00ff87' : '#ffffff'));
+
+    function isPlayerOutOfPosition(card) {
+        const fieldPosition = card.dataset.position;
+        const playerPosition = card.dataset.playerPosition;
+
+        return fieldPosition !== playerPosition;
+    }
+
+    function updatePositionState(card) {
+        if (isPlayerOutOfPosition(card)) {
+            card.classList.add('invalid-position');
+        } else {
+            card.classList.remove('invalid-position');
+        }
+    }
+
+    // --- Recalculate chemistry for field players ---
+    function recalculateTeamChemistry() {
+        const fieldCards = [...document.querySelectorAll('#formation-container .player-card[data-filled]')];
+        const managerCard = document.querySelector('#manager-container .player-card[data-filled]');
+        const cards = managerCard
+            ? [...fieldCards, managerCard]
+            : fieldCards;
+        const validPlayers = [];
+        const elementCount = {};
+        const teamCount = {};
+        cards.forEach(card => {
+            const isManager = card.closest('#manager-container') !== null;
+            if (!isManager) {
+                updatePositionState(card);
+                if (isPlayerOutOfPosition(card)) {
+                    updateChemistry(card.dataset.playerId, 0);
+                    return;
+                }
+            }
+            const player = {
+                id: card.dataset.playerId,
+                element: card.dataset.element,
+                team: card.dataset.team,
             };
-            formationsList.appendChild(btn);
+            validPlayers.push(player);
+            elementCount[player.element] = (elementCount[player.element] || 0) + 1;
+            teamCount[player.team] = (teamCount[player.team] || 0) + 1;
         });
+        let total = 0;
+        validPlayers.forEach(player => {
+            const chem = Math.min(Math.floor((elementCount[player.element] - 1) / 2) + teamCount[player.team] - 1, 3);
+            updateChemistry(player.id, chem);
+            total += chem;
+        });
+        $('stat-chemistry').innerText = total;
+    }
 
-        // --- 2. DIBUIXAR EL CAMP ---
-        function renderPitch(formationName) {
-            const [def, mid, att] = formationName.split("-").map(Number);
-            const container = document.getElementById("formation-container");
+    // --- Team rating ---
+    function updateTeamRating() {
+        const vals = Object.entries(selectedTotals)
+            .filter(([k]) => !k.toString().startsWith('bench_'))
+            .map(([, v]) => v);
+        const avg = vals.length ? Math.round(vals.reduce((a, b) => a + b, 0) / vals.length) : 0;
+        $('stat-average').innerText = avg;
+    }
 
-            function createRow(count, positionCode, prefix) {
-                let html = `<div class="flex gap-4 justify-center w-full">`;
-                for (let i = 1; i <= count; i++) {
-                    html += `<button class="player-card" data-position="${positionCode}">${prefix}${i}</button>`;
-                }
-                html += `</div>`;
-                return html;
-            }
+    // --- Build player SVG ---
+    function buildPlayerSVG(p) {
+        const total = normalizeTotal(p.Total);
+        const name  = (p.Name?.length || 0) > 13 ? (p.Nickname || p.Name) : p.Name;
 
-            container.innerHTML = createRow(att, "FW", "FW") +
-                                createRow(mid, "MF", "MF") +
-                                createRow(def, "DF", "DF") +
-                                `<div class="flex justify-center w-full"><button class="player-card" data-position="GK">GK</button></div>`;
+        if (p.Total >= 999)      p.Category = 5;
+        else if (p.Total >= 961) p.Category = 4;
+        else if (p.Total >= 946) p.Category = 3;
+        else if (p.Total >= 931) p.Category = 2;
+        else                     p.Category = 1;
+        const fill = p.Role === 'Manager'
+            ? `url(#cat-manager)`
+            : `url(#cat${p.Category})`;
+        const sr = (label, key, min, max, x, y) =>
+            `<text x="${x}" y="${y}" class="font-extrabold text-xl">${label}</text>
+             <text x="${x + 55}" y="${y}" class="font-bold text-xl">${normalize(p[key], min, max)}</text>`;
+
+        return `
+        <svg viewBox="0 0 300 420" class="w-full h-full">
+            <defs>
+                <linearGradient id="cat1" x1="0" y1="0" x2="1" y2="1">
+                    <stop offset="0%" stop-color="#3a2a1a"/><stop offset="100%" stop-color="#cd7f32"/>
+                </linearGradient>
+                <linearGradient id="cat2">
+                    <stop offset="0%" stop-color="#f5f5f5"/><stop offset="100%" stop-color="#c0c0c0"/>
+                </linearGradient>
+                <linearGradient id="cat3">
+                    <stop offset="0%" stop-color="#fff7b0"/><stop offset="50%" stop-color="#ffd700"/><stop offset="100%" stop-color="#b8860b"/>
+                </linearGradient>
+                <linearGradient id="cat4">
+                    <stop offset="0%" stop-color="#00ffff"/><stop offset="50%" stop-color="#008cff"/><stop offset="100%" stop-color="#00ffff"/>
+                </linearGradient>
+                <linearGradient id="cat5">
+                    <stop offset="0%" stop-color="#FF00FF"/><stop offset="50%" stop-color="#FF10F0"/><stop offset="100%" stop-color="#FF00FF"/>
+                </linearGradient>
+                <linearGradient id="cat-manager">
+                    <stop offset="0%" stop-color="#064e3b"/><stop offset="100%" stop-color="#10b981"/>
+                </linearGradient>
+                <filter id="glow">
+                    <feGaussianBlur stdDeviation="3" result="blur"/>
+                    <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                </filter>
+            </defs>
+            <path d="M40 20 Q20 40 20 80 L20 300 Q20 340 60 360 L150 410 L240 360 Q280 340 280 300 L280 80 Q280 40 260 20 Q220 0 150 0 Q80 0 40 20 Z"
+                stroke="black" stroke-width="3" fill="${fill}" filter="url(#glow)"/>
+            <foreignObject x="50" y="220" width="200" height="60">
+                <div xmlns="http://www.w3.org/1999/xhtml" class="text-center font-extrabold text-2xl leading-tight break-words">${name}</div>
+            </foreignObject>
+            <image x="97" y="35" width="180" height="180" href="${p.Image}" preserveAspectRatio="xMidYMid slice"/>
+            <text x="40" y="60" class="font-mono font-extrabold text-4xl">${total}</text>
+            <text x="40" y="90" class="font-extrabold text-2xl">${p.Position}</text>
+            <image x="35" y="160" width="55" height="55" href="/static/images/elements/${p.Element}.png"/>
+            <image x="30" y="80" width="70" height="100" href="${p.Team_image}"
+                onerror="this.href.baseVal='/static/images/teams/Reclutas.png'"/>
+            ${STAT_RANGES.slice(0, 3).map(([l, k, mn, mx], i) => sr(l, k, mn, mx, 50,  280 + i * 30)).join('')}
+            ${STAT_RANGES.slice(3, 6).map(([l, k, mn, mx], i) => sr(l, k, mn, mx, 160, 280 + i * 30)).join('')}
+            ${sr(...STAT_RANGES[6], 105, 370)}
+            ${chemistryDiamonds(p.ID)}
+        </svg>`;
+    }
+
+    // --- Render pitch ---
+    function renderPitch(formationName) {
+        const [def, mid, att] = formationName.split('-').map(Number);
+        const makeRow = (count, pos, prefix) =>
+            `<div class="flex gap-4 justify-center w-full">${
+                Array.from({ length: count }, (_, i) =>
+                    `<button class="player-card" data-position="${pos}">${prefix}${i + 1}</button>`
+                ).join('')
+            }</div>`;
+
+        $('formation-container').innerHTML =
+            makeRow(att, 'FW', 'FW') +
+            makeRow(mid, 'MF', 'MF') +
+            makeRow(def, 'DF', 'DF') +
+            `<div class="flex justify-center w-full"><button class="player-card" data-position="GK">GK</button></div>`;
+    }
+
+    // --- Render bench ---
+    function renderBench() {
+        $('bench-container').innerHTML = Array.from({ length: BENCH_SIZE }, (_, i) =>
+            `<button class="bench-card" data-bench-index="${i}">SUB${i + 1}</button>`
+        ).join('');
+    }
+    function renderManager(){
+        $('manager-container').innerHTML = '<button class="player-card">MNG</button>'
+    }
+
+    // --- Check if squad is complete and show save bar ---
+    function checkSaveBar() {
+        const fieldFull = Object.keys(selectedPlayers).length === 11;
+        const benchFull = Object.keys(selectedTotals).filter(k => k.toString().startsWith('bench_')).length === BENCH_SIZE;
+        if (fieldFull && benchFull) $('save-bar').classList.remove('hidden');
+    }
+
+    // --- Open player selection overlay ---
+    function openOverlay(position, isBench, role = '') {
+        const excluded = [...selectedPlayerNames].join(',');
+        let url = `/random-players/?excluded_names=${encodeURIComponent(excluded)}`;
+        if (position) url += `&position=${position}`;
+        if (role)     url += `&role=${role}`;
+
+        $('overlay').classList.remove('hidden');
+        fetch(url)
+            .then(r => r.json())
+            .then(players => {
+                $('players-container').innerHTML = players.map(p => `
+                    <button class="select-player text-black hover:scale-110 transition"
+                        data-player-id="${p.ID}"
+                        data-player-name="${p.Name}"
+                        data-total="${p.Total}"
+                        data-element="${p.Element}"
+                        data-team="${p.Team}"
+                        data-position="${p.Position}"
+                        ${isBench ? 'data-bench="true"' : ''}>
+                        ${buildPlayerSVG(p)}
+                    </button>`
+                ).join('');
+            });
+    }
+
+    // --- Swap two filled cards ---
+    function handleSwapClick(e) {
+        const card = e.target.closest('.player-card, .bench-card');
+        if (!card || !card.hasAttribute('data-filled')) return;
+
+        if (!swapSource) {
+            swapSource = card;
+            card.style.outline = '3px solid #facc15';
+            return;
+        }
+        if (swapSource === card) {
+            swapSource.style.outline = '';
+            swapSource = null;
+            return;
         }
 
-        // --- 3. CLIC AL BOTÓ DEL CAMP (OBRIR OVERLAY) ---
-        document.getElementById("formation-container").addEventListener('click', function(e) {
-            const btn = e.target.closest('.player-card');
-            if (!btn) return;
+        const allCards   = [...document.querySelectorAll('#formation-container .player-card')];
+        const benchCards = [...document.querySelectorAll('#bench-container .bench-card')];
+        const manager = [...document.querySelectorAll('#manager .manager-card')]
 
-            selectedButton = btn;
-            document.getElementById('overlay').classList.remove('hidden');
-
-            fetch(`/random-players/?position=${btn.dataset.position}&excluded=${[...selectedPlayerIds].join(',')}`)
-                .then(res => res.json())
-                .then(players => {
-                    const container = document.getElementById('players-container');
-                    container.innerHTML = '';
-                    players.forEach(player => {
-
-                        const categoryStyles = {
-                            1: "bg-gradient-to-br from-[#7a4a1f] to-[#cd7f32] shadow-[0_0_10px_#cd7f32]",
-                            2: "bg-gradient-to-br from-gray-200 to-[#c0c0c0] shadow-[0_0_10px_#c0c0c0]",
-                            3: "bg-gradient-to-br from-yellow-200 via-yellow-400 to-[#ffd700] shadow-[0_0_15px_#ffd700]",
-                            4: "bg-gradient-to-br from-pink-200 via-blue-300 to-[#00ffff] shadow-[0_0_20px_#00ffff] animate-pulse"
-                        };
-                        function noise(stat) {
-                            const noise = Math.floor(Math.random() * 11) - 5; // número aleatorio entre -5 y 5
-                            return Math.max(1, Math.min(99, stat + noise));
-
-                        }
-                        const fill = `url(#cat${player.Category})`;
-                        container.innerHTML += `
-                            <button class="select-player text-black hover:scale-110 transition" data-player-id="${player.ID}" data-total="${player.Total}">
-                                <svg viewBox="0 0 300 420" class="w-full h-full">
-                                    <defs>
-                                        <linearGradient id="cat1" x1="0" y1="0" x2="1" y2="1">
-                                            <stop offset="0%" stop-color="#3a2a1a"/>
-                                            <stop offset="100%" stop-color="#cd7f32"/>
-                                        </linearGradient>
-
-                                        <linearGradient id="cat2">
-                                            <stop offset="0%" stop-color="#f5f5f5"/>
-                                            <stop offset="100%" stop-color="#c0c0c0"/>
-                                        </linearGradient>
-
-                                        <linearGradient id="cat3">
-                                            <stop offset="0%" stop-color="#fff7b0"/>
-                                            <stop offset="50%" stop-color="#ffd700"/>
-                                            <stop offset="100%" stop-color="#b8860b"/>
-                                        </linearGradient>
-
-                                        <linearGradient id="cat4">
-                                            <stop offset="0%" stop-color="#00ffff"/>
-                                            <stop offset="50%" stop-color="#008cff"/>
-                                            <stop offset="100%" stop-color="#00ffff"/>
-                                        </linearGradient>
-                                        <filter id="glow">
-                                            <feGaussianBlur stdDeviation="3" result="blur"/>
-                                            <feMerge>
-                                                <feMergeNode in="blur"/>
-                                                <feMergeNode in="SourceGraphic"/>
-                                            </feMerge>
-                                        </filter>
-                                    </defs>
-                                    <path d="M40 20 Q20 40 20 80 L20 300 Q20 340 60 360 L150 410 L240 360 Q280 340 280 300 L280 80 Q280 40 260 20 Q220 0 150 0 Q80 0 40 20 Z"
-                                          stroke="black" stroke-width="3" fill="${fill}" filter="url(#glow)"/>
-                                    <foreignObject x="50" y="220" width="200" height="60">
-                                        <div xmlns="http://www.w3.org/1999/xhtml"
-                                             class="text-center font-extrabold text-2xl leading-tight break-words">
-                                            ${(player.Name?.length || 0) > 13 ? (player.Nickname || player.Name) : player.Name}
-                                        </div>
-                                    </foreignObject>
-                                    <image x="97" y="35" width="180" height="180" href="${player.Image}" preserveAspectRatio="xMidYMid slice"/>
-                                    <text x="40" y="60" class="font-mono font-extrabold text-4xl">${Math.trunc(((player.Total - 914) / (970 - 914)) * (99 - 50) + 50)}</text>
-                                    <text x="40" y="90" class="font-extrabold text-2xl">${player.Position}</text>
-                                    <image x="35" y="160" width="55" height="55" href="/static/images/elements/${player.Element}.png"/>
-                                    <image x="30" y="80" width="70" height="100" href="${player.Team_image}" onerror="this.href.baseVal='/static/images/teams/Reclutas.png'"/>
-                                    <text x="50" y="280" class="font-extrabold text-xl">POW</text>
-                                    <text x="105" y="280" class="font-bold text-xl">${noise(Math.round(((player.Power - 114) / (169 - 114)) * 99))}</text>
-                                    <text x="50" y="310" class="font-extrabold text-xl">CON</text>
-                                    <text x="105" y="310" class="font-bold text-xl">${noise(Math.round(((player.Control - 119) / (161 - 119)) * 99))}</text>
-                                    <text x="50" y="340" class="font-extrabold text-xl">TEC</text>
-                                    <text x="105" y="340" class="font-bold text-xl">${noise(Math.round(((player.Technique - 116) / (162 - 116)) * 99))}</text>
-                                    <text x="160" y="280" class="font-extrabold text-xl">PRE</text>
-                                    <text x="210" y="280" class="font-bold text-xl">${noise(Math.round(((player.Pressure - 116) / (147 - 116)) * 99))}</text>
-                                    <text x="160" y="310" class="font-extrabold text-xl">PHY</text>
-                                    <text x="210" y="310" class="font-bold text-xl">${noise(Math.round(((player.Physical - 113) / (152 - 113)) * 99))}</text>
-                                    <text x="160" y="340" class="font-extrabold text-xl">AGI</text>
-                                    <text x="210" y="340" class="font-bold text-xl">${noise(Math.round(((player.Agility - 112) / (155 - 112)) * 99))}</text>
-                                    <text x="105" y="370" class="font-extrabold text-xl">INT</text>
-                                    <text x="160" y="370" class="font-bold text-xl">${noise(Math.round(((player.Intelligence - 124) / (169 - 124)) * 99))}</text>
-
-                                    </svg>
-                            </button>`;
-                    });
-                });
-        });
-
-        // --- 4. SELECCIONAR JUGADOR DE LA LLISTA ---
-        document.addEventListener('click', function(e) {
-            const playerBtn = e.target.closest('.select-player');
-            function updateTeamRating() {
-                const totals = Object.values(selectedTotals);
-
-                let sum = totals.reduce((acc, val) => acc + val, 0);
-
-                // siempre dividido entre 11
-                let avg = Math.round(sum / 11);
-
-                document.getElementById("rating-value").innerText = avg;
-            }
-            if (playerBtn && selectedButton) {
-                const playerId = playerBtn.getAttribute('data-player-id');
-                const allCards = [...document.querySelectorAll('#formation-container .player-card')];
-                const btnIndex = allCards.indexOf(selectedButton);
-                const rawTotal = parseInt(playerBtn.dataset.total);
-                const playerTotal = Math.trunc(
-                    ((rawTotal - 914) / (970 - 914)) * (99 - 50) + 50
-                );
-
-                if (playerId && btnIndex !== -1) {
-                    selectedPlayerIds.add(playerId);
-
-                    selectedPlayers[btnIndex] = playerId;
-                    selectedTotals[btnIndex] = playerTotal;
-                    updateTeamRating();
-                    selectedButton.innerHTML = playerBtn.innerHTML;
-                    selectedButton.style.background = "transparent";
-                    selectedButton.disabled = true;
-
-                    document.getElementById('overlay').classList.add('hidden');
-                    // document.getElementById('save-bar').classList.remove('hidden');
-                    // MOSTRAR BOTÓ GUARDAR NOMÉS QUAN S'HAGIN SELECCIONAT 11 JUGADORS
-                    if (Object.keys(selectedPlayers).length === 11) {
-                        document.getElementById('save-bar').classList.remove('hidden');
-                    }
-                }
-            }
-        });
-
-        // Botó tancar overlay
-        const closeBtn = document.getElementById('close-overlay');
-        if (closeBtn) {
-            closeBtn.onclick = () => document.getElementById('overlay').classList.add('hidden');
-        }
-
-        // --- 5. GUARDAR A LA BASE DE DADES ---
-        document.getElementById('save-btn').onclick = async function() {
-            const name = document.getElementById('draft-name').value.trim() || 'El meu equip';
-            const formationObj = JSON.parse(sessionStorage.getItem('formation') || '{}');
-            const formation = formationObj.name || "4-3-3";
-            const players = Object.values(selectedPlayers).filter(Boolean);
-
-            if (players.length === 0) {
-                showMsg('Tria almenys un jugador!', 'text-red-400');
-                return;
-            }
-
-            this.disabled = true;
-            this.textContent = 'Guardant...';
-
-            try {
-                const res = await fetch('/save-draft/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRFToken': getCookie('csrftoken'),
-                    },
-                    body: JSON.stringify({ name, formation, players }),
-                });
-                const data = await res.json();
-                if (data.ok) {
-                    showMsg('✓ Equip guardat!', 'text-green-400');
-                    window.location.href = '/my-drafts/'; // Opcional: Redirigir a la llista
-                } else {
-                    showMsg('Error: ' + data.error, 'text-red-400');
-                }
-            } catch (e) {
-                showMsg('Error de connexió', 'text-red-400');
-            } finally {
-                this.disabled = false;
-                this.textContent = 'Guardar equip';
-            }
+        const getKey = el => {
+            const fi = allCards.indexOf(el);   if (fi !== -1) return fi;
+            const bi = benchCards.indexOf(el); if (bi !== -1) return `bench_${bi}`;
+            return null;
         };
 
-        function showMsg(text, cls) {
-            const el = document.getElementById('save-msg');
-            el.textContent = text;
-            el.className = `text-sm ${cls}`;
-            el.classList.remove('hidden');
-            setTimeout(() => el.classList.add('hidden'), 3000);
+        const keyA = getKey(swapSource), keyB = getKey(card);
+        const idA  = swapSource.dataset.playerId, idB = card.dataset.playerId;
+        const aWasField = allCards.includes(swapSource), bWasField = allCards.includes(card);
+        const dataA = { id: idA, element: swapSource.dataset.element, team: swapSource.dataset.team };
+        const dataB = { id: idB, element: card.dataset.element,       team: card.dataset.team };
+        const posA  = swapSource.dataset.playerPosition;
+        const posB  = card.dataset.playerPosition;
+
+        updateChemistry(idA, 0);
+        updateChemistry(idB, 0);
+
+        // Swap visual HTML
+        const tmpHTML = swapSource.innerHTML;
+        swapSource.innerHTML = card.innerHTML;
+        card.innerHTML = tmpHTML;
+
+        swapSource.setAttribute('data-player-id', idB);
+        swapSource.setAttribute('data-element', dataB.element);
+        swapSource.setAttribute('data-team', dataB.team);
+        swapSource.setAttribute('data-player-position', posB);
+        card.setAttribute('data-player-id', idA);
+        card.setAttribute('data-element', dataA.element);
+        card.setAttribute('data-team', dataA.team);
+        card.setAttribute('data-player-position', posA);
+
+        const tmp = selectedTotals[keyA];
+        selectedTotals[keyA] = selectedTotals[keyB];
+        selectedTotals[keyB] = tmp;
+
+        // Update selectedPlayers and selectedPlayersData
+        if (aWasField && !bWasField) {
+            selectedPlayers[keyA] = idB;
+            delete selectedPlayersData[idA];
+            selectedPlayersData[idB] = dataB;
+        } else if (!aWasField && bWasField) {
+            selectedPlayers[keyB] = idA;
+            delete selectedPlayersData[idB];
+            selectedPlayersData[idA] = dataA;
+        } else if (typeof keyA === 'number' && typeof keyB === 'number') {
+            selectedPlayers[keyA] = idB;
+            selectedPlayers[keyB] = idA;
         }
 
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
+        updateChemistry(idA, 0);
+        updateChemistry(idB, 0);
+
+        recalculateTeamChemistry();
+        updateTeamRating();
+        swapSource.style.outline = '';
+        swapSource = null;
+    }
+
+    // --- Preload players in edit mode ---
+    function preloadPlayers(players, orderedIds) {
+        const byId = {};
+        players.forEach(p => byId[String(p.ID)] = p);
+
+        const allCards      = [...document.querySelectorAll('#formation-container .player-card')];
+        const benchCards    = [...document.querySelectorAll('#bench-container .bench-card')];
+        const managerCards  = [...document.querySelectorAll('#manager-container .player-card')];
+
+        orderedIds.map(id => String(id)).forEach((id, i) => {
+            const p = byId[id];
+            if (!p) return;
+
+            const isField   = i < allCards.length;
+            const isBench   = !isField && i < allCards.length + benchCards.length;
+            const isManager = !isField && !isBench;
+
+            let card;
+            if (isField) {
+                card = allCards[i];
+            } else if (isBench) {
+                card = benchCards[i - allCards.length];
+            } else {
+                card = managerCards[i - allCards.length - benchCards.length];
             }
-            return cookieValue;
+            if (!card) return;
+
+            selectedPlayerIds.add(String(p.ID));
+            if (p.Name) selectedPlayerNames.add(p.Name);
+            card.innerHTML = buildPlayerSVG(p);
+            card.style.background = 'transparent';
+            card.setAttribute('data-filled', 'true');
+            card.setAttribute('data-player-id', p.ID);
+            card.setAttribute('data-element', p.Element);
+            card.setAttribute('data-team', p.Team);
+            card.setAttribute('data-player-position', p.Position);
+
+            if (isField) {
+                selectedPlayers[i] = String(p.ID);
+                selectedTotals[i]  = normalizeTotal(p.Total);
+                selectedPlayersData[p.ID] = { id: String(p.ID), element: p.Element, team: p.Team };
+            } else if (isBench) {
+                const bi = i - allCards.length;
+                selectedTotals[`bench_${bi}`] = normalizeTotal(p.Total);
+            } else {
+                selectedTotals['manager'] = normalizeTotal(p.Total);
+            }
+        });
+
+        recalculateTeamChemistry();
+        updateTeamRating();
+        $('save-bar').classList.remove('hidden');
+    }
+
+    // --- Utility ---
+    function showMsg(text, cls) {
+        const el = $('save-msg');
+        el.textContent = text;
+        el.className = `text-sm ${cls}`;
+        el.classList.remove('hidden');
+        setTimeout(() => el.classList.add('hidden'), 3000);
+    }
+
+    function getCookie(name) {
+        const c = document.cookie.split(';').map(c => c.trim()).find(c => c.startsWith(name + '='));
+        return c ? decodeURIComponent(c.split('=')[1]) : null;
+    }
+
+    // Hide navbar on scroll down
+    const navbar = document.getElementById('main-navbar');
+    function onScroll() {
+        const currentY = window.scrollY;
+
+        if (!navbar) return;
+
+        if (currentY > lastScrollY && currentY > 60) {
+            navbar.style.transform = 'translateY(-120%)';
+        } else {
+            navbar.style.transform = 'translateY(0)';
         }
+
+        lastScrollY = currentY;
+    }
+
+    window.addEventListener('wheel', (e) => {
+        if (!ticking) {
+            window.requestAnimationFrame(() => {
+                const direction = e.deltaY;
+
+                if (direction > 0) {
+                    navbar.style.transform = 'translateY(-120%)';
+                } else {
+                    navbar.style.transform = 'translateY(0)';
+                }
+
+                ticking = false;
+            });
+
+            ticking = true;
+        }
+    }, { passive: true });
+
+    // =========================================================
+    // INIT
+    // =========================================================
+
+    // Build formation buttons
+    formations.forEach(f => {
+        const btn = document.createElement('div');
+        btn.className = 'formation-btn text-center min-w-[150px]';
+        btn.innerHTML = `<div class="text-2xl">${f.name}</div><div class="text-xs mt-1">${f.description}</div>`;
+        btn.onclick = () => {
+            sessionStorage.setItem('formation', JSON.stringify(f));
+            $('formation-overlay').classList.add('hidden');
+            renderPitch(f.name);
+            renderBench();
+            renderManager();
+            $('stats-box').classList.remove('hidden');
+            $('manager').classList.remove('hidden');
+        };
+        $('formations-list').appendChild(btn);
     });
 
+    // Edit mode init
+    if (editData) {
+        $('formation-overlay').style.display = 'none';
+        $('stats-box').classList.remove('hidden');
+        $('manager').classList.remove('hidden');
+        sessionStorage.setItem('formation', JSON.stringify({ name: editData.formation }));
+        renderPitch(editData.formation);
+        renderBench();
+        renderManager();
+        $('draft-name').value = editData.name;
 
-    </script>
+        const ids = editData.player_ids || [];
+        if (ids.length) {
+            fetch(`/players/data/?ids=${ids.join(',')}`)
+                .then(r => r.json())
+                .then(players => preloadPlayers(players, ids));
+        }
+    }
 
-    {% endblock %}
+    // =========================================================
+    // EVENT LISTENERS
+    // =========================================================
+
+    // Field card click
+    $('formation-container').addEventListener('click', function (e) {
+        const btn = e.target.closest('.player-card');
+        if (!btn) return;
+        if (btn.hasAttribute('data-filled')) { handleSwapClick(e); return; }
+        selectedButton = btn;
+        openOverlay(btn.dataset.position, false);
+    });
+
+    // Bench card click
+    $('bench-container').addEventListener('click', function (e) {
+        const btn = e.target.closest('.bench-card');
+        if (!btn) return;
+        if (btn.hasAttribute('data-filled')) { handleSwapClick(e); return; }
+        selectedButton = btn;
+        openOverlay(null, true);
+    });
+
+    // Player selected from overlay
+    document.addEventListener('click', function (e) {
+        const playerBtn = e.target.closest('.select-player');
+        if (!playerBtn || !selectedButton) return;
+
+        const playerId    = playerBtn.dataset.playerId;
+        const playerTotal = normalizeTotal(parseInt(playerBtn.dataset.total));
+        const isBench     = selectedButton.dataset.benchIndex !== undefined;
+        const isManager   = selectedButton.closest('#manager-container') !== null;
+        if (!playerId) return;
+
+        selectedPlayerIds.add(playerId);
+        const playerName = playerBtn.dataset.playerName;
+        if (playerName) selectedPlayerNames.add(playerName);
+
+        if (isBench) {
+            const benchIndex = selectedButton.dataset.benchIndex;
+            selectedTotals[`bench_${benchIndex}`] = playerTotal;
+        } else if (isManager) {
+            selectedTotals['manager'] = playerTotal
+        } else {
+            const allCards = [...document.querySelectorAll('#formation-container .player-card')];
+            const btnIndex = allCards.indexOf(selectedButton);
+            if (btnIndex === -1) return;
+
+            selectedPlayers[btnIndex] = playerId;
+            selectedTotals[btnIndex]  = playerTotal;
+            selectedPlayersData[playerId] = {
+                id: playerId,
+                element: playerBtn.dataset.element,
+                team: playerBtn.dataset.team,
+            };
+        }
+
+        updateTeamRating();
+
+        selectedButton.innerHTML = playerBtn.innerHTML;
+        selectedButton.style.background = 'transparent';
+        selectedButton.setAttribute('data-filled', 'true');
+        selectedButton.setAttribute('data-player-id', playerId);
+        selectedButton.setAttribute('data-element', playerBtn.dataset.element);
+        selectedButton.setAttribute('data-team', playerBtn.dataset.team);
+        selectedButton.setAttribute('data-player-position', playerBtn.dataset.position);
+        selectedButton.style.cursor = 'pointer';
+        recalculateTeamChemistry();
+
+        $('overlay').classList.add('hidden');
+        selectedButton = null;
+
+        checkSaveBar();
+    });
+
+    // Save squad
+    $('save-btn').onclick = async function () {
+        const name      = $('draft-name').value.trim() || 'El meu equip';
+        const formation = (JSON.parse(sessionStorage.getItem('formation') || '{}')).name || '4-3-3';
+
+        const fieldPlayers = Object.values(selectedPlayers).filter(Boolean);
+        const benchPlayers = [...document.querySelectorAll('#bench-container .bench-card[data-filled]')]
+            .map(card => card.dataset.playerId)
+            .filter(Boolean);
+        const managerPlayers = [...document.querySelectorAll('#manager-container .player-card[data-filled]')]
+            .map(card => card.dataset.playerId)
+            .filter(Boolean);
+        const players = [...fieldPlayers, ...benchPlayers, ...managerPlayers];
+
+        if (!players.length) return showMsg('Tria almenys un jugador!', 'text-red-400');
+
+        this.disabled    = true;
+        this.textContent = 'Guardant...';
+
+        try {
+            const res  = await fetch('/save-draft/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken'),
+                },
+                body: JSON.stringify({
+                    name,
+                    formation,
+                    players,
+                    draft_id: editData ? editData.id : null,
+                }),
+            });
+            const data = await res.json();
+            if (data.ok) {
+                showMsg('✓ Equip guardat!', 'text-green-400');
+                window.location.href = '/my-drafts/';
+            } else {
+                showMsg('Error: ' + data.error, 'text-red-400');
+            }
+        } catch {
+            showMsg('Error de connexió', 'text-red-400');
+        } finally {
+            this.disabled    = false;
+            this.textContent = 'Guardar equip';
+        }
+    };
+    $('manager-container').addEventListener('click', function (e) {
+        const btn = e.target.closest('.player-card');
+        if (!btn) return;
+        if (btn.hasAttribute('data-filled')) { handleSwapClick(e); return; }
+        selectedButton = btn;
+        openOverlay('', false, 'Manager');
+    });
+});
+</script>
+
+{% endblock %}

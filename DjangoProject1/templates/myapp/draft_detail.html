@@ -1,0 +1,194 @@
+{% extends 'base.html' %}
+{% block Title %}Detalle de {{ draft.name }} - Inazuma FutDraft{% endblock %}
+{% block body %}
+<svg style="width:0; height:0; position:absolute;" aria-hidden="true" focusable="false">
+    <defs>
+        <linearGradient id="cat1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#3a2a1a"/><stop offset="100%" stop-color="#cd7f32"/></linearGradient>
+        <linearGradient id="cat2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f5f5f5"/><stop offset="100%" stop-color="#c0c0c0"/></linearGradient>
+        <linearGradient id="cat3" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fff7b0"/><stop offset="50%" stop-color="#ffd700"/><stop offset="100%" stop-color="#b8860b"/></linearGradient>
+        <linearGradient id="cat4" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00ffff"/><stop offset="50%" stop-color="#008cff"/><stop offset="100%" stop-color="#00ffff"/></linearGradient>
+        <linearGradient id="cat-manager" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#064e3b"/><stop offset="100%" stop-color="#10b981"/></linearGradient>
+        <filter id="glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+    </defs>
+</svg>
+<div class="pt-32 pb-12 bg-gray-50 min-h-screen font-sans">
+    <div class="max-w-7xl mx-auto px-6">
+        
+        <!-- Header with back button -->
+        <div class="flex justify-between items-center mb-10">
+            <div>
+                <h1 class="text-5xl font-black text-[#002b36] uppercase italic tracking-tighter">{{ draft.name }}</h1>
+                <p class="text-gray-500 font-bold uppercase tracking-widest text-sm">Create on {{ draft.date|date:"d M Y" }} • Formation: {{ draft.lineup.name }}</p>
+            </div>
+            <div class="flex gap-4">
+                <a href="{% url 'my_drafts' %}" 
+                   class="bg-blue-600 hover:bg-blue-700 active:scale-95 text-white font-black uppercase italic tracking-widest px-6 py-3 rounded-xl border-2 border-blue-800 shadow-lg transition-all duration-150 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7-7 7M3 12h18"/>
+                    </svg>
+                    BACK
+                </a>
+                <button onclick="confirmDelete('{{ draft.id }}')" 
+                        class="bg-red-600 hover:bg-red-700 active:scale-95 text-white font-black uppercase italic tracking-widest px-6 py-3 rounded-xl border-2 border-red-800 shadow-lg transition-all duration-150 flex items-center gap-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                    DELETE
+                </button>
+                <a href="{% url 'edit_draft' draft.id %}" 
+                    class="bg-yellow-500 hover:bg-yellow-400 text-black font-black uppercase italic tracking-widest px-6 py-3 rounded-xl border-2 border-yellow-700 shadow-lg transition-all duration-150">
+                      EDIT
+                </a>
+                 
+            </div>
+        </div>
+        <!-- Expanded pitch container -->
+        <div class="pitch-container flex-grow bg-[#003644] rounded-[3rem] border border-white/10 relative p-8 flex flex-col-reverse justify-around shadow-inner min-h-[800px]" 
+             data-id="{{ draft.id }}" 
+             data-formation="{{ draft.lineup.name }}">
+            
+            <div class="absolute inset-x-0 top-1/2 h-[1px] bg-white/5"></div>
+            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 border border-white/5 rounded-full"></div>
+        </div>
+        <!-- Bench -->
+        <div class="mt-8" id="bench-wrapper" style="display:none">
+            <h2 class="text-2xl font-black text-[#002b36] uppercase italic tracking-tighter mb-4">Bench</h2>
+            <div class="bg-[#002b36] rounded-[2rem] p-6 border border-white/10">
+                <div id="bench-section" class="flex flex-wrap gap-4 justify-center"></div>
+            </div>
+        </div>
+        <!-- Manager -->
+        <div class="mt-8" id="manager-wrapper" style="display:none">
+            <h2 class="text-2xl font-black text-[#002b36] uppercase italic tracking-tighter mb-4">Manager</h2>
+            <div class="bg-[#002b36] rounded-[2rem] p-6 border border-white/10">
+                <div id="manager-section" class="flex flex-wrap gap-4 justify-center"></div>
+            </div>
+        </div>
+            </div>
+        </div>
+        <!-- JSON data for JS rendering -->
+        <script type="application/json" id="draft-data-{{ draft.id }}">
+            {{ draft.js_data|safe }}
+        </script>
+    </div>
+</div>
+<script>
+// JS rendering logic mirrors my_drafts.html for consistency
+document.addEventListener('DOMContentLoaded', function() {
+    const container = document.querySelector('.pitch-container');
+    const draftId = container.dataset.id;
+    const formation = container.dataset.formation; 
+    const rawData = document.getElementById(`draft-data-${draftId}`).textContent;
+    const players = JSON.parse(rawData);
+    const parts = formation.split('-');
+    const defCount = parseInt(parts[0]);
+    const midCount = parseInt(parts[1]);
+    const attCount = parseInt(parts[2]);
+    if (players.length < 11) return;
+    const fwPlayers = players.slice(0, attCount);
+    const mfPlayers = players.slice(attCount, attCount + midCount);
+    const dfPlayers = players.slice(attCount + midCount, 10);
+    const gkPlayers = players.slice(10, 11);
+    function generatePlayerCard(player) {
+        let cat = 1;
+        if (player.Total >= 961) cat = 4;
+        else if (player.Total >= 946) cat = 3;
+        else if (player.Total >= 931) cat = 2;
+        const fill = player.Role === 'Manager'
+            ? `url(#cat-manager)`
+            : `url(#cat${cat})`;
+        const filter = cat === 4 ? 'filter="url(#glow)"' : '';
+        const pulseClass = cat === 4 ? 'animate-pulse' : '';
+        const rating = Math.trunc(((player.Total - 925) / (970 - 925)) * (99 - 50) + 50);
+        const displayName = player.Nickname || player.Name;
+        return `
+        <div class="w-20 sm:w-28 drop-shadow-xl ${pulseClass}">
+            <svg viewBox="0 0 300 420" class="w-full h-full">
+                <path d="M40 20 Q20 40 20 80 L20 300 Q20 340 60 360 L150 410 L240 360 Q280 340 280 300 L280 80 Q280 40 260 20 Q220 0 150 0 Q80 0 40 20 Z"
+                      stroke="black" stroke-width="3" fill="${fill}" ${filter}/>
+                <foreignObject x="50" y="220" width="200" height="60">
+                    <div xmlns="http://www.w3.org/1999/xhtml" class="text-center font-extrabold text-2xl leading-tight break-words text-black">
+                        ${displayName}
+                    </div>
+                </foreignObject>
+                <text x="40" y="60" class="font-mono font-extrabold text-4xl text-black">${rating}</text>
+                <text x="40" y="90" class="font-extrabold text-2xl text-black">${player.Position}</text>
+                <image x="100" y="50" width="160" height="160" href="${player.Image}" preserveAspectRatio="xMidYMid slice"/>
+                <image x="40" y="160" width="60" height="60" href="/static/images/elements/${player.Element}.png"/>
+                <image x="40" y="80" width="70" height="100" href="${player.Team_image}" onerror="this.href.baseVal='/static/images/teams/Reclutas.png'"/>
+                <text x="50" y="280" class="font-bold text-xl text-black">POW ${player.Power}</text>
+                <text x="160" y="280" class="font-bold text-xl text-black">PRE ${player.Pressure}</text>
+                <text x="50" y="310" class="font-bold text-xl text-black">CON ${player.Control}</text>
+                <text x="160" y="310" class="font-bold text-xl text-black">PHY ${player.Physical}</text>
+                <text x="160" y="340" class="font-bold text-xl text-black">AGI ${player.Agility}</text>
+                <text x="50" y="340" class="font-bold text-xl text-black">TEC ${player.Technique}</text>
+                <text x="110" y="370" class="font-bold text-xl text-black">INT ${player.Intelligence}</text>
+            </svg>
+        </div>`;
+    }
+    function renderRow(playerArray) {
+        return `<div class="flex justify-center gap-2 sm:gap-4 z-10">
+                    ${playerArray.map(generatePlayerCard).join('')}
+                </div>`;
+    }
+    container.innerHTML += renderRow(fwPlayers);
+    container.innerHTML += renderRow(mfPlayers);
+    container.innerHTML += renderRow(dfPlayers);
+    container.innerHTML += renderRow(gkPlayers);
+
+    // Bench -- players at index 11-18
+    const benchPlayers = players.slice(11, 19);
+    const benchWrapper = document.getElementById('bench-wrapper');
+    if (benchPlayers.length > 0 && benchWrapper) {
+        benchWrapper.style.display = '';
+        const benchSection = document.getElementById('bench-section');
+        benchSection.innerHTML = benchPlayers.map(generatePlayerCard).join('');
+    }
+
+    // Manager -- players at index 19+
+    const managerPlayers = players.slice(19);
+    const managerWrapper = document.getElementById('manager-wrapper');
+    if (managerPlayers.length > 0 && managerWrapper) {
+        managerWrapper.style.display = '';
+        const managerSection = document.getElementById('manager-section');
+        managerSection.innerHTML = managerPlayers.map(generatePlayerCard).join('');
+    }
+});
+
+function confirmDelete(draftId) {
+    if (confirm('¿Seguro que quieres eliminar este draft?')) {
+        fetch(`/draft/${draftId}/delete/`, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': getCookie('csrftoken') }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.ok) {
+                window.location.href = "{% url 'my_drafts' %}";
+            } else {
+                alert('Error al eliminar el draft');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error de conexión');
+        });
+    }
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+</script>
+{% endblock %}

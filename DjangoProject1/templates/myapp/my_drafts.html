@@ -9,6 +9,7 @@
         <linearGradient id="cat2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#f5f5f5"/><stop offset="100%" stop-color="#c0c0c0"/></linearGradient>
         <linearGradient id="cat3" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#fff7b0"/><stop offset="50%" stop-color="#ffd700"/><stop offset="100%" stop-color="#b8860b"/></linearGradient>
         <linearGradient id="cat4" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#00ffff"/><stop offset="50%" stop-color="#008cff"/><stop offset="100%" stop-color="#00ffff"/></linearGradient>
+        <linearGradient id="cat-manager" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#064e3b"/><stop offset="100%" stop-color="#10b981"/></linearGradient>
         <filter id="glow"><feGaussianBlur stdDeviation="3" result="blur"/><feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
     </defs>
 </svg>
@@ -23,35 +24,44 @@
             </a>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 justify-items-center">
             {% for draft in drafts %}
-            <div class="bg-[#002b36] rounded-[3rem] p-8 shadow-2xl border border-white/5 relative overflow-hidden flex flex-col h-[750px]">
-                
-                <div class="flex justify-between items-center mb-6 relative z-10">
-                    <div>
-                        <h2 class="text-3xl font-black text-white uppercase italic tracking-tighter">{{ draft.name }}</h2>
-                        <span class="text-yellow-400 font-bold text-xs uppercase tracking-widest">{{ draft.date|date:"d M Y" }}</span>
-                    </div>
-                    <div class="text-right">
-                        <p class="text-white/40 text-[10px] font-black uppercase">Formation</p>
-                        <p class="text-2xl font-black text-yellow-400 italic">{{ draft.lineup.name }}</p>
-                    </div>
-                </div>
-
-                <div class="pitch-container flex-grow bg-[#003644] rounded-[2rem] border border-white/10 relative p-4 flex flex-col-reverse justify-around shadow-inner" 
-                     data-id="{{ draft.id }}" 
-                     data-formation="{{ draft.lineup.name }}">
+            <div class="relative group cursor-pointer w-full" onclick="window.location='{% url 'draft_detail' draft.id %}'">
+                <div class="bg-[#002b36] rounded-[3rem] p-8 shadow-2xl border border-white/5 relative overflow-hidden flex flex-col h-[750px]">
                     
-                    <div class="absolute inset-x-0 top-1/2 h-[1px] bg-white/5"></div>
-                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 border border-white/5 rounded-full"></div>
+                    <!-- Delete Button -->
+                    <button onclick="event.stopPropagation(); confirmDelete('{{ draft.id }}')" class="absolute top-6 right-24 z-30 text-white/30 hover:text-red-500 transition-colors p-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </button>
+
+                    <div class="flex justify-between items-center mb-6 relative z-10">
+                        <div>
+                            <h2 class="text-3xl font-black text-white uppercase italic tracking-tighter">{{ draft.name }}</h2>
+                            <span class="text-yellow-400 font-bold text-xs uppercase tracking-widest">{{ draft.date|date:"d M Y" }}</span>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-white/40 text-[10px] font-black uppercase">Formation</p>
+                            <p class="text-2xl font-black text-yellow-400 italic">{{ draft.lineup.name }}</p>
+                        </div>
+                    </div>
+
+                    <div class="pitch-container flex-grow bg-[#003644] rounded-[2rem] border border-white/10 relative p-4 flex flex-col-reverse justify-around shadow-inner" 
+                         data-id="{{ draft.id }}" 
+                         data-formation="{{ draft.lineup.name }}">
+                        
+                        <div class="absolute inset-x-0 top-1/2 h-[1px] bg-white/5"></div>
+                        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-24 h-24 border border-white/5 rounded-full"></div>
+                    </div>
+
+                    <script type="application/json" id="draft-data-{{ draft.id }}">
+                        {{ draft.js_data|safe }}
+                    </script>
                 </div>
-
-                <script type="application/json" id="draft-data-{{ draft.id }}">
-                    {{ draft.js_data|safe }}
-                </script>
-
             </div>
             {% empty %}
+
             <div class="col-span-full text-center py-24 bg-white rounded-[3rem] border-2 border-dashed border-gray-200">
                 <p class="text-3xl text-gray-300 font-black italic uppercase tracking-widest">No drafts found</p>
                 <a href="{% url 'game' %}">{% include 'components/button.html' with text="START A NEW DRAFT" %}</a>
@@ -69,37 +79,40 @@ document.addEventListener('DOMContentLoaded', function() {
         const draftId = container.dataset.id;
         const formation = container.dataset.formation; 
         
-        // Leemos el JSON de los jugadores inyectado por Django
+        // Read player JSON injected by Django
         const rawData = document.getElementById(`draft-data-${draftId}`).textContent;
         const players = JSON.parse(rawData);
 
-        // Desglosamos la formación (Ej: "4-3-3")
+        // Parse formation (e.g., "4-3-3")
         const parts = formation.split('-');
         const defCount = parseInt(parts[0]);
         const midCount = parseInt(parts[1]);
         const attCount = parseInt(parts[2]);
 
-        // Aseguramos tener 11 jugadores
-        if (players.length !== 11) return;
+        // Ensure we have 11 players
+        if (players.length < 11) return;
+        const starters = players.slice(0, 11);
 
-        // Troceamos el array en filas
+        // Slice array into rows
         const fwPlayers = players.slice(0, attCount);
         const mfPlayers = players.slice(attCount, attCount + midCount);
         const dfPlayers = players.slice(attCount + midCount, 10);
         const gkPlayers = players.slice(10, 11);
 
-        // LÓGICA EXACTA DE GAME.HTML
+        // Exact same logic as game.html
         function generatePlayerCard(player) {
             let cat = 1;
             if (player.Total >= 961) cat = 4;
             else if (player.Total >= 946) cat = 3;
             else if (player.Total >= 931) cat = 2;
 
-            const fill = `url(#cat${cat})`;
+            const fill = player.Role === 'Manager'
+                ? `url(#cat-manager)`
+                : `url(#cat${cat})`;
             const filter = cat === 4 ? 'filter="url(#glow)"' : '';
             const pulseClass = cat === 4 ? 'animate-pulse' : '';
             
-            // Fórmula matemática exacta del juego
+            // Exact rating formula from the game
             const rating = Math.trunc(((player.Total - 925) / (970 - 925)) * (99 - 50) + 50);
             
             const displayName = player.Nickname || player.Name;
@@ -141,13 +154,52 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>`;
         }
 
-        // Insertamos en orden Inverso porque usamos flex-col-reverse
-        // Así el GK queda arriba de todo.
+        // Insert in reverse order because we use flex-col-reverse
+        // This keeps GK at the top
         container.innerHTML += renderRow(fwPlayers);
         container.innerHTML += renderRow(mfPlayers);
         container.innerHTML += renderRow(dfPlayers);
         container.innerHTML += renderRow(gkPlayers);
     });
 });
+
+function confirmDelete(draftId) {
+    if (confirm('¿Estás seguro de que quieres eliminar este draft?')) {
+        fetch(`/draft/${draftId}/delete/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.ok) {
+                location.reload();
+            } else {
+                alert('Error al eliminar el draft');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error de conexión');
+        });
+    }
+}
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
 </script>
+
 {% endblock %}

@@ -1,18 +1,17 @@
 from django.http import JsonResponse
 from django.db.models import Q, Count
 from django.core.paginator import Paginator
-from django.shortcuts import render, redirect
-from django.contrib.auth import login
-from django.contrib.auth.forms import AuthenticationForm
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth import login, logout, update_session_auth_hash
+from django.contrib.auth.forms import AuthenticationForm,PasswordChangeForm
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
-from .forms import UserRegisterForm
 from .models import Profile, Lineup, Futdraft, Players, Teams
 import random
 import json
 import traceback
-
+from .forms import UserUpdateForm, ProfileUpdateForm, UserRegisterForm
 
 # ---------------------------------------------------------------------------
 # Helpers
@@ -31,10 +30,6 @@ def safe_int(val, default=0):
 
 def index(request):
     return render(request, "base.html")
-
-
-def home(request):
-    return render(request, "myapp/home.html")
 
 
 # ---------------------------------------------------------------------------
@@ -131,27 +126,40 @@ def team_detail(request, team_name):
 
 def get_random_players(request):
     position = request.GET.get("position", "")
+    role = request.GET.get("role", "")
+    excluded_names_raw = request.GET.get('excluded_names', '')
+    names_list = [n.strip() for n in excluded_names_raw.split(',') if n.strip()] if excluded_names_raw else []
 
     ranges = {
         1: (925, 930),
         2: (931, 945),
         3: (946, 960),
-        4: (961, 999),
+        4: (961, 998),
+        5: (999, 1000)
     }
 
-    categories = list(range(1, 5))
+    categories = list(range(1, 6))
     random.shuffle(categories)
 
-    qs         = []
+    qs = []
     interval_n = 1
 
     for cat in categories:
         min_avg, max_avg = ranges[cat]
         candidates = Players.objects.filter(
-            position=position,
             total__gte=min_avg,
             total__lte=max_avg,
-        ).select_related('team')
+        )
+        if position:
+            candidates = candidates.filter(position=position)
+        if role:
+            candidates = candidates.filter(role=role)
+        else:
+            candidates = candidates.exclude(role='Manager')
+        candidates = candidates.select_related('team')
+
+        if names_list:
+            candidates = candidates.exclude(name__in=names_list)
         count = candidates.count()
         if count >= 5:
             interval_n = cat
@@ -181,12 +189,43 @@ def get_random_players(request):
             "Intelligence": p.intelligence,
             "Pressure":     p.pressure,
             "Category":     interval_n,
+            "Role": p.role,
         }
         for p in qs
     ]
 
     return JsonResponse(random_players, safe=False)
 
+
+
+def get_players_by_ids(request):
+    ids = request.GET.get('ids', '').split(',')
+    ids = [int(i) for i in ids if i.isdigit()]
+    players = Players.objects.filter(id__in=ids).select_related('team')
+
+    player_data = []
+    for p in players:
+        player_data.append({
+            "ID": p.id,
+            "Name": p.name,
+            "Nickname": p.nickname,
+            "Position": p.position,
+            "Image": p.image,
+            "Element": p.element,
+            "Team": p.team.name if p.team else "",
+            "Team_image": p.team.image if p.team else "",
+            "Total": p.total,
+            "Power": p.power,
+            "Control": p.control,
+            "Technique": p.technique,
+            "Physical": p.physical,
+            "Agility": p.agility,
+            "Intelligence": p.intelligence,
+            "Pressure": p.pressure,
+            "Category": 1,
+            "Role": p.role,
+        })
+    return JsonResponse(player_data, safe=False)
 
 @login_required(login_url='login')
 def game_view(request):
@@ -202,31 +241,46 @@ def game_view(request):
 def save_draft(request):
     try:
         data           = json.loads(request.body)
-        name           = data.get('name', 'El meu equip')
+        draft_id       = data.get('draft_id')
+        name           = data.get('name', 'El meu equip').strip()
+
+        if not name:
+            return JsonResponse({
+                'ok': False,
+                'error': 'El nom del draft no pot estar buit.'
+            }, status=400)
+
         formation_name = data.get('formation', '4-3-3')
-        player_ids     = data.get('players', [])
+        player_ids     = [int(pid) for pid in data.get('players', []) if str(pid).isdigit()]
 
         saved_players = list(Players.objects.filter(id__in=player_ids))
 
-        parts = formation_name.split('-')
-        lineup, _ = Lineup.objects.get_or_create(
-            name=formation_name,
-            defaults={
-                'image':       'https://placeholder.com/1x1.png',
-                'forwards':    int(parts[2]),
-                'midfielders': int(parts[1]),
-                'defenders':   int(parts[0]),
-                'goalKeeper':  1,
-            }
-        )
+        if draft_id:
+            draft =get_object_or_404(Futdraft, id=draft_id, user=request.user)
+            draft.name = name
+            draft.player_order = player_ids
+            draft.save()
+            draft.players.set(saved_players)
+        else :
+            parts = formation_name.split('-')
+            lineup, _ = Lineup.objects.get_or_create(
+                name=formation_name,
+                defaults={
+                    'image':       'https://placeholder.com/1x1.png',
+                    'forwards':    int(parts[2]),
+                    'midfielders': int(parts[1]),
+                    'defenders':   int(parts[0]),
+                    'goalKeeper':  1,
+                }
+            )
 
-        draft = Futdraft.objects.create(
-            name=name,
-            user=request.user,
-            lineup=lineup,
-            player_order=player_ids,
-        )
-        draft.players.set(saved_players)
+            draft = Futdraft.objects.create(
+                name=name,
+                user=request.user,
+                lineup=lineup,
+                player_order=player_ids,
+            )
+            draft.players.set(saved_players)
 
         return JsonResponse({'ok': True, 'id': draft.id})
 
@@ -267,11 +321,67 @@ def my_drafts(request):
             "Agility":      p.agility,
             "Intelligence": p.intelligence,
             "Pressure":     p.pressure,
+            "Role":         p.role,
             }
             for p in ordered_list
         ])
 
     return render(request, 'myapp/my_drafts.html', {'drafts': user_drafts})
+
+@login_required(login_url='login')
+def draft_detail(request, draft_id):
+    # Fetch draft ensuring ownership
+    draft = get_object_or_404(Futdraft, id=draft_id, user=request.user)
+
+    # Prefetch players and teams for optimization
+    draft = Futdraft.objects.prefetch_related('players__team', 'lineup').get(id=draft_id)
+    # Replicate sorting and data prep logic for frontend
+    player_dict = {str(p.id): p for p in draft.players.all()}
+    ordered_list = (
+        [player_dict[str(pid)] for pid in draft.player_order if str(pid) in player_dict]
+        if draft.player_order
+        else list(draft.players.all())
+    )
+    # Inject data into draft object for template access
+    draft.js_data = json.dumps([{
+        "ID":           p.id,
+        "Name":         p.name,
+        "Nickname":     p.nickname,
+        "Position":     p.position,
+        "Image":        p.image,
+        "Element":      p.element,
+        "Team":         p.team.name if p.team else "",
+        "Team_image":   p.team.image if p.team else "",
+        "Total":        p.total,
+        "Power":        p.power,
+        "Control":      p.control,
+        "Technique":    p.technique,
+        "Physical":     p.physical,
+        "Agility":      p.agility,
+        "Intelligence": p.intelligence,
+        "Pressure":     p.pressure,
+        "Role":         p.role,
+        }
+        for p in ordered_list
+    ])
+
+    return render(request, 'myapp/draft_detail.html', {'draft': draft})
+
+@login_required(login_url='login')
+def edit_draft(request, draft_id):
+    draft = get_object_or_404(Futdraft, id=draft_id, user=request.user)
+    return render(request, "myapp/game.html", {
+        'draft': draft,
+        'edit_mode': True,
+        'player_order_json': json.dumps(draft.player_order or []),
+    })
+
+@login_required(login_url='login')
+@require_POST
+def delete_draft(request, draft_id):
+    draft = get_object_or_404(Futdraft, id=draft_id, user=request.user)
+    draft.delete()
+    return JsonResponse({'ok': True})
 
 
 # ---------------------------------------------------------------------------
@@ -304,3 +414,87 @@ def login_view(request):
     else:
         form = AuthenticationForm()
     return render(request, "myapp/login.html", {"login_form": form})
+
+@login_required
+def profile_view(request):
+    # Ensure user has a profile
+    try:
+        profile = request.user.profile
+    except Profile.DoesNotExist:
+        profile = Profile.objects.create(user=request.user)
+
+    if request.method == 'POST':
+        # If personal data form was submitted
+        if 'update_profile' in request.POST:
+            u_form = UserUpdateForm(request.POST, instance=request.user)
+            p_form = ProfileUpdateForm(request.POST, request.FILES, instance=profile)
+
+            if u_form.is_valid() and p_form.is_valid():
+                u_form.save()
+                p_form.save()
+                messages.success(request, 'El teu perfil ha estat actualitzat!')
+                return redirect('profile')
+            else:
+                # Show specific errors
+                for field, errors in u_form.errors.items():
+                    for error in errors:
+                        messages.error(request, f'{field}: {error}')
+                for field, errors in p_form.errors.items():
+                    for error in errors:
+                        messages.error(request, f'{field}: {error}')
+
+        # If password form was submitted
+        elif 'change_password' in request.POST:
+            pass_form = PasswordChangeForm(request.user, request.POST)
+
+            if pass_form.is_valid():
+                user = pass_form.save()
+                update_session_auth_hash(request, user)
+                messages.success(request, 'Contrasenya canviada correctament!')
+                return redirect('profile')
+            else:
+                for error in pass_form.errors.values():
+                    messages.error(request, error)
+
+        # Recreate forms to display errors
+        u_form = UserUpdateForm(instance=request.user)
+        p_form = ProfileUpdateForm(instance=profile)
+        pass_form = PasswordChangeForm(request.user)
+    else:
+        u_form = UserUpdateForm(instance=request.user)
+        p_form = ProfileUpdateForm(instance=profile)
+        pass_form = PasswordChangeForm(request.user)
+
+    return render(request, 'myapp/profile.html', {
+        'u_form': u_form,
+        'p_form': p_form,
+        'pass_form': pass_form
+    })
+
+@login_required
+def delete_account(request):
+    if request.method == 'POST':
+        user = request.user
+        logout(request)  # Logout before deleting account
+        user.delete()
+        messages.success(request, "El teu compte ha estat eliminat correctament. Esperem tornar-te a veure!")
+        return redirect('home')
+
+    return redirect('profile') # Redirect to profile on GET access
+
+
+def logout_view(request):
+    logout(request)
+    messages.info(request, "Has tancat la sessió. Fins aviat, capità!")
+    return redirect('login')
+
+
+def home(request):
+
+    top_fw = Players.objects.filter(name="Axel Blaze").select_related('team').order_by('-total').first()
+    top_gk = Players.objects.filter(position='GK').select_related('team').order_by('-total').first()
+
+    return render(request, "myapp/home.html", {
+        'top_fw': top_fw,
+        'top_gk': top_gk
+    })
