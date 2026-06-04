@@ -1,6 +1,30 @@
 {% extends 'base.html' %}
 
 {% block body %}
+<nav vocab="https://schema.org/" typeof="BreadcrumbList" class="hidden">
+    <meta property="name" content="Player detail breadcrumb">
+
+    <span property="itemListElement" typeof="ListItem">
+        <a property="item" typeof="WebPage" href="{{ request.scheme }}://{{ request.get_host }}{% url 'home' %}">
+            <span property="name">Home</span>
+        </a>
+        <meta property="position" content="1">
+    </span>
+
+    <span property="itemListElement" typeof="ListItem">
+        <a property="item" typeof="WebPage" href="{{ request.scheme }}://{{ request.get_host }}{% url 'players_list' %}">
+            <span property="name">Players</span>
+        </a>
+        <meta property="position" content="2">
+    </span>
+
+    <span property="itemListElement" typeof="ListItem">
+        <a property="item" typeof="WebPage" href="{{ request.build_absolute_uri }}">
+            <span property="name">{{ p.name }}</span>
+        </a>
+        <meta property="position" content="3">
+    </span>
+</nav>
 <div class="pt-32 pb-12 bg-gray-50 min-h-screen">
     <div class="max-w-5xl mx-auto px-6">
 
